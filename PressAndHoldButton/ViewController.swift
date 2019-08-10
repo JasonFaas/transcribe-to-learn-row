@@ -11,14 +11,21 @@ import Speech
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var toPronounce: UILabel!
     @IBOutlet weak var primaryLabel: UILabel!
     @IBOutlet weak var buttonTextUpdate: UIButton!
+    
+    var firstString: String = "你好"
+    var secondString: String = "美国人"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
         //setup Recorder
         self.setupView()
+        
+        
     }
     @IBAction func releaseOutside(_ sender: Any) {
         primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Out"
@@ -33,6 +40,9 @@ class ViewController: UIViewController {
     }
     
     func released() {
+        
+        self.buttonTextUpdate.isEnabled = false
+        
         primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Stop."
         
         finishRecording(success: true)
@@ -142,15 +152,18 @@ class ViewController: UIViewController {
     
     fileprivate func transcribeFile(url: URL) {
         
+        
         // 1
         //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
         guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN")) else {
             print("Speech recognition not available for specified locale")
+            self.buttonTextUpdate.isEnabled = true
             return
         }
         
         if !recognizer.isAvailable {
             print("Speech recognition not currently available")
+            self.buttonTextUpdate.isEnabled = true
             return
         }
         
@@ -163,16 +176,34 @@ class ViewController: UIViewController {
             [unowned self] (result, error) in
             guard let result = result else {
                 print("There was an error transcribing that file")
+                self.buttonTextUpdate.isEnabled = true
                 return
             }
             
             // 4
             if result.isFinal {
+                var transcribed = result.bestTranscription.formattedString
+                self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \(transcribed)."
                 
-                self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \(result.bestTranscription.formattedString)."
+                print("What")
+                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
+                print(transcribed)
                 
+                if transcribed == self.toPronounce.text {
+                    self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) Great Pronunciation."
+                    if transcribed == self.firstString {
+                        self.toPronounce.text = self.secondString
+                    } else {
+                        self.toPronounce.text = self.firstString
+                    }
+                }
             }
+            
+            
+            self.buttonTextUpdate.isEnabled = true
         }
+//
+        
     }
 
 

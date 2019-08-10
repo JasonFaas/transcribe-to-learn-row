@@ -64,6 +64,7 @@
                     <connections>
                         <outlet property="buttonTextUpdate" destination="NNC-y7-mfd" id="rr1-j5-r4B"/>
                         <outlet property="primaryLabel" destination="Uzg-Ld-blB" id="sRP-5K-gbI"/>
+                        <outlet property="toPronounce" destination="5ph-Ed-wgR" id="yDR-o8-4wi"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
