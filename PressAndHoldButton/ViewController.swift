@@ -41,6 +41,22 @@ class ViewController: UIViewController {
                                             pinyinChar: "měiguó rén",
                                             englishChar: "meiguo ren",
                                             englishTranslation: "American Person"),
+                            TranslationInfo(simplifiedChar: "没问题",
+                                            pinyinChar: "méi wèn tí",
+                                            englishChar: "mei wen ti",
+                                            englishTranslation: "No problem"),
+                            TranslationInfo(simplifiedChar: "很高兴认识你",
+                                            pinyinChar: "",
+                                            englishChar: "hengaoxingrenshini",
+                                            englishTranslation: "Nice to meet you"),
+                            TranslationInfo(simplifiedChar: "生日快乐",
+                                            pinyinChar: "",
+                                            englishChar: "shengrikuaile",
+                                            englishTranslation: "Happy Birthday"),
+                            TranslationInfo(simplifiedChar: "我对海鲜过敏",
+                                            pinyinChar: "",
+                                            englishChar: "Wǒ duì hǎixiān guòmǐn",
+                                            englishTranslation: "I am allergic to seafood"),
                             ]
     var translationValue = 0
     
@@ -51,6 +67,7 @@ class ViewController: UIViewController {
         //setup Recorder
         self.setupView()
         
+        self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
         self.toPronounce.text = fullTranslations[translationValue].simplifiedChar
     }
     @IBAction func releaseOutside(_ sender: Any) {
@@ -212,6 +229,7 @@ class ViewController: UIViewController {
                 self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \(transcribed)."
                 
                 transcribed = transcribed.replacingOccurrences(of: "。", with: "")
+                transcribed = transcribed.replacingOccurrences(of: "！", with: "")
                 
                 if transcribed == self.toPronounce.text {
                     self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) Great Pronunciation."
