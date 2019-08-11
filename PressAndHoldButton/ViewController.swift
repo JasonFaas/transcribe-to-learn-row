@@ -15,8 +15,34 @@ class ViewController: UIViewController {
     @IBOutlet weak var primaryLabel: UILabel!
     @IBOutlet weak var buttonTextUpdate: UIButton!
     
-    var firstString: String = "你好"
-    var secondString: String = "美国人"
+    
+    class TranslationInfo {
+        let simplifiedChar:String
+        let pinyinChar:String
+        let englishChar:String
+        let englishTranslation:String
+        
+        init(simplifiedChar: String,
+            pinyinChar: String,
+            englishChar: String,
+            englishTranslation: String) {
+            self.simplifiedChar = simplifiedChar
+            self.pinyinChar = pinyinChar
+            self.englishChar = englishChar
+            self.englishTranslation = englishTranslation
+        }
+    }
+    
+    let fullTranslations = [TranslationInfo(simplifiedChar: "你好",
+                                            pinyinChar: "nǐ hǎo",
+                                            englishChar: "ni hao",
+                                            englishTranslation: "Hello"),
+                            TranslationInfo(simplifiedChar: "美国人",
+                                            pinyinChar: "měiguó rén",
+                                            englishChar: "meiguo ren",
+                                            englishTranslation: "American Person"),
+                            ]
+    var translationValue = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +51,7 @@ class ViewController: UIViewController {
         //setup Recorder
         self.setupView()
         
-        
+        self.toPronounce.text = fullTranslations[translationValue].simplifiedChar
     }
     @IBAction func releaseOutside(_ sender: Any) {
         primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Out"
@@ -185,17 +211,14 @@ class ViewController: UIViewController {
                 var transcribed = result.bestTranscription.formattedString
                 self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \(transcribed)."
                 
-                print("What")
                 transcribed = transcribed.replacingOccurrences(of: "。", with: "")
-                print(transcribed)
                 
                 if transcribed == self.toPronounce.text {
                     self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) Great Pronunciation."
-                    if transcribed == self.firstString {
-                        self.toPronounce.text = self.secondString
-                    } else {
-                        self.toPronounce.text = self.firstString
-                    }
+                    
+                    self.translationValue += 1
+                    self.toPronounce.text = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+                    
                 }
             }
             
