@@ -19,17 +19,60 @@ class ViewController: UIViewController {
     
     let fullTranslations:Array<TranslationInfo> = TranslationInfo().getAllTranslations()
     var translationValue = 0
+    var paragraphValue = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if !unitTests() {
+            exit(0)
+        }
         // Do any additional setup after loading the view.
         
         //setup Recorder
         self.setupView()
         
-        self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
-        self.toPronounce.text = fullTranslations[translationValue].simplifiedChar
+//        self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
+        self.translationValue = 7
+        self.toPronounce.text = getToPronounce()
     }
+    
+    func getToPronounce() -> String {
+        
+        var nextParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+        var pinyinStr = self.fullTranslations[self.translationValue % self.fullTranslations.count].pinyinChar
+        if !nextParagraph.contains("。") {
+            return String("\(nextParagraph)\n\(pinyinStr)")
+        } else {
+            var sentences:[Substring] = nextParagraph.split(separator: "。")
+            var pinyinSentences:[Substring] = pinyinStr.split(separator: ".")
+            var sentence = removeExtraFromString(String(sentences[self.paragraphValue]))
+            var pinyin = removeExtraFromString(String(pinyinSentences[self.paragraphValue]))
+            
+            return String("\(sentence)\n\(pinyin)")
+        }
+    }
+    
+    func removeExtraFromString(_ str: String) -> String {
+        var retStr = str.replacingOccurrences(of: ".", with: "")
+        retStr = retStr.replacingOccurrences(of: "。", with: "")
+        retStr = retStr.replacingOccurrences(of: ",", with: "")
+        retStr = retStr.replacingOccurrences(of: "，", with: "")
+        
+        return retStr
+    }
+    
+    func unitTests() -> Bool {
+        
+        print(fullTranslations.count)
+        assert(fullTranslations[7].simplifiedChar.contains("。"))
+        print(fullTranslations[7].simplifiedChar.split(separator: "。")[3])
+        assert(fullTranslations[7].simplifiedChar.split(separator: "。").count == 4)
+        
+        
+        return true
+    }
+    
     @IBAction func releaseOutside(_ sender: Any) {
         released()
     }
@@ -180,18 +223,32 @@ class ViewController: UIViewController {
             // 4
             if result.isFinal {
                 var transcribed = result.bestTranscription.formattedString
-                self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \(transcribed)."
                 
                 transcribed = transcribed.replacingOccurrences(of: "。", with: "")
                 transcribed = transcribed.replacingOccurrences(of: "！", with: "")
                 
                 if transcribed == self.toPronounce.text {
-                    self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) Great Pronunciation."
+                    self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
                     
-                    self.translationValue += 1
-                    self.toPronounce.text = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+                    var currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
                     
+                    if !currentParagraph.contains("。") {
+                        self.translationValue += 1
+                    } else {
+                        var sentences:[Substring] = currentParagraph.split(separator: "。")
+                        self.paragraphValue += 1
+                        if sentences.count == self.paragraphValue {
+                            self.translationValue += 1
+                            self.paragraphValue = 0
+                        }
+                    }
+                    
+                    self.toPronounce.text = self.getToPronounce()
+                    
+                } else {
+                    self.primaryLabel.text = "Try again:\n\(transcribed)"
                 }
+                
             }
         }
 //
