@@ -9,55 +9,15 @@
 import UIKit
 import Speech
 
+import PressAndHoldButton
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var toPronounce: UILabel!
     @IBOutlet weak var primaryLabel: UILabel!
     @IBOutlet weak var buttonTextUpdate: UIButton!
     
-    
-    class TranslationInfo {
-        let simplifiedChar:String
-        let pinyinChar:String
-        let englishChar:String
-        let englishTranslation:String
-        
-        init(simplifiedChar: String,
-            pinyinChar: String,
-            englishChar: String,
-            englishTranslation: String) {
-            self.simplifiedChar = simplifiedChar
-            self.pinyinChar = pinyinChar
-            self.englishChar = englishChar
-            self.englishTranslation = englishTranslation
-        }
-    }
-    
-    let fullTranslations = [TranslationInfo(simplifiedChar: "你好",
-                                            pinyinChar: "nǐ hǎo",
-                                            englishChar: "ni hao",
-                                            englishTranslation: "Hello"),
-                            TranslationInfo(simplifiedChar: "美国人",
-                                            pinyinChar: "měiguó rén",
-                                            englishChar: "meiguo ren",
-                                            englishTranslation: "American Person"),
-                            TranslationInfo(simplifiedChar: "没问题",
-                                            pinyinChar: "méi wèn tí",
-                                            englishChar: "mei wen ti",
-                                            englishTranslation: "No problem"),
-                            TranslationInfo(simplifiedChar: "很高兴认识你",
-                                            pinyinChar: "",
-                                            englishChar: "hengaoxingrenshini",
-                                            englishTranslation: "Nice to meet you"),
-                            TranslationInfo(simplifiedChar: "生日快乐",
-                                            pinyinChar: "",
-                                            englishChar: "shengrikuaile",
-                                            englishTranslation: "Happy Birthday"),
-                            TranslationInfo(simplifiedChar: "我对海鲜过敏",
-                                            pinyinChar: "",
-                                            englishChar: "Wǒ duì hǎixiān guòmǐn",
-                                            englishTranslation: "I am allergic to seafood"),
-                            ]
+    let fullTranslations:Array<TranslationInfo> = TranslationInfo().getAllTranslations()
     var translationValue = 0
     
     override func viewDidLoad() {
@@ -71,34 +31,31 @@ class ViewController: UIViewController {
         self.toPronounce.text = fullTranslations[translationValue].simplifiedChar
     }
     @IBAction func releaseOutside(_ sender: Any) {
-        primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Out"
-        
         released()
     }
     
     @IBAction func pressAndHoldBbutton(_ sender: UIButton) {
-        primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) In"
-        
         released()
     }
     
     func released() {
-        
         self.buttonTextUpdate.isEnabled = false
         
-        primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Stop."
+        primaryLabel.text = "\(String(primaryLabel.text ?? "hello"))\nProcessing..."
         
         finishRecording(success: true)
         
-        
-        
-        preparePlayer()
-        audioPlayer.play()
-        transcribeFile(url: getFileURL() as URL)
-        
+        do {
+            try preparePlayer()
+            audioPlayer.play()
+            transcribeFile(url: getFileURL() as URL)
+        } catch {
+            
+        }
+        self.buttonTextUpdate.isEnabled = true
     }
     
-    func preparePlayer() {
+    func preparePlayer() throws {
         var error: NSError?
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: getFileURL() as URL)
@@ -114,14 +71,18 @@ class ViewController: UIViewController {
             audioPlayer.prepareToPlay()
             audioPlayer.volume = 10.0
             
-            primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) duration: \(Int(audioPlayer.duration)) seconds."
+            let maxTime:Int = 20
+            if Int(audioPlayer.duration) > maxTime {
+                primaryLabel.text = "\(String(primaryLabel.text ?? "hello"))\nDuration longer than \(maxTime) seconds cannot be transcribed (\(Int(audioPlayer.duration)))..."
+                throw TranscribtionError.durationTooLong(duration: Int(audioPlayer.duration))
+            }
             
         }
     }
 
     
     @IBAction func release(_ sender: Any) {
-        primaryLabel.text = "Start."
+        primaryLabel.text = "Listening..."
         
         startRecording()
     }
@@ -186,27 +147,21 @@ class ViewController: UIViewController {
     func finishRecording(success: Bool) {
         audioRecorder.stop()
         audioRecorder = nil
-        if success {
-            primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Actually recorded."
-        } else {
+        if !success {
             primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Did not record."
         }
     }
     
     fileprivate func transcribeFile(url: URL) {
-        
-        
         // 1
         //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
         guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN")) else {
             print("Speech recognition not available for specified locale")
-            self.buttonTextUpdate.isEnabled = true
             return
         }
         
         if !recognizer.isAvailable {
             print("Speech recognition not currently available")
-            self.buttonTextUpdate.isEnabled = true
             return
         }
         
@@ -219,7 +174,6 @@ class ViewController: UIViewController {
             [unowned self] (result, error) in
             guard let result = result else {
                 print("There was an error transcribing that file")
-                self.buttonTextUpdate.isEnabled = true
                 return
             }
             
@@ -239,9 +193,6 @@ class ViewController: UIViewController {
                     
                 }
             }
-            
-            
-            self.buttonTextUpdate.isEnabled = true
         }
 //
         
