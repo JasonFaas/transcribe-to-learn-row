@@ -20,6 +20,8 @@ class ViewController: UIViewController {
     let fullTranslations:Array<TranslationInfo> = TranslationInfo().getAllTranslations()
     var translationValue = 0
     var paragraphValue = 0
+    var toPronounceCharacters = ""
+    var pronouncedSoFar = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,8 +42,10 @@ class ViewController: UIViewController {
     func getToPronounce() -> String {
         
         var nextParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+        
         var pinyinStr = self.fullTranslations[self.translationValue % self.fullTranslations.count].pinyinChar
         if !nextParagraph.contains("。") {
+            self.toPronounceCharacters = nextParagraph
             return String("\(nextParagraph)\n\(pinyinStr)")
         } else {
             var sentences:[Substring] = nextParagraph.split(separator: "。")
@@ -49,15 +53,20 @@ class ViewController: UIViewController {
             var sentence = removeExtraFromString(String(sentences[self.paragraphValue]))
             var pinyin = removeExtraFromString(String(pinyinSentences[self.paragraphValue]))
             
+            self.toPronounceCharacters = sentence
             return String("\(sentence)\n\(pinyin)")
         }
     }
     
-    func removeExtraFromString(_ str: String) -> String {
-        var retStr = str.replacingOccurrences(of: ".", with: "")
-        retStr = retStr.replacingOccurrences(of: "。", with: "")
-        retStr = retStr.replacingOccurrences(of: ",", with: "")
-        retStr = retStr.replacingOccurrences(of: "，", with: "")
+    func removeExtraNewlineForComparrison(_ str: String) -> String {
+        var retStr = str.replacingOccurrences(of: "\n", with: "")
+        return retStr
+    }
+        func removeExtraFromString(_ str: String) -> String {
+            var retStr = str.replacingOccurrences(of: ".", with: "\n")
+        retStr = retStr.replacingOccurrences(of: "。", with: "\n")
+        retStr = retStr.replacingOccurrences(of: ",", with: "\n")
+        retStr = retStr.replacingOccurrences(of: "，", with: "\n")
         
         return retStr
     }
@@ -222,12 +231,14 @@ class ViewController: UIViewController {
             
             // 4
             if result.isFinal {
-                var transcribed = result.bestTranscription.formattedString
+                var transcribed:String = result.bestTranscription.formattedString
                 
                 transcribed = transcribed.replacingOccurrences(of: "。", with: "")
                 transcribed = transcribed.replacingOccurrences(of: "！", with: "")
+                transcribed = "\(self.pronouncedSoFar)\(transcribed)"
                 
-                if transcribed == self.toPronounce.text {
+                var compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
+                if transcribed == compareString {
                     self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
                     
                     var currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
@@ -245,8 +256,13 @@ class ViewController: UIViewController {
                     
                     self.toPronounce.text = self.getToPronounce()
                     
+                    self.pronouncedSoFar = ""
+                } else if compareString.contains(transcribed) {
+                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
+                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
                 } else {
                     self.primaryLabel.text = "Try again:\n\(transcribed)"
+                    self.pronouncedSoFar = ""
                 }
                 
             }
