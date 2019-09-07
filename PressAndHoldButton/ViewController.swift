@@ -18,13 +18,14 @@ class ViewController: UIViewController {
     @IBOutlet weak var buttonTextUpdate: UIButton!
     @IBOutlet weak var skipThis: UIButton!
     @IBOutlet weak var buttonPinyinToggle: UIButton!
+    @IBOutlet weak var toPronouncePinyin: UILabel!
     
     let fullTranslations:Array<TranslationInfo> = TranslationInfo().getAllTranslations()
     var translationValue = 0
     var paragraphValue = 0
     var toPronounceCharacters = ""
     var pronouncedSoFar = ""
-    var pinyinOn = true
+    var pinyinOn = false
     var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
                                             false: "True Off Pinyin", ]
     
@@ -41,17 +42,23 @@ class ViewController: UIViewController {
         
         self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
 //        self.translationValue = 7
-        self.toPronounce.text = getToPronounce()
+        
+        let (characters, pinyin) = self.getToPronounce()
+        self.toPronounce.text = characters
+        self.toPronouncePinyin.text = pinyin
+        
+        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
+        self.toPronouncePinyin.isHidden = !self.pinyinOn
     }
     
-    func getToPronounce() -> String {
+    func getToPronounce() -> (String, String) {
         
         let nextParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
         
         let pinyinStr = self.fullTranslations[self.translationValue % self.fullTranslations.count].pinyinChar
         if !nextParagraph.contains("。") {
             self.toPronounceCharacters = nextParagraph
-            return String("\(nextParagraph)\n\(pinyinStr)")
+            return (nextParagraph, pinyinStr)
         } else {
             var sentences:[Substring] = nextParagraph.split(separator: "。")
             var pinyinSentences:[Substring] = pinyinStr.split(separator: ".")
@@ -59,13 +66,14 @@ class ViewController: UIViewController {
             let pinyin = removeExtraFromString(String(pinyinSentences[self.paragraphValue]))
             
             self.toPronounceCharacters = sentence
-            return String("\(sentence)\n\(pinyin)")
+            return (sentence, pinyin)
         }
     }
     
     @IBAction func pinyinToggle(_ sender: Any) {
         self.pinyinOn = !self.pinyinOn
-        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[self.pinyinOn], for: .normal)
+        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
+        self.toPronouncePinyin.isHidden = !self.pinyinOn
     }
     
     func removeExtraNewlineForComparrison(_ str: String) -> String {
@@ -238,7 +246,9 @@ class ViewController: UIViewController {
             }
         }
         
-        self.toPronounce.text = self.getToPronounce()
+        let (characters, pinyin) = self.getToPronounce()
+        self.toPronounce.text = characters
+        self.toPronouncePinyin.text = pinyin
         
         self.pronouncedSoFar = ""
     }
@@ -279,6 +289,7 @@ class ViewController: UIViewController {
                 let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
                 if transcribed == compareString {
                     self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
+                    self.skipThis.isEnabled = false
                     
                     self.advanceToNextPhrase()
                 } else if compareString.contains(transcribed) {
