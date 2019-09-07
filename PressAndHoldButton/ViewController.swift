@@ -16,6 +16,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var toPronounce: UILabel!
     @IBOutlet weak var primaryLabel: UILabel!
     @IBOutlet weak var buttonTextUpdate: UIButton!
+    @IBOutlet weak var skipThis: UIButton!
     
     let fullTranslations:Array<TranslationInfo> = TranslationInfo().getAllTranslations()
     var translationValue = 0
@@ -34,8 +35,8 @@ class ViewController: UIViewController {
         //setup Recorder
         self.setupView()
         
-//        self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
-        self.translationValue = 7
+        self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
+//        self.translationValue = 7
         self.toPronounce.text = getToPronounce()
     }
     
@@ -81,6 +82,15 @@ class ViewController: UIViewController {
         
         return true
     }
+    
+    @IBAction func skipThisPress(_ sender: Any) {
+        self.skipThis.isEnabled = false
+        
+        self.primaryLabel.text = "I know you'll get it next time"
+        
+        self.advanceToNextPhrase()
+    }
+    
     
     @IBAction func releaseOutside(_ sender: Any) {
         released()
@@ -204,6 +214,26 @@ class ViewController: UIViewController {
         }
     }
     
+    func advanceToNextPhrase() {
+        
+        let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+        
+        if !currentParagraph.contains("。") {
+            self.translationValue += 1
+        } else {
+            let sentences:[Substring] = currentParagraph.split(separator: "。")
+            self.paragraphValue += 1
+            if sentences.count == self.paragraphValue {
+                self.translationValue += 1
+                self.paragraphValue = 0
+            }
+        }
+        
+        self.toPronounce.text = self.getToPronounce()
+        
+        self.pronouncedSoFar = ""
+    }
+    
     fileprivate func transcribeFile(url: URL) {
         // 1
         //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
@@ -237,32 +267,18 @@ class ViewController: UIViewController {
                 transcribed = transcribed.replacingOccurrences(of: "！", with: "")
                 transcribed = "\(self.pronouncedSoFar)\(transcribed)"
                 
-                var compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
+                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
                 if transcribed == compareString {
                     self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
                     
-                    var currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-                    
-                    if !currentParagraph.contains("。") {
-                        self.translationValue += 1
-                    } else {
-                        var sentences:[Substring] = currentParagraph.split(separator: "。")
-                        self.paragraphValue += 1
-                        if sentences.count == self.paragraphValue {
-                            self.translationValue += 1
-                            self.paragraphValue = 0
-                        }
-                    }
-                    
-                    self.toPronounce.text = self.getToPronounce()
-                    
-                    self.pronouncedSoFar = ""
+                    self.advanceToNextPhrase()
                 } else if compareString.contains(transcribed) {
                     self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
                         self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
                 } else {
                     self.primaryLabel.text = "Try again:\n\(transcribed)"
                     self.pronouncedSoFar = ""
+                    self.skipThis.isEnabled = true
                 }
                 
             }
