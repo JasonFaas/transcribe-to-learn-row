@@ -36,10 +36,8 @@ class ViewController: UIViewController {
     var database: Connection!
     
     // Example
-    let usersTable = Table("users")
+    let resultsTable = Table("Results")
     let id = Expression<Int>("id")
-    let name = Expression<String>("name")
-    let email = Expression<String>("email")
     
     let phrase = Expression<String>("phrase")
     let lastGrade = Expression<String>("lastGrade")
@@ -85,7 +83,7 @@ class ViewController: UIViewController {
                 in: .userDomainMask,
                 appropriateFor: nil,
                 create: true)
-            let fileUrl = documentDirecotry.appendingPathComponent("users").appendingPathExtension("sqlite3")
+            let fileUrl = documentDirecotry.appendingPathComponent("results").appendingPathExtension("sqlite3")
             
             self.database = try Connection(fileUrl.path)
             
@@ -98,19 +96,27 @@ class ViewController: UIViewController {
     
     func createDatabaseTable() {
         
-        let createTable = self.usersTable.create { (table) in
+        let createTable = self.resultsTable.create { (table) in
             table.column(self.id, primaryKey: true)
-            table.column(self.name)
-            table.column(self.email, unique: true)
+            table.column(self.lastGrade)
+            table.column(self.phrase, unique: true)
+            table.column(self.pinyinDisplayed)
+        }
+        
+        do {
+            print("Dropping Table")
+            try self.database.run(resultsTable.drop())
+        } catch {
+            print(error)
         }
         
         do {
             print("Creating Table")
-            try self.database.run(usersTable.drop())
             try self.database.run(createTable)
-            print("\nCreated Table")
+            print("Created Table")
         } catch {
-            print("\nDID NOT CREATE TABLE")
+            print("DID NOT CREATE TABLE")
+            print(error)
         }
     }
     
@@ -156,9 +162,11 @@ class ViewController: UIViewController {
     func unitTests() -> Bool {
         
         print(fullTranslations.count)
-        assert(fullTranslations[7].simplifiedChar.contains("。"))
-        print(fullTranslations[7].simplifiedChar.split(separator: "。")[3])
-        assert(fullTranslations[7].simplifiedChar.split(separator: "。").count == 4)
+        
+        // TODO: Reenable when all translations are back
+//        assert(fullTranslations[7].simplifiedChar.contains("。"))
+//        print(fullTranslations[7].simplifiedChar.split(separator: "。")[3])
+//        assert(fullTranslations[7].simplifiedChar.split(separator: "。").count == 4)
         
         
         return true
@@ -167,9 +175,8 @@ class ViewController: UIViewController {
     @IBAction func skipThisPress(_ sender: Any) {
         self.skipThis.isEnabled = false
         
+        self.advanceToNextPhrase(letterGrade: "F")
         self.primaryLabel.text = "I know you'll get it next time"
-        
-        self.advanceToNextPhrase()
     }
     
     
@@ -206,16 +213,38 @@ class ViewController: UIViewController {
         }
     }
     
-    func advanceToNextPhrase() {
+    func logResult(letterGrade: String) {
+        print("Logging:")
+        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+        
+        do {
+            let insertResult = self.resultsTable.insert(self.phrase <- currentHanzi,
+                                                        self.lastGrade <- letterGrade,
+                                                        self.pinyinDisplayed <- self.pinyinOn)
+            try self.database.run(insertResult)
+            
+            print("\t\(self.pinyinOn)")
+            print("\t\(currentHanzi)")
+            print("\t\(letterGrade)")
+        } catch {
+            print(error)
+        }
+    }
+    
+    func advanceToNextPhrase(letterGrade: String) {
         
         let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
         
         if !currentParagraph.contains("。") {
+            self.logResult(letterGrade: letterGrade)
+            
             self.translationValue += 1
         } else {
             let sentences:[Substring] = currentParagraph.split(separator: "。")
             self.paragraphValue += 1
             if sentences.count == self.paragraphValue {
+                self.logResult(letterGrade: letterGrade)
+                
                 self.translationValue += 1
                 self.paragraphValue = 0
             }
@@ -266,7 +295,7 @@ class ViewController: UIViewController {
                     self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
                     self.skipThis.isEnabled = false
                     
-                    self.advanceToNextPhrase()
+                    self.advanceToNextPhrase(letterGrade: "A")
                 } else if compareString.contains(transcribed) {
                     self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
                         self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
