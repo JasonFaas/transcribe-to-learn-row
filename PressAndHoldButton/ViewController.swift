@@ -54,6 +54,7 @@ class ViewController: UIViewController {
         self.toPronouncePinyin.isHidden = !self.pinyinOn
     }
     
+    
     func getToPronounce() -> (String, String) {
         
         let nextParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
