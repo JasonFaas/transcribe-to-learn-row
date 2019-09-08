@@ -9,6 +9,8 @@
 import UIKit
 import Speech
 
+import SQLite
+
 import PressAndHoldButton
 
 class ViewController: UIViewController {
@@ -31,6 +33,23 @@ class ViewController: UIViewController {
     
     var translation: RecordingForTranslation!
     
+    var database: Connection!
+    
+    // Example
+    let usersTable = Table("users")
+    let id = Expression<Int>("id")
+    let name = Expression<String>("name")
+    let email = Expression<String>("email")
+    
+    let phrase = Expression<String>("phrase")
+    let lastGrade = Expression<String>("lastGrade")
+    let pinyinDisplayed = Expression<Bool>("pinyinDisplayed")
+    
+    
+    
+    // My "Result" Table
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -38,6 +57,10 @@ class ViewController: UIViewController {
         if !unitTests() {
             exit(0)
         }
+        
+        self.createDatabaseConnection()
+        self.createDatabaseTable()
+        
         
         self.translation = RecordingForTranslation(primaryLabel: self.primaryLabel)
         
@@ -52,6 +75,43 @@ class ViewController: UIViewController {
         
         self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
         self.toPronouncePinyin.isHidden = !self.pinyinOn
+    }
+    
+    func createDatabaseConnection() {
+        
+        do {
+            let documentDirecotry = try FileManager.default.url(
+                for: .documentDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true)
+            let fileUrl = documentDirecotry.appendingPathComponent("users").appendingPathExtension("sqlite3")
+            
+            self.database = try Connection(fileUrl.path)
+            
+            
+        } catch {
+            print("DB Setup Error")
+            exit(0)
+        }
+    }
+    
+    func createDatabaseTable() {
+        
+        let createTable = self.usersTable.create { (table) in
+            table.column(self.id, primaryKey: true)
+            table.column(self.name)
+            table.column(self.email, unique: true)
+        }
+        
+        do {
+            print("Creating Table")
+            try self.database.run(usersTable.drop())
+            try self.database.run(createTable)
+            print("\nCreated Table")
+        } catch {
+            print("\nDID NOT CREATE TABLE")
+        }
     }
     
     
