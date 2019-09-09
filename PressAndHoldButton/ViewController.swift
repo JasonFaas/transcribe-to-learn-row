@@ -218,10 +218,21 @@ class ViewController: UIViewController {
         let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
         
         do {
-            let insertResult = self.resultsTable.insert(self.phrase <- currentHanzi,
-                                                        self.lastGrade <- letterGrade,
-                                                        self.pinyinDisplayed <- self.pinyinOn)
-            try self.database.run(insertResult)
+            let currentPhraseResult = resultsTable.filter(self.phrase == currentHanzi)
+            let currentInTable = currentPhraseResult.count
+            let count = try self.database.scalar(currentInTable)
+            let currentPhraseinDatabase: Bool = count != 0
+            
+            if currentPhraseinDatabase {
+                let insertResult = self.resultsTable.insert(self.phrase <- currentHanzi,
+                                                            self.lastGrade <- letterGrade,
+                                                            self.pinyinDisplayed <- self.pinyinOn)
+                try self.database.run(insertResult)
+            } else {
+                let updateResult = currentPhraseResult.update(self.lastGrade <- letterGrade,
+                                                              self.pinyinDisplayed <- self.pinyinOn)
+                try self.database.run(updateResult)
+            }
             
             print("\t\(self.pinyinOn)")
             print("\t\(currentHanzi)")
