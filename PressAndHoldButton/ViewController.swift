@@ -9,7 +9,6 @@
 import UIKit
 import Speech
 
-import SQLite
 
 import PressAndHoldButton
 
@@ -33,17 +32,7 @@ class ViewController: UIViewController {
     
     var translation: RecordingForTranslation!
     
-    var database: Connection!
-    
-    // Example
-    let resultsTable = Table("Results")
-    let id = Expression<Int>("id")
-    
-    let phrase = Expression<String>("phrase")
-    let lastGrade = Expression<String>("lastGrade")
-    let pinyinDisplayed = Expression<Bool>("pinyinDisplayed")
-    
-    
+    var dbm: DatabaseManagement!
     
     // My "Result" Table
     
@@ -56,8 +45,10 @@ class ViewController: UIViewController {
             exit(0)
         }
         
-        self.createDatabaseConnection()
-        self.createDatabaseTable()
+        self.dbm = DatabaseManagement()
+        
+        self.dbm.createDatabaseConnection()
+        self.dbm.createDatabaseTable()
         
         
         self.translation = RecordingForTranslation(primaryLabel: self.primaryLabel)
@@ -75,50 +66,6 @@ class ViewController: UIViewController {
         self.toPronouncePinyin.isHidden = !self.pinyinOn
     }
     
-    func createDatabaseConnection() {
-        
-        do {
-            let documentDirecotry = try FileManager.default.url(
-                for: .documentDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: true)
-            let fileUrl = documentDirecotry.appendingPathComponent("results").appendingPathExtension("sqlite3")
-            
-            self.database = try Connection(fileUrl.path)
-            
-            
-        } catch {
-            print("DB Setup Error")
-            exit(0)
-        }
-    }
-    
-    func createDatabaseTable() {
-        
-        let createTable = self.resultsTable.create { (table) in
-            table.column(self.id, primaryKey: true)
-            table.column(self.lastGrade)
-            table.column(self.phrase, unique: true)
-            table.column(self.pinyinDisplayed)
-        }
-        
-        do {
-            print("Dropping Table")
-            try self.database.run(resultsTable.drop())
-        } catch {
-            print(error)
-        }
-        
-        do {
-            print("Creating Table")
-            try self.database.run(createTable)
-            print("Created Table")
-        } catch {
-            print("DID NOT CREATE TABLE")
-            print(error)
-        }
-    }
     
     
     func getToPronounce() -> (String, String) {
@@ -213,48 +160,25 @@ class ViewController: UIViewController {
         }
     }
     
-    func logResult(letterGrade: String) {
-        print("Logging:")
-        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-        
-        do {
-            let currentPhraseResult = resultsTable.filter(self.phrase == currentHanzi)
-            let currentInTable = currentPhraseResult.count
-            let count = try self.database.scalar(currentInTable)
-            let currentPhraseinDatabase: Bool = count != 0
-            
-            if currentPhraseinDatabase {
-                let insertResult = self.resultsTable.insert(self.phrase <- currentHanzi,
-                                                            self.lastGrade <- letterGrade,
-                                                            self.pinyinDisplayed <- self.pinyinOn)
-                try self.database.run(insertResult)
-            } else {
-                let updateResult = currentPhraseResult.update(self.lastGrade <- letterGrade,
-                                                              self.pinyinDisplayed <- self.pinyinOn)
-                try self.database.run(updateResult)
-            }
-            
-            print("\t\(self.pinyinOn)")
-            print("\t\(currentHanzi)")
-            print("\t\(letterGrade)")
-        } catch {
-            print(error)
-        }
-    }
-    
     func advanceToNextPhrase(letterGrade: String) {
         
         let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-        
+        let pinyinOn = self.pinyinOn
+        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
         if !currentParagraph.contains("。") {
-            self.logResult(letterGrade: letterGrade)
+            
+            self.dbm.logResult(letterGrade: letterGrade,
+                               hanzi: currentHanzi,
+                               pinyinOn: pinyinOn)
             
             self.translationValue += 1
         } else {
             let sentences:[Substring] = currentParagraph.split(separator: "。")
             self.paragraphValue += 1
             if sentences.count == self.paragraphValue {
-                self.logResult(letterGrade: letterGrade)
+                self.dbm.logResult(letterGrade: letterGrade,
+                                   hanzi: currentHanzi,
+                                   pinyinOn: pinyinOn)
                 
                 self.translationValue += 1
                 self.paragraphValue = 0
