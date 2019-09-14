@@ -13,6 +13,12 @@ import SQLite
 class DatabaseManagement {
     var database: Connection!
     
+    // First import
+    
+    let clientsTable = Table("CLIENTS")
+    let col1 = Expression<String>("col1")
+    let col2 = Expression<String>("col2")
+    
     // Example
     let resultsTable = Table("Results")
     let id = Expression<Int>("id")
@@ -22,22 +28,41 @@ class DatabaseManagement {
     let pinyinDisplayed = Expression<Bool>("pinyinDisplayed")
     
     init() {
-        
+        self.createDatabaseConnection()
+        self.createDatabaseTable()
     }
     
     
     func createDatabaseConnection() {
         
         do {
-            let documentDirecotry = try FileManager.default.url(
+            let documentDirectory = try FileManager.default.url(
                 for: .documentDirectory,
                 in: .userDomainMask,
                 appropriateFor: nil,
                 create: true)
-            let fileUrl = documentDirecotry.appendingPathComponent("results").appendingPathExtension("sqlite3")
+            let fileUrl = documentDirectory.appendingPathComponent("results").appendingPathExtension("sqlite3")
             
             self.database = try Connection(fileUrl.path)
             
+            
+            
+            print("Original db working")
+            
+            
+            let clientsFileUrl = documentDirectory.appendingPathComponent("first").appendingPathExtension("sqlite3")
+            let clientsDatabase = try Connection(clientsFileUrl.path)
+            
+            let detectedA = clientsTable.filter(self.col1 == "a")
+            let currentInTable = detectedA.count
+            let count = try clientsDatabase.scalar(currentInTable)
+            
+            print("DID IT WORK")
+            if count != 0 {
+                print("\tYES")
+            } else {
+                print("\tNO")
+            }
             
         } catch {
             print("DB Setup Error")
@@ -100,5 +125,18 @@ class DatabaseManagement {
         } catch {
             print(error)
         }
+    }
+}
+
+
+class Clients {
+    let id: Int64?
+    var col1: String
+    var col2: String
+    
+    init(id: Int64, col1: String, col2: String) {
+        self.id = id
+        self.col1 = col1
+        self.col2 = col2
     }
 }

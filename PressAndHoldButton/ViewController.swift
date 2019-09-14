@@ -47,9 +47,6 @@ class ViewController: UIViewController {
         
         self.dbm = DatabaseManagement()
         
-        self.dbm.createDatabaseConnection()
-        self.dbm.createDatabaseTable()
-        
         
         self.translation = RecordingForTranslation(primaryLabel: self.primaryLabel)
         
