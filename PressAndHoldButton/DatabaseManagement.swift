@@ -11,7 +11,7 @@ import Foundation
 import SQLite
 
 class DatabaseManagement {
-    var database: Connection!
+    var resultsDatabase: Connection!
     
     // First import
     
@@ -43,18 +43,63 @@ class DatabaseManagement {
                 create: true)
             let fileUrl = documentDirectory.appendingPathComponent("results").appendingPathExtension("sqlite3")
             
-            self.database = try Connection(fileUrl.path)
+            self.resultsDatabase = try Connection(fileUrl.path)
             
             
             
             print("Original db working")
             
             
-            let clientsFileUrl = documentDirectory.appendingPathComponent("first").appendingPathExtension("sqlite3")
+//            let clientsFileUrl = documentDirectory.appendingPathComponent("first").appendingPathExtension("sqlite3")
+            
+            let importSqlFileName = "first.sqlite3"
+            
+            let fileManager = FileManager.default
+            
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
+            
+            
+            
+            let fromDocumentsurl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+            let finalDatabaseURL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
+            
+            try fileManager.removeItem(at: finalDatabaseURL)
+            
+            if !( (try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
+                print("DB does not exist in documents folder")
+                let finalDocumentsURL = Bundle.main.resourceURL?.appendingPathComponent(importSqlFileName)
+                
+                
+                do {
+                    print("What")
+                    print(finalDocumentsURL?.path)
+                    try fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: finalDatabaseURL.path)
+                } catch let error as NSError {
+                    print("Couldn't copy file to final location! Error:\(error.description)")
+                }
+            } else {
+                print("Database file found at path: \(finalDatabaseURL.path)")
+            }
+            
+            if !fileManager.fileExists(atPath: clientsFileUrl.path) {
+                print("WHERE IS THE FILE?")
+            } else {
+                print("FOUND THE FILE")
+            }
+            
+            
             let clientsDatabase = try Connection(clientsFileUrl.path)
+            for row in try clientsDatabase.prepare("SELECT * FROM sqlite_master WHERE type='table'") {
+                print("TEST")
+                print("\(row[0]))")
+            }
+            
+            print("Near")
             
             let detectedA = clientsTable.filter(self.col1 == "a")
             let currentInTable = detectedA.count
+            print("Far?")
             let count = try clientsDatabase.scalar(currentInTable)
             
             print("DID IT WORK")
@@ -65,6 +110,7 @@ class DatabaseManagement {
             }
             
         } catch {
+            print(error)
             print("DB Setup Error")
             exit(0)
         }
@@ -81,14 +127,14 @@ class DatabaseManagement {
         
         do {
             print("Dropping Table")
-            try self.database.run(resultsTable.drop())
+            try self.resultsDatabase.run(resultsTable.drop())
         } catch {
             print(error)
         }
         
         do {
             print("Creating Table")
-            try self.database.run(createTable)
+            try self.resultsDatabase.run(createTable)
             print("Created Table")
         } catch {
             print("DID NOT CREATE TABLE")
@@ -106,18 +152,18 @@ class DatabaseManagement {
         do {
             let currentPhraseResult = resultsTable.filter(self.phrase == hanzi)
             let currentInTable = currentPhraseResult.count
-            let count = try self.database.scalar(currentInTable)
+            let count = try self.resultsDatabase.scalar(currentInTable)
             let currentPhraseinDatabase: Bool = count != 0
             
             if currentPhraseinDatabase {
                 let insertResult = self.resultsTable.insert(self.phrase <- hanzi,
                                                             self.lastGrade <- letterGrade,
                                                             self.pinyinDisplayed <- pinyinOn)
-                try self.database.run(insertResult)
+                try self.resultsDatabase.run(insertResult)
             } else {
                 let updateResult = currentPhraseResult.update(self.lastGrade <- letterGrade,
                                                               self.pinyinDisplayed <- pinyinOn)
-                try self.database.run(updateResult)
+                try self.resultsDatabase.run(updateResult)
             }
             
             print("\t\(hanzi)")
