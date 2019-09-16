@@ -15,9 +15,11 @@ class DatabaseManagement {
     
     // First import
     
-    let clientsTable = Table("CLIENTS")
-    let col1 = Expression<String>("col1")
-    let col2 = Expression<String>("col2")
+    let translationsTable = Table("Translations")
+    let hanzi = Expression<String>("Hanzi")
+    let pinyin = Expression<String>("Pinyin")
+    let english = Expression<String>("English")
+    let difficulty = Expression<Int>("Difficulty")
     
     // Example
     let resultsTable = Table("Results")
@@ -42,38 +44,22 @@ class DatabaseManagement {
                 appropriateFor: nil,
                 create: true)
             let fileUrl = documentDirectory.appendingPathComponent("results").appendingPathExtension("sqlite3")
-            
             self.resultsDatabase = try Connection(fileUrl.path)
-            
-            
-            
             print("Original db working")
             
             
-//            let clientsFileUrl = documentDirectory.appendingPathComponent("first").appendingPathExtension("sqlite3")
-            
             let importSqlFileName = "first.sqlite3"
-            
             let fileManager = FileManager.default
-            
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
-            
-            
-            
             let fromDocumentsurl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
             let finalDatabaseURL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
-            
             try fileManager.removeItem(at: finalDatabaseURL)
             
-            if !( (try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
+            if !((try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
                 print("DB does not exist in documents folder")
                 let finalDocumentsURL = Bundle.main.resourceURL?.appendingPathComponent(importSqlFileName)
-                
-                
                 do {
-                    print("What")
-                    print(finalDocumentsURL?.path)
                     try fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: finalDatabaseURL.path)
                 } catch let error as NSError {
                     print("Couldn't copy file to final location! Error:\(error.description)")
@@ -82,32 +68,23 @@ class DatabaseManagement {
                 print("Database file found at path: \(finalDatabaseURL.path)")
             }
             
-            if !fileManager.fileExists(atPath: clientsFileUrl.path) {
-                print("WHERE IS THE FILE?")
-            } else {
-                print("FOUND THE FILE")
-            }
-            
-            
-            let clientsDatabase = try Connection(clientsFileUrl.path)
-            for row in try clientsDatabase.prepare("SELECT * FROM sqlite_master WHERE type='table'") {
+            let translationsDatabase = try Connection(clientsFileUrl.path)
+            for row in try translationsDatabase.prepare("SELECT * FROM sqlite_master WHERE type='table'") {
                 print("TEST")
-                print("\(row[0]))")
+                print(row[0])
             }
             
             print("Near")
             
-            let detectedA = clientsTable.filter(self.col1 == "a")
-            let currentInTable = detectedA.count
-            print("Far?")
-            let count = try clientsDatabase.scalar(currentInTable)
-            
-            print("DID IT WORK")
-            if count != 0 {
-                print("\tYES")
-            } else {
-                print("\tNO")
+            for translation in try translationsDatabase.prepare(translationsTable) {
+                print(translation[self.hanzi])
+                print(translation[self.english])
+                print(translation[self.pinyin])
+                print(translation[self.difficulty])
+                print("")
             }
+            
+            print("Far?")
             
         } catch {
             print(error)

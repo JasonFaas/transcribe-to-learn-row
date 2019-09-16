@@ -34,9 +34,6 @@ class ViewController: UIViewController {
     
     var dbm: DatabaseManagement!
     
-    // My "Result" Table
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
