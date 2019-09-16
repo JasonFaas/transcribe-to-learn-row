@@ -37,6 +37,7 @@ class RecordingForTranslation {
         } else {
             audioPlayer.delegate = self as? AVAudioPlayerDelegate
             audioPlayer.prepareToPlay()
+            
             audioPlayer.volume = 10.0
             
             let maxTime:Int = 20
