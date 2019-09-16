@@ -54,7 +54,11 @@ class DatabaseManagement {
             let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
             let fromDocumentsurl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
             let finalDatabaseURL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
-            try fileManager.removeItem(at: finalDatabaseURL)
+            do {
+                try fileManager.removeItem(at: finalDatabaseURL)
+            } catch {
+                print("No database to remove on device")
+            }
             
             if !((try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
                 print("DB does not exist in documents folder")
@@ -70,8 +74,7 @@ class DatabaseManagement {
             
             let translationsDatabase = try Connection(clientsFileUrl.path)
             for row in try translationsDatabase.prepare("SELECT * FROM sqlite_master WHERE type='table'") {
-                print("TEST")
-                print(row[0])
+                print(row[1])
             }
             
             print("Near")

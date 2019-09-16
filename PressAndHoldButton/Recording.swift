@@ -26,6 +26,7 @@ class RecordingForTranslation {
         var error: NSError?
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: getFileURL() as URL)
+            
         } catch let error1 as NSError {
             error = error1
             audioPlayer = nil
@@ -50,6 +51,7 @@ class RecordingForTranslation {
     func playback() {
         do {
             try preparePlayer()
+            
             audioPlayer.play()
         } catch {
             
