@@ -42,11 +42,9 @@ class ViewController: UIViewController {
             exit(0)
         }
         
+        // Setup
         self.dbm = DatabaseManagement()
-        
-        
         self.translation = RecordingForTranslation(primaryLabel: self.primaryLabel)
-        
         self.translation.setupRecordingSession()
         
         self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
@@ -58,6 +56,16 @@ class ViewController: UIViewController {
         
         self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
         self.toPronouncePinyin.isHidden = !self.pinyinOn
+        
+        // TODO: Get random line from database
+        do {
+            print(try self.dbm.getRandomRowFromTranslations().getHanzi())
+//            try print(self.dbm.getRandomRowFromTranslations().getHanzi())
+        } catch {
+            print("Uh-oh")
+            print(error.localizedDescription)
+            exit(33)
+        }
     }
     
     
