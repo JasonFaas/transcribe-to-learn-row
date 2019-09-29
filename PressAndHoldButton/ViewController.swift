@@ -60,9 +60,10 @@ class ViewController: UIViewController {
         // TODO: Get random line from database
         do {
             print(try self.dbm.getRandomRowFromTranslations().getHanzi())
-//            try print(self.dbm.getRandomRowFromTranslations().getHanzi())
+            try print(self.dbm.getRandomRowFromTranslations().getHanzi())
+            
+            print(try TranslationOrmStyle.find(input_id: 2)?.hanzi)
         } catch {
-            print("Uh-oh")
             print(error.localizedDescription)
             exit(33)
         }

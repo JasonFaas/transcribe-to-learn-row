@@ -84,6 +84,20 @@ class DatabaseManagement {
     
     func getRandomRowFromTranslations() throws -> DbTranslation {
         do {
+            
+            let random_int = Int.random(in: 1 ..< 6)
+            print(random_int)
+            let extractedExpr: Table = translationsTable.filter(Expression<Int>("generated_id") < random_int)
+            
+            for translation in try self.translationsDatabase.prepare(extractedExpr) {
+                let dbTranslation = DbTranslation(dbRow: translation)
+                try dbTranslation.verifyAll()
+                
+                print("Jason")
+                print(dbTranslation.getHanzi())
+            }
+            print("End")
+            
             for translation in try self.translationsDatabase.prepare(translationsTable) {
                 let dbTranslation = DbTranslation(dbRow: translation)
                 try dbTranslation.verifyAll()
@@ -157,6 +171,60 @@ class DatabaseManagement {
 
 extension String: LocalizedError {
     public var errorDescription: String? { return self }
+}
+
+
+typealias TranslationWhat = (
+    id: Int64?,
+    hanzi: String?,
+    pinyin: String?,
+    english: String?,
+    difficulty: Int64?
+)
+
+class TranslationOrmStyle {
+    static let TABLE_NAME = "Teams"
+    
+    static let table = Table(TABLE_NAME)
+    
+    static let id = Expression<Int64>("generated_id")
+    static let hanzi = Expression<String>("Hanzi")
+    static let pinyin = Expression<String>("Pinyin")
+    static let english = Expression<String>("English")
+    static let difficulty = Expression<Int64>("Difficulty")
+    
+    
+    typealias T = TranslationWhat
+    
+    
+    static func find(input_id: Int64) throws -> T? {
+//        guard let DB = SQLiteDataStore.sharedInstance.BBDB else {
+//            throw DataAccessError.Datastore_Connection_Error
+//        }
+        let query = table.filter(id == input_id)
+        print("A")
+        
+        //TODO: Duplicate setups of connecting to database. Remove one when it is known that this is working
+        let importSqlFileName = "first.sqlite3"
+        print("B")
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        print("C")
+        let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
+        
+        // TODO: put this creation somewhere else. Very slow
+        let translationsDatabase = try Connection(clientsFileUrl.path)
+        print("D")
+        let items = try translationsDatabase.prepare(query)
+        print("E")
+        for item in items {
+            print("F")
+            return TranslationWhat(id: item[id], hanzi: item[hanzi], pinyin: item[pinyin], english: item[english], difficulty: item[difficulty])
+        }
+       print("G")
+        return nil
+       
+    }
 }
 
 
