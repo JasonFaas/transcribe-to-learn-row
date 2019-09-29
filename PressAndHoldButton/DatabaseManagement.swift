@@ -71,10 +71,7 @@ class DatabaseManagement {
             }
             
             self.translationsDatabase = try Connection(clientsFileUrl.path)
-            for row in try translationsDatabase.prepare("SELECT * FROM sqlite_master WHERE type='table'") {
-                print(row[1])
-            }
-                        
+                                    
         } catch {
             print(error)
             print("DB Setup Error")
@@ -82,7 +79,7 @@ class DatabaseManagement {
         }
     }
     
-    func getRandomRowFromTranslations() throws -> DbTranslation {
+    func getRandomRowFromTranslations() -> DbTranslation {
         do {
             
             let rows: Int64 = try self.translationsDatabase.scalar("SELECT count(*) FROM Translations") as! Int64
@@ -91,7 +88,7 @@ class DatabaseManagement {
             let extractedExpr: Table = translationsTable.filter(Expression<Int>("generated_id") == random_int)
             
             for translation in try self.translationsDatabase.prepare(extractedExpr) {
-                let dbTranslation = DbTranslation(dbRow: translation)
+                let dbTranslation = SpecificDbTranslation(dbRow: translation)
                 try dbTranslation.verifyAll()
                 
                 return dbTranslation
@@ -99,9 +96,12 @@ class DatabaseManagement {
             
         } catch {
             print(error.localizedDescription)
-            throw "Random row failure"
+            print("Random row failure")
+            
+            return DbTranslation()
         }
-        throw "No row failure"
+        print("No row failure")
+        return DbTranslation()
     }
     
     func createDatabaseTable() {
@@ -168,6 +168,33 @@ extension String: LocalizedError {
 
 class DbTranslation {
     
+    func verifyAll() throws {
+        throw "Base DbTranslation is not very good"
+    }
+    
+    func getId() -> Int {
+        return -1
+    }
+    
+    func getHanzi() -> String {
+        return "Error Hanzi"
+    }
+    
+    func getPinyin() -> String {
+        return "Error Pinyin"
+    }
+    
+    func getEnglish() -> String {
+        return "Error English"
+    }
+    
+    func getDifficulty() -> Int {
+        return -1
+    }
+    
+}
+
+class SpecificDbTranslation : DbTranslation {
     let id = Expression<Int>("generated_id")
     let hanzi = Expression<String>("Hanzi")
     let pinyin = Expression<String>("Pinyin")
@@ -178,7 +205,7 @@ class DbTranslation {
     var stringElements: Array<Expression<String>>!
     
     let dbRow: Row!
-    
+        
     init(dbRow: Row) {
         self.dbRow = dbRow
         // TODO populate these dynamically
@@ -186,7 +213,7 @@ class DbTranslation {
         stringElements = [hanzi, pinyin, english]
     }
     
-    func verifyAll() throws {
+    override func verifyAll() throws {
         for intElement in self.intElements {
             if self.dbRow[intElement] < 0 {
                 throw "bad int element \(intElement)"
@@ -199,25 +226,23 @@ class DbTranslation {
         }
     }
     
-    func getId() -> Int {
+    override func getId() -> Int {
         self.dbRow[self.id]
     }
     
-    func getHanzi() -> String {
+    override func getHanzi() -> String {
         self.dbRow[self.hanzi]
     }
     
-    func getPinyin() -> String {
+    override func getPinyin() -> String {
         self.dbRow[self.pinyin]
     }
     
-    func getEnglish() -> String {
+    override func getEnglish() -> String {
         self.dbRow[self.english]
     }
     
-    func getDifficulty() -> Int {
+    override func getDifficulty() -> Int {
         self.dbRow[self.difficulty]
     }
-    
-    
 }

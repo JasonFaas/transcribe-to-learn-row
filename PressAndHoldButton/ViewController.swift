@@ -9,7 +9,6 @@
 import UIKit
 import Speech
 
-
 import PressAndHoldButton
 
 class ViewController: UIViewController {
@@ -26,9 +25,11 @@ class ViewController: UIViewController {
     var paragraphValue = 0
     var toPronounceCharacters = ""
     var pronouncedSoFar = ""
-    var pinyinOn = false
+    var pinyinOn = true
     var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
                                             false: "True Off Pinyin", ]
+    
+    var currentTranslation: DbTranslation!
     
     var translation: RecordingForTranslation!
     
@@ -47,25 +48,29 @@ class ViewController: UIViewController {
         self.translation = RecordingForTranslation(primaryLabel: self.primaryLabel)
         self.translation.setupRecordingSession()
         
-        self.translationValue = Int.random(in: 0 ..< fullTranslations.count)
-//        self.translationValue = 7
         
-        let (characters, pinyin) = self.getToPronounce()
-        self.toPronounce.text = characters
-        self.toPronouncePinyin.text = pinyin
-        
-        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
-        self.toPronouncePinyin.isHidden = !self.pinyinOn
-        
-        // TODO: Get random line from database
+        // DB testing
         do {
-            print(try self.dbm.getRandomRowFromTranslations().getHanzi())
-            try print(self.dbm.getRandomRowFromTranslations().getHanzi())
+            var testTranslation: DbTranslation = self.dbm.getRandomRowFromTranslations()
+            try testTranslation.verifyAll()
+            print(testTranslation.getHanzi())
             
+            testTranslation = self.dbm.getRandomRowFromTranslations()
+            try testTranslation.verifyAll()
+            print(testTranslation.getHanzi())
         } catch {
             print(error.localizedDescription)
             exit(33)
         }
+        
+        self.currentTranslation = self.dbm.getRandomRowFromTranslations()
+        
+        self.toPronounce.text = self.currentTranslation.getHanzi()
+        self.toPronouncePinyin.text = self.currentTranslation.getPinyin()
+        
+        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
+        self.toPronouncePinyin.isHidden = !self.pinyinOn
+        
     }
     
     
