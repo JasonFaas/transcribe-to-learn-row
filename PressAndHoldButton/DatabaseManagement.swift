@@ -41,6 +41,8 @@ class DatabaseManagement {
                 in: .userDomainMask,
                 appropriateFor: nil,
                 create: true)
+            
+            //TODO: Remove code for results database
             let fileUrl = documentDirectory.appendingPathComponent("results").appendingPathExtension("sqlite3")
             self.resultsDatabase = try Connection(fileUrl.path)
             print("Original db working")
@@ -132,7 +134,7 @@ class DatabaseManagement {
     
     
     
-    func logResult(letterGrade: String, hanzi: String, pinyinOn: Bool) {
+    func logResult(letterGrade: String, quizInfo: DbTranslation, pinyinOn: Bool) {
         print("Logging:")
         
         // let pinyinOn = self.pinyinOn

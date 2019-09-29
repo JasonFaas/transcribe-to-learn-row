@@ -14,7 +14,7 @@ import PressAndHoldButton
 class ViewController: UIViewController {
 
     @IBOutlet weak var toPronounce: UILabel!
-    @IBOutlet weak var primaryLabel: UILabel!
+    @IBOutlet weak var generalCommentLabel: UILabel!
     @IBOutlet weak var buttonTextUpdate: UIButton!
     @IBOutlet weak var skipThis: UIButton!
     @IBOutlet weak var buttonPinyinToggle: UIButton!
@@ -46,7 +46,7 @@ class ViewController: UIViewController {
         
         // Setup
         self.dbm = DatabaseManagement()
-        self.translation = RecordingForTranslation(primaryLabel: self.primaryLabel)
+        self.translation = RecordingForTranslation(primaryLabel: self.generalCommentLabel)
         self.translation.setupRecordingSession()
         
         
@@ -114,8 +114,8 @@ class ViewController: UIViewController {
     @IBAction func skipThisPress(_ sender: Any) {
         self.skipThis.isEnabled = false
         
-//        self.advanceToNextPhrase(letterGrade: "F")
-        self.primaryLabel.text = "I know you'll get it next time"
+        self.advanceToNextPhrase(letterGrade: "F")
+        self.generalCommentLabel.text = "I know you'll get it next time"
     }
     
     
@@ -130,7 +130,7 @@ class ViewController: UIViewController {
     func released() {
         self.buttonTextUpdate.isEnabled = false
         
-        primaryLabel.text = "\(String(primaryLabel.text ?? "hello"))\nProcessing..."
+        generalCommentLabel.text = "\(String(generalCommentLabel.text ?? "hello"))\nProcessing..."
         
         self.translation.finishRecording()
         
@@ -142,18 +142,33 @@ class ViewController: UIViewController {
 
     
     @IBAction func release(_ sender: Any) {
-        primaryLabel.text = "Listening..."
+        generalCommentLabel.text = "Listening..."
         
         do {
             try self.translation.startRecording()
         } catch {
             self.translation.finishRecording()
-            primaryLabel.text = "\(String(primaryLabel.text ?? "hello")) Did not record."
+            generalCommentLabel.text = "\(String(generalCommentLabel.text ?? "hello")) Did not record."
         }
     }
     
-//    func advanceToNextPhrase(letterGrade: String) {
-//
+    func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
+        self.toPronounce.text = quizInfo.getHanzi()
+        self.toPronouncePinyin.text = quizInfo.getPinyin()
+    }
+    
+    func advanceToNextPhrase(letterGrade: String) {
+        // log info
+        self.dbm.logResult(letterGrade: letterGrade,
+                           quizInfo: self.currentTranslation,
+                           pinyinOn: self.pinyinOn)
+        
+        self.currentTranslation = self.dbm.getRandomRowFromTranslations()
+        
+        self.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
+        
+        
+
 //        let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
 //        let pinyinOn = self.pinyinOn
 //        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
@@ -182,7 +197,7 @@ class ViewController: UIViewController {
 //        self.toPronouncePinyin.text = pinyin
 //
 //        self.pronouncedSoFar = ""
-//    }
+    }
     
     fileprivate func transcribeFile(url: URL) {
         // 1
