@@ -20,7 +20,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var buttonPinyinToggle: UIButton!
     @IBOutlet weak var toPronouncePinyin: UILabel!
     
-    let fullTranslations:Array<TranslationInfo> = TranslationInfo().getAllTranslations()
+    //TODO review all these variables to see if they are actually needed
     var translationValue = 0
     var paragraphValue = 0
     var toPronounceCharacters = ""
@@ -39,9 +39,10 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        if !unitTests() {
-            exit(0)
-        }
+        //TODO: Really, no unit tests?
+//        if !unitTests() {
+//            exit(0)
+//        }
         
         // Setup
         self.dbm = DatabaseManagement()
@@ -70,29 +71,26 @@ class ViewController: UIViewController {
         
         self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
         self.toPronouncePinyin.isHidden = !self.pinyinOn
-        
     }
     
-    
-    
-    func getToPronounce() -> (String, String) {
-        
-        let nextParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-        
-        let pinyinStr = self.fullTranslations[self.translationValue % self.fullTranslations.count].pinyinChar
-        if !nextParagraph.contains("。") {
-            self.toPronounceCharacters = nextParagraph
-            return (nextParagraph, pinyinStr)
-        } else {
-            var sentences:[Substring] = nextParagraph.split(separator: "。")
-            var pinyinSentences:[Substring] = pinyinStr.split(separator: ".")
-            let sentence = removeExtraFromString(String(sentences[self.paragraphValue]))
-            let pinyin = removeExtraFromString(String(pinyinSentences[self.paragraphValue]))
-            
-            self.toPronounceCharacters = sentence
-            return (sentence, pinyin)
-        }
-    }
+//    func getToPronounce() -> (String, String) {
+//
+//        let nextParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+//
+//        let pinyinStr = self.fullTranslations[self.translationValue % self.fullTranslations.count].pinyinChar
+//        if !nextParagraph.contains("。") {
+//            self.toPronounceCharacters = nextParagraph
+//            return (nextParagraph, pinyinStr)
+//        } else {
+//            var sentences:[Substring] = nextParagraph.split(separator: "。")
+//            var pinyinSentences:[Substring] = pinyinStr.split(separator: ".")
+//            let sentence = removeExtraFromString(String(sentences[self.paragraphValue]))
+//            let pinyin = removeExtraFromString(String(pinyinSentences[self.paragraphValue]))
+//
+//            self.toPronounceCharacters = sentence
+//            return (sentence, pinyin)
+//        }
+//    }
     
     @IBAction func pinyinToggle(_ sender: Any) {
         self.pinyinOn = !self.pinyinOn
@@ -100,36 +98,23 @@ class ViewController: UIViewController {
         self.toPronouncePinyin.isHidden = !self.pinyinOn
     }
     
-    func removeExtraNewlineForComparrison(_ str: String) -> String {
-        let retStr = str.replacingOccurrences(of: "\n", with: "")
-        return retStr
-    }
-        func removeExtraFromString(_ str: String) -> String {
-            var retStr = str.replacingOccurrences(of: ".", with: "\n")
-        retStr = retStr.replacingOccurrences(of: "。", with: "\n")
-        retStr = retStr.replacingOccurrences(of: ",", with: "\n")
-        retStr = retStr.replacingOccurrences(of: "，", with: "\n")
-        
-        return retStr
-    }
-    
-    func unitTests() -> Bool {
-        
-        print(fullTranslations.count)
-        
-        // TODO: Reenable when all translations are back
-//        assert(fullTranslations[7].simplifiedChar.contains("。"))
-//        print(fullTranslations[7].simplifiedChar.split(separator: "。")[3])
-//        assert(fullTranslations[7].simplifiedChar.split(separator: "。").count == 4)
-        
-        
-        return true
-    }
+//    func removeExtraNewlineForComparrison(_ str: String) -> String {
+//        let retStr = str.replacingOccurrences(of: "\n", with: "")
+//        return retStr
+//    }
+//        func removeExtraFromString(_ str: String) -> String {
+//            var retStr = str.replacingOccurrences(of: ".", with: "\n")
+//        retStr = retStr.replacingOccurrences(of: "。", with: "\n")
+//        retStr = retStr.replacingOccurrences(of: ",", with: "\n")
+//        retStr = retStr.replacingOccurrences(of: "，", with: "\n")
+//
+//        return retStr
+//    }
     
     @IBAction func skipThisPress(_ sender: Any) {
         self.skipThis.isEnabled = false
         
-        self.advanceToNextPhrase(letterGrade: "F")
+//        self.advanceToNextPhrase(letterGrade: "F")
         self.primaryLabel.text = "I know you'll get it next time"
     }
     
@@ -167,37 +152,37 @@ class ViewController: UIViewController {
         }
     }
     
-    func advanceToNextPhrase(letterGrade: String) {
-        
-        let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-        let pinyinOn = self.pinyinOn
-        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-        if !currentParagraph.contains("。") {
-            
-            self.dbm.logResult(letterGrade: letterGrade,
-                               hanzi: currentHanzi,
-                               pinyinOn: pinyinOn)
-            
-            self.translationValue += 1
-        } else {
-            let sentences:[Substring] = currentParagraph.split(separator: "。")
-            self.paragraphValue += 1
-            if sentences.count == self.paragraphValue {
-                self.dbm.logResult(letterGrade: letterGrade,
-                                   hanzi: currentHanzi,
-                                   pinyinOn: pinyinOn)
-                
-                self.translationValue += 1
-                self.paragraphValue = 0
-            }
-        }
-        
-        let (characters, pinyin) = self.getToPronounce()
-        self.toPronounce.text = characters
-        self.toPronouncePinyin.text = pinyin
-        
-        self.pronouncedSoFar = ""
-    }
+//    func advanceToNextPhrase(letterGrade: String) {
+//
+//        let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+//        let pinyinOn = self.pinyinOn
+//        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+//        if !currentParagraph.contains("。") {
+//
+//            self.dbm.logResult(letterGrade: letterGrade,
+//                               hanzi: currentHanzi,
+//                               pinyinOn: pinyinOn)
+//
+//            self.translationValue += 1
+//        } else {
+//            let sentences:[Substring] = currentParagraph.split(separator: "。")
+//            self.paragraphValue += 1
+//            if sentences.count == self.paragraphValue {
+//                self.dbm.logResult(letterGrade: letterGrade,
+//                                   hanzi: currentHanzi,
+//                                   pinyinOn: pinyinOn)
+//
+//                self.translationValue += 1
+//                self.paragraphValue = 0
+//            }
+//        }
+//
+//        let (characters, pinyin) = self.getToPronounce()
+//        self.toPronounce.text = characters
+//        self.toPronouncePinyin.text = pinyin
+//
+//        self.pronouncedSoFar = ""
+//    }
     
     fileprivate func transcribeFile(url: URL) {
         // 1
@@ -225,29 +210,29 @@ class ViewController: UIViewController {
             }
             
             // 4
-            if result.isFinal {
-                var transcribed:String = result.bestTranscription.formattedString
-                
-                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
-                transcribed = transcribed.replacingOccurrences(of: "！", with: "")
-                transcribed = "\(self.pronouncedSoFar)\(transcribed)"
-                
-                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
-                if transcribed == compareString {
-                    self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
-                    self.skipThis.isEnabled = false
-                    
-                    self.advanceToNextPhrase(letterGrade: "A")
-                } else if compareString.contains(transcribed) {
-                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
-                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
-                } else {
-                    self.primaryLabel.text = "Try again:\n\(transcribed)"
-                    self.pronouncedSoFar = ""
+//            if result.isFinal {
+//                var transcribed:String = result.bestTranscription.formattedString
+//
+//                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
+//                transcribed = transcribed.replacingOccurrences(of: "！", with: "")
+//                transcribed = "\(self.pronouncedSoFar)\(transcribed)"
+//
+//                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
+//                if transcribed == compareString {
+//                    self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
+//                    self.skipThis.isEnabled = false
+//
+//                    self.advanceToNextPhrase(letterGrade: "A")
+//                } else if compareString.contains(transcribed) {
+//                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
+//                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
+//                } else {
+//                    self.primaryLabel.text = "Try again:\n\(transcribed)"
+//                    self.pronouncedSoFar = ""
                     self.skipThis.isEnabled = true
-                }
-                
-            }
+//                }
+//
+//            }
         }
     }
 
