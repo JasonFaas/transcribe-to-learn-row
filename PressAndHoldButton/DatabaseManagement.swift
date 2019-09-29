@@ -17,6 +17,8 @@ class DatabaseManagement {
     
     let translationsTable = Table("Translations")
     
+    
+    
     // Example
     let resultsTable = Table("Results")
     let id = Expression<Int>("id")
@@ -162,6 +164,12 @@ class DatabaseManagement {
             print(error)
         }
     }
+    
+    func insertRowIntoResults(dbResult: DbResult) {
+        
+        
+        self.translationsDatabase.run(dbResult.getInsert())
+    }
 }
 
 extension String: LocalizedError {
@@ -247,4 +255,97 @@ class SpecificDbTranslation : DbTranslation {
     override func getDifficulty() -> Int {
         self.dbRow[self.difficulty]
     }
+}
+
+
+class DbResult {
+    
+    let generalDateAdding: [String: Int] = [
+        "A": 60,
+        "B": 30,
+        "C": 15,
+        "D": 5,
+        "F": 1,
+    ]
+    
+    //TODO: Duplicate removal
+    let resultsTable = Table("Results")
+    
+    let dbDict: [String: Any] = [
+        "id": Expression<Int>("id"),
+        "translation_fk": Expression<Int>("translation"),
+        "difficulty": Expression<String>("difficulty"),
+        "due_date": Expression<Date>("due_date"),
+        "last_grade": Expression<String>("last_grade"),
+        "language_displayed": Expression<String>("language_displayed"), //TODO: enum to English, Mandarin-Simplified, or Mandarin-Pinyin
+        "like": Expression<Bool>("like")
+    ]
+    
+    let valuesDict: [String: Any] = [:]
+    
+    var intElements: Array<Expression<Int>>!
+    var stringElements: Array<Expression<String>>!
+    
+    let dbRow: Row!
+    
+    init(dbRow: Row) {
+        
+    }
+    
+    func getInsert(translation: DbTranslation, grade: String, languageDisplayed: String) -> Insert {
+        let now: Date = Date()
+        let calendar: Calendar = Calendar.current
+        let minutesAhead: Int = self.generalDateAdding[grade, default: 1]
+        let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
+        let dueDate: Date = calendar.date(byAdding: interval, to: now) ?? <#default value#>
+        
+        return resultsTable.insert(
+            self.dbDict["translation_fk"] as! Expression<Int> <- translation.getId(),
+            self.dbDict["difficulty"] as! Expression<Int> <- translation.getDifficulty(),
+            self.dbDict["due_date"] as! Expression<Date> <- dueDate, // TODO: This may need to be fixed
+            self.dbDict["last_grade"] as! Expression<String> <- "B",
+            self.dbDict["language_displayed"] as! Expression<String> <- languageDisplayed, // TODO: use enum
+            self.dbDict["like"] as! Expression<Bool> <- true // TODO: use enum
+        )
+    }
+        
+//    init(dbRow: Row) {
+//        self.dbRow = dbRow
+//        // TODO populate these dynamically
+//        intElements = [id, difficulty]
+//        stringElements = [hanzi, pinyin, english]
+//    }
+//
+//    override func verifyAll() throws {
+//        for intElement in self.intElements {
+//            if self.dbRow[intElement] < 0 {
+//                throw "bad int element \(intElement)"
+//            }
+//        }
+//        for stringElement in self.stringElements {
+//            if self.dbRow[stringElement].count <= 0 {
+//                throw "bad string element \(stringElement)"
+//            }
+//        }
+//    }
+//
+//    override func getId() -> Int {
+//        self.dbRow[self.id]
+//    }
+//
+//    override func getHanzi() -> String {
+//        self.dbRow[self.hanzi]
+//    }
+//
+//    override func getPinyin() -> String {
+//        self.dbRow[self.pinyin]
+//    }
+//
+//    override func getEnglish() -> String {
+//        self.dbRow[self.english]
+//    }
+//
+//    override func getDifficulty() -> Int {
+//        self.dbRow[self.difficulty]
+//    }
 }
