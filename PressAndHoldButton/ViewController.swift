@@ -62,7 +62,6 @@ class ViewController: UIViewController {
             print(try self.dbm.getRandomRowFromTranslations().getHanzi())
             try print(self.dbm.getRandomRowFromTranslations().getHanzi())
             
-            print(try TranslationOrmStyle.find(input_id: 2)?.hanzi)
         } catch {
             print(error.localizedDescription)
             exit(33)
