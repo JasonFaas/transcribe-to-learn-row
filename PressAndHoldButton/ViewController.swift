@@ -249,6 +249,8 @@ class ViewController: UIViewController {
 //
 //            }
         }
+        
+        self.dbm.printAllResultsTable()
     }
 
 }

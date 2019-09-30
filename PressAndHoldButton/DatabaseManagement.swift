@@ -11,43 +11,59 @@ import Foundation
 import SQLite
 
 class DatabaseManagement {
-    var resultsDatabase: Connection!
-    
-    // First import
-    
-    let translationsTable = Table("Translations")
-    
-    
-    
-    // Example
-    let resultsTable = Table("Results")
-    let id = Expression<Int>("id")
-    
-    let phrase = Expression<String>("phrase")
-    let lastGrade = Expression<String>("lastGrade")
-    let pinyinDisplayed = Expression<Bool>("pinyinDisplayed")
-    
-    var translationsDatabase: Connection!
+    var sqliteConnection: Connection!
     
     init() {
         self.createDatabaseConnection()
         self.createDatabaseTable()
     }
     
+    func printAllResultsTable() {
+        do {
+            for result_row in try self.sqliteConnection.prepare(DbResult.table) {
+                let dbResult = DbResult(dbRow: result_row)
+                dbResult.printInfo()
+            }
+        } catch {
+            print("Why is there nothing to print???")
+        }
+    }
+    
+    fileprivate func deleteFirstSqliteIfExistsToReset(_ fileManager: FileManager, _ finalDatabaseURL: URL) {
+        do {
+            try fileManager.removeItem(at: finalDatabaseURL)
+        } catch {
+            print("No database to remove on device")
+        }
+    }
+    
+    fileprivate func copyDatabaseToDevice(_ finalDatabaseURL: URL, _ importSqlFileName: String, _ fileManager: FileManager) {
+        if !((try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
+            print("DB does not exist in documents folder")
+            let finalDocumentsURL = Bundle.main.resourceURL?.appendingPathComponent(importSqlFileName)
+            do {
+                try fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: finalDatabaseURL.path)
+            } catch let error as NSError {
+                print("Couldn't copy file to final location! Error:\(error.description)")
+            }
+        } else {
+            print("Database file found at path: \(finalDatabaseURL.path)")
+        }
+    }
     
     func createDatabaseConnection() {
         
         do {
-            let documentDirectory = try FileManager.default.url(
-                for: .documentDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: true)
-            
-            //TODO: Remove code for results database
-            let fileUrl = documentDirectory.appendingPathComponent("results").appendingPathExtension("sqlite3")
-            self.resultsDatabase = try Connection(fileUrl.path)
-            print("Original db working")
+//            let documentDirectory = try FileManager.default.url(
+//                for: .documentDirectory,
+//                in: .userDomainMask,
+//                appropriateFor: nil,
+//                create: true)
+//
+//            //TODO: Remove code for results database
+//            let fileUrl = documentDirectory.appendingPathComponent("results").appendingPathExtension("sqlite3")
+//            self.resultsDatabase = try Connection(fileUrl.path)
+//            print("Original db working")
             
             
             let importSqlFileName = "first.sqlite3"
@@ -56,25 +72,14 @@ class DatabaseManagement {
             let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
             let fromDocumentsurl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
             let finalDatabaseURL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
-            do {
-                try fileManager.removeItem(at: finalDatabaseURL)
-            } catch {
-                print("No database to remove on device")
-            }
+            deleteFirstSqliteIfExistsToReset(fileManager, finalDatabaseURL)
+            copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
             
-            if !((try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
-                print("DB does not exist in documents folder")
-                let finalDocumentsURL = Bundle.main.resourceURL?.appendingPathComponent(importSqlFileName)
-                do {
-                    try fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: finalDatabaseURL.path)
-                } catch let error as NSError {
-                    print("Couldn't copy file to final location! Error:\(error.description)")
-                }
-            } else {
-                print("Database file found at path: \(finalDatabaseURL.path)")
-            }
+            self.sqliteConnection = try Connection(clientsFileUrl.path)
             
-            self.translationsDatabase = try Connection(clientsFileUrl.path)
+            
+            
+//            getCreateTable
                                     
         } catch {
             print(error)
@@ -86,12 +91,12 @@ class DatabaseManagement {
     func getRandomRowFromTranslations() -> DbTranslation {
         do {
             
-            let rows: Int64 = try self.translationsDatabase.scalar("SELECT count(*) FROM Translations") as! Int64
+            let rows: Int64 = try self.sqliteConnection.scalar("SELECT count(*) FROM Translations") as! Int64
             let random_int = Int.random(in: 1 ..< Int(rows))
             
-            let extractedExpr: Table = translationsTable.filter(Expression<Int>("generated_id") == random_int)
+            let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == random_int)
             
-            for translation in try self.translationsDatabase.prepare(extractedExpr) {
+            for translation in try self.sqliteConnection.prepare(extractedExpr) {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation)
                 try dbTranslation.verifyAll()
                 
@@ -110,26 +115,19 @@ class DatabaseManagement {
     
     func createDatabaseTable() {
         
-        let createTable = self.resultsTable.create { (table) in
-            table.column(self.id, primaryKey: true)
-            table.column(self.lastGrade)
-            table.column(self.phrase, unique: true)
-            table.column(self.pinyinDisplayed)
-        }
-        
         do {
-            print("Dropping Table")
-            try self.resultsDatabase.run(resultsTable.drop())
+            print("Attempting to Drop RESULT Table")
+            try self.sqliteConnection.run(DbResult.table.drop())
         } catch {
             print(error)
         }
         
         do {
-            print("Creating Table")
-            try self.resultsDatabase.run(createTable)
-            print("Created Table")
+            let createTable = DbResult.getCreateTable()
+            try self.sqliteConnection.run(createTable)
+            print("Created RESULT Table")
         } catch {
-            print("DID NOT CREATE TABLE")
+            print("DID NOT CREATE RESULT TABLE")
             print(error)
         }
     }
@@ -139,37 +137,45 @@ class DatabaseManagement {
     func logResult(letterGrade: String, quizInfo: DbTranslation, pinyinOn: Bool) {
         print("Logging:")
         
-        // let pinyinOn = self.pinyinOn
-//        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+        var languageDisplayed = "Mandarin"
+        if pinyinOn {
+            languageDisplayed = "\(languageDisplayed)-Pinyin"
+        } else {
+            languageDisplayed = "\(languageDisplayed)-Simplified"
+        }
         do {
-            let currentPhraseResult = resultsTable.filter(self.phrase == hanzi)
-            let currentInTable = currentPhraseResult.count
-            let count = try self.resultsDatabase.scalar(currentInTable)
-            let currentPhraseinDatabase: Bool = count != 0
-            
-            if currentPhraseinDatabase {
-                let insertResult = self.resultsTable.insert(self.phrase <- hanzi,
-                                                            self.lastGrade <- letterGrade,
-                                                            self.pinyinDisplayed <- pinyinOn)
-                try self.resultsDatabase.run(insertResult)
-            } else {
-                let updateResult = currentPhraseResult.update(self.lastGrade <- letterGrade,
-                                                              self.pinyinDisplayed <- pinyinOn)
-                try self.resultsDatabase.run(updateResult)
-            }
-            
-            print("\t\(hanzi)")
-            print("\t\(letterGrade)")
+            try self.sqliteConnection.run(DbResult().getInsert(translation: quizInfo, grade: letterGrade, languageDisplayed: languageDisplayed))
         } catch {
+            print("Logging failed")
             print(error)
         }
+        
+        // let pinyinOn = self.pinyinOn
+//        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
+//        do {
+//            let currentPhraseResult = resultsTable.filter(self.phrase == hanzi)
+//            let currentInTable = currentPhraseResult.count
+//            let count = try self.resultsDatabase.scalar(currentInTable)
+//            let currentPhraseinDatabase: Bool = count != 0
+//
+//            if currentPhraseinDatabase {
+//                let insertResult = self.resultsTable.insert(self.phrase <- hanzi,
+//                                                            self.lastGrade <- letterGrade,
+//                                                            self.pinyinDisplayed <- pinyinOn)
+//                try self.resultsDatabase.run(insertResult)
+//            } else {
+//                let updateResult = currentPhraseResult.update(self.lastGrade <- letterGrade,
+//                                                              self.pinyinDisplayed <- pinyinOn)
+//                try self.resultsDatabase.run(updateResult)
+//            }
+//
+//            print("\t\(hanzi)")
+//            print("\t\(letterGrade)")
+//        } catch {
+//            print(error)
+//        }
     }
     
-    func insertRowIntoResults(dbResult: DbResult) {
-        
-        
-        self.translationsDatabase.run(dbResult.getInsert())
-    }
 }
 
 extension String: LocalizedError {
@@ -177,6 +183,9 @@ extension String: LocalizedError {
 }
 
 class DbTranslation {
+    
+    static let table = Table("Translations")
+    static let static_id = Expression<Int>("id")
     
     func verifyAll() throws {
         throw "Base DbTranslation is not very good"
@@ -205,7 +214,7 @@ class DbTranslation {
 }
 
 class SpecificDbTranslation : DbTranslation {
-    let id = Expression<Int>("generated_id")
+    let id = Expression<Int>("id")
     let hanzi = Expression<String>("Hanzi")
     let pinyin = Expression<String>("Pinyin")
     let english = Expression<String>("English")
@@ -269,44 +278,72 @@ class DbResult {
     ]
     
     //TODO: Duplicate removal
-    let resultsTable = Table("Results")
+    static let table = Table("Results")
     
-    let dbDict: [String: Any] = [
-        "id": Expression<Int>("id"),
-        "translation_fk": Expression<Int>("translation"),
-        "difficulty": Expression<String>("difficulty"),
-        "due_date": Expression<Date>("due_date"),
-        "last_grade": Expression<String>("last_grade"),
-        "language_displayed": Expression<String>("language_displayed"), //TODO: enum to English, Mandarin-Simplified, or Mandarin-Pinyin
-        "like": Expression<Bool>("like")
-    ]
+    static let id = Expression<Int>("id")
+    static let translation_fk = Expression<Int>("translation")
+    static let difficulty = Expression<Int>("difficulty")
+    static let due_date = Expression<Date>("due_date")
+    static let last_grade: Expression<String> = Expression<String>("last_grade")
+    static let language_displayed = Expression<String>("language_displayed") //TODO: enum to English, Mandarin-Simplified, or Mandarin-Pinyin
+    static let like = Expression<Bool>("like")
     
     let valuesDict: [String: Any] = [:]
     
     var intElements: Array<Expression<Int>>!
     var stringElements: Array<Expression<String>>!
     
-    let dbRow: Row!
+    var dbRow: Row!
     
     init(dbRow: Row) {
+        // TODO Set this up?
+        self.dbRow = dbRow
+    }
+    
+    func printInfo() {
+        print(dbRow[DbResult.id])
+        print("\t\(dbRow[DbResult.translation_fk])")
+        print("\t\(dbRow[DbResult.difficulty])")
+        print("\t\(dbRow[DbResult.due_date])")
+        print("\t\(dbRow[DbResult.last_grade])")
+        print("\t\(dbRow[DbResult.language_displayed])")
+        print("\t\(dbRow[DbResult.like])")
         
     }
     
-    func getInsert(translation: DbTranslation, grade: String, languageDisplayed: String) -> Insert {
+    init() {
+        
+    }
+    
+    func getInsert(translation: DbTranslation, grade: String, languageDisplayed: String) -> Insert { // TODO: Should this be static?
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
         let minutesAhead: Int = self.generalDateAdding[grade, default: 1]
         let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
-        let dueDate: Date = calendar.date(byAdding: interval, to: now) ?? <#default value#>
+        let dueDate: Date = calendar.date(byAdding: interval, to: now) ?? Date()
         
-        return resultsTable.insert(
-            self.dbDict["translation_fk"] as! Expression<Int> <- translation.getId(),
-            self.dbDict["difficulty"] as! Expression<Int> <- translation.getDifficulty(),
-            self.dbDict["due_date"] as! Expression<Date> <- dueDate, // TODO: This may need to be fixed
-            self.dbDict["last_grade"] as! Expression<String> <- "B",
-            self.dbDict["language_displayed"] as! Expression<String> <- languageDisplayed, // TODO: use enum
-            self.dbDict["like"] as! Expression<Bool> <- true // TODO: use enum
+        return DbResult.table.insert(
+            DbResult.translation_fk <- translation.getId(),
+            DbResult.difficulty <- translation.getDifficulty(),
+            DbResult.due_date <- dueDate, // TODO: This may need to be fixed
+            DbResult.last_grade <- "B",
+            DbResult.language_displayed <- languageDisplayed, // TODO: use enum
+            DbResult.like <- true // TODO: use enum
         )
+    }
+    
+    static func getCreateTable() -> String {
+        return DbResult.table.create { t in
+            t.column(DbResult.id, primaryKey: true)
+            t.column(DbResult.translation_fk)
+            t.column(DbResult.difficulty)
+            t.column(DbResult.due_date)
+            t.column(DbResult.last_grade)
+            t.column(DbResult.language_displayed)
+            t.column(DbResult.like)
+            
+            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
+        }
     }
         
 //    init(dbRow: Row) {
