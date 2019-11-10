@@ -200,7 +200,7 @@ class ViewController: UIViewController {
     }
     
     fileprivate func transcribeFile(url: URL) {
-        // 1
+        
         //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
         guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN")) else {
             print("Speech recognition not available for specified locale")
@@ -225,8 +225,9 @@ class ViewController: UIViewController {
             }
             
             // 4
-//            if result.isFinal {
-//                var transcribed:String = result.bestTranscription.formattedString
+            if result.isFinal {
+                let transcribed:String = result.bestTranscription.formattedString
+                print(transcribed)
 //
 //                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
 //                transcribed = transcribed.replacingOccurrences(of: "！", with: "")
@@ -247,7 +248,7 @@ class ViewController: UIViewController {
                     self.skipThis.isEnabled = true
 //                }
 //
-//            }
+            }
         }
         
         self.dbm.printAllResultsTable()
