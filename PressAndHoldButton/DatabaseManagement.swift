@@ -88,9 +88,24 @@ class DatabaseManagement {
         }
     }
     
+    func runUnitTests() throws {
+        let firstRandom: DbTranslation = self.getRandomRowFromTranslations()
+        var secondRandom: DbTranslation = self.getRandomRowFromTranslations()
+        var maxRandomTries = 10
+        while maxRandomTries > 0 && secondRandom.getId() == firstRandom.getId() {
+            maxRandomTries -= 1
+            secondRandom = self.getRandomRowFromTranslations()
+        }
+        assert(firstRandom.getId() != secondRandom.getId())
+        
+        try firstRandom.verifyAll()
+        try secondRandom.verifyAll()
+        
+        print("Test of 1st random database request:\(firstRandom.getHanzi()):")
+    }
+    
     func getRandomRowFromTranslations() -> DbTranslation {
         do {
-            
             let rows: Int64 = try self.sqliteConnection.scalar("SELECT count(*) FROM Translations") as! Int64
             let random_int = Int.random(in: 1 ..< Int(rows))
             
@@ -102,14 +117,10 @@ class DatabaseManagement {
                 
                 return dbTranslation
             }
-            
         } catch {
-            print(error.localizedDescription)
-            print("Random row failure")
-            
-            return DbTranslation()
+            print(error)
         }
-        print("No row failure")
+        
         return DbTranslation()
     }
     

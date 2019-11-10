@@ -25,7 +25,7 @@ class ViewController: UIViewController {
     var paragraphValue = 0
     var toPronounceCharacters = ""
     var pronouncedSoFar = ""
-    var pinyinOn = true
+    var pinyinOn = false
     var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
                                             false: "True Off Pinyin", ]
     
@@ -37,6 +37,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view.
         
         //TODO: Really, no unit tests?
@@ -44,33 +45,32 @@ class ViewController: UIViewController {
 //            exit(0)
 //        }
         
-        // Setup
         self.dbm = DatabaseManagement()
         self.translation = RecordingForTranslation(primaryLabel: self.generalCommentLabel)
         self.translation.setupRecordingSession()
-        
-        
+                
         // DB testing
         do {
-            var testTranslation: DbTranslation = self.dbm.getRandomRowFromTranslations()
-            try testTranslation.verifyAll()
-            print(testTranslation.getHanzi())
-            
-            testTranslation = self.dbm.getRandomRowFromTranslations()
-            try testTranslation.verifyAll()
-            print(testTranslation.getHanzi())
+            try dbm.runUnitTests()
         } catch {
             print(error.localizedDescription)
-            exit(33)
+            exit(1)
         }
         
         self.currentTranslation = self.dbm.getRandomRowFromTranslations()
         
-        self.toPronounce.text = self.currentTranslation.getHanzi()
-        self.toPronouncePinyin.text = self.currentTranslation.getPinyin()
+        self._setHanziField(self.currentTranslation.getHanzi())
+        self._setPinyinField(self.currentTranslation.getPinyin())
         
-        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
-        self.toPronouncePinyin.isHidden = !self.pinyinOn
+        self.pinyinToggle("Setup Method")
+    }
+    
+    func _setHanziField(_ hanzi: String) {
+        self.toPronounce.text = hanzi
+    }
+    
+    func _setPinyinField(_ pinyin: String) {
+        self.toPronouncePinyin.text = pinyin
     }
     
 //    func getToPronounce() -> (String, String) {
@@ -212,11 +212,9 @@ class ViewController: UIViewController {
             return
         }
         
-        // 2
-//        updateUIForTranscriptionInProgress()
+        // updateUIForTranscriptionInProgress()
         let request = SFSpeechURLRecognitionRequest(url: url)
         
-        // 3
         recognizer.recognitionTask(with: request) {
             [unowned self] (result, error) in
             guard let result = result else {
@@ -224,10 +222,9 @@ class ViewController: UIViewController {
                 return
             }
             
-            // 4
             if result.isFinal {
                 let transcribed:String = result.bestTranscription.formattedString
-                print(transcribed)
+                print("iOS Transcription:\(transcribed):")
 //
 //                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
 //                transcribed = transcribed.replacingOccurrences(of: "！", with: "")

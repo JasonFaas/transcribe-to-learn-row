@@ -60,7 +60,7 @@ class RecordingForTranslation {
     }
     
     func startRecording() throws {
-        let audioFilename = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+        let audioFilename = _getDocumentsDirectory().appendingPathComponent("recording.m4a")
         
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
@@ -79,18 +79,17 @@ class RecordingForTranslation {
         audioRecorder = nil
     }
     
-    func getDocumentsDirectory() -> URL {
+    func _getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
     
     func getFileURL() -> URL {
-        let path = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+        let path = _getDocumentsDirectory().appendingPathComponent("recording.m4a")
         return path as URL
     }
     
     func setupRecordingSession() {
-        
         do {
             recordingSession = AVAudioSession.sharedInstance()
             try recordingSession.setCategory(.playAndRecord, mode: .default)
