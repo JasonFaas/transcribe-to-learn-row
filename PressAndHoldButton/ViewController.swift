@@ -9,8 +9,6 @@
 import UIKit
 import Speech
 
-import PressAndHoldButton
-
 class ViewController: UIViewController {
 
     @IBOutlet weak var toPronounce: UILabel!
@@ -25,52 +23,33 @@ class ViewController: UIViewController {
     var paragraphValue = 0
     var toPronounceCharacters = ""
     var pronouncedSoFar = ""
-    var pinyinOn = false
-    var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
-                                            false: "True Off Pinyin", ]
     
     var currentTranslation: DbTranslation!
     
     var translation: RecordingForTranslation!
-    
-    var dbm: DatabaseManagement!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
         
-        //TODO: Really, no unit tests?
-//        if !unitTests() {
-//            exit(0)
-//        }
+        self.translation = RecordingForTranslation(
+            feedbackLabel: self.generalCommentLabel,
+            toPronounceHanzi: self.toPronounce,
+            toPronouncePinyin: self.toPronouncePinyin,
+            buttonTextUpdate: self.buttonTextUpdate,
+            skipThis: self.skipThis,
+            pinyinToggleButton: self.buttonPinyinToggle
+        )
         
-        self.dbm = DatabaseManagement()
-        self.translation = RecordingForTranslation(primaryLabel: self.generalCommentLabel)
-        self.translation.setupRecordingSession()
-                
-        // DB testing
         do {
-            try dbm.runUnitTests()
+            try translation.runUnitTests()
         } catch {
             print(error.localizedDescription)
             exit(1)
         }
         
-        self.currentTranslation = self.dbm.getRandomRowFromTranslations()
-        
-        self._setHanziField(self.currentTranslation.getHanzi())
-        self._setPinyinField(self.currentTranslation.getPinyin())
-        
-        self.pinyinToggle("Setup Method")
-    }
-    
-    func _setHanziField(_ hanzi: String) {
-        self.toPronounce.text = hanzi
-    }
-    
-    func _setPinyinField(_ pinyin: String) {
-        self.toPronouncePinyin.text = pinyin
+        self.translation.setupRecordingSession()
     }
     
 //    func getToPronounce() -> (String, String) {
@@ -93,9 +72,7 @@ class ViewController: UIViewController {
 //    }
     
     @IBAction func pinyinToggle(_ sender: Any) {
-        self.pinyinOn = !self.pinyinOn
-        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
-        self.toPronouncePinyin.isHidden = !self.pinyinOn
+        self.translation.pinyinToggle()
     }
     
 //    func removeExtraNewlineForComparrison(_ str: String) -> String {
@@ -112,10 +89,7 @@ class ViewController: UIViewController {
 //    }
     
     @IBAction func skipThisPress(_ sender: Any) {
-        self.skipThis.isEnabled = false
-        
-        self.advanceToNextPhrase(letterGrade: "F")
-        self.generalCommentLabel.text = "I know you'll get it next time"
+        self.translation.skipThisPress()
     }
     
     
@@ -128,128 +102,13 @@ class ViewController: UIViewController {
     }
     
     func released() {
-        self.buttonTextUpdate.isEnabled = false
-        
-        generalCommentLabel.text = "\(String(generalCommentLabel.text ?? "hello"))\nProcessing..."
-        
-        self.translation.finishRecording()
-        
-        self.translation.playback()
-        self.transcribeFile(url: self.translation.getFileURL() as URL)
-        
-        self.buttonTextUpdate.isEnabled = true
+        self.translation.fullFinishRecording()
     }
-
     
     @IBAction func release(_ sender: Any) {
-        generalCommentLabel.text = "Listening..."
-        
-        do {
-            try self.translation.startRecording()
-        } catch {
-            self.translation.finishRecording()
-            generalCommentLabel.text = "\(String(generalCommentLabel.text ?? "hello")) Did not record."
-        }
+        self.translation.fullStartRecording()
     }
     
-    func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
-        self.toPronounce.text = quizInfo.getHanzi()
-        self.toPronouncePinyin.text = quizInfo.getPinyin()
-    }
-    
-    func advanceToNextPhrase(letterGrade: String) {
-        // log info
-        self.dbm.logResult(letterGrade: letterGrade,
-                           quizInfo: self.currentTranslation,
-                           pinyinOn: self.pinyinOn)
-        
-        self.currentTranslation = self.dbm.getRandomRowFromTranslations()
-        
-        self.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
-        
-        
-
-//        let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-//        let pinyinOn = self.pinyinOn
-//        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-//        if !currentParagraph.contains("。") {
-//
-//            self.dbm.logResult(letterGrade: letterGrade,
-//                               hanzi: currentHanzi,
-//                               pinyinOn: pinyinOn)
-//
-//            self.translationValue += 1
-//        } else {
-//            let sentences:[Substring] = currentParagraph.split(separator: "。")
-//            self.paragraphValue += 1
-//            if sentences.count == self.paragraphValue {
-//                self.dbm.logResult(letterGrade: letterGrade,
-//                                   hanzi: currentHanzi,
-//                                   pinyinOn: pinyinOn)
-//
-//                self.translationValue += 1
-//                self.paragraphValue = 0
-//            }
-//        }
-//
-//        let (characters, pinyin) = self.getToPronounce()
-//        self.toPronounce.text = characters
-//        self.toPronouncePinyin.text = pinyin
-//
-//        self.pronouncedSoFar = ""
-    }
-    
-    fileprivate func transcribeFile(url: URL) {
-        
-        //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
-        guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN")) else {
-            print("Speech recognition not available for specified locale")
-            return
-        }
-        
-        if !recognizer.isAvailable {
-            print("Speech recognition not currently available")
-            return
-        }
-        
-        // updateUIForTranscriptionInProgress()
-        let request = SFSpeechURLRecognitionRequest(url: url)
-        
-        recognizer.recognitionTask(with: request) {
-            [unowned self] (result, error) in
-            guard let result = result else {
-                print("There was an error transcribing that file")
-                return
-            }
-            
-            if result.isFinal {
-                let transcribed:String = result.bestTranscription.formattedString
-                print("iOS Transcription:\(transcribed):")
-//
-//                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
-//                transcribed = transcribed.replacingOccurrences(of: "！", with: "")
-//                transcribed = "\(self.pronouncedSoFar)\(transcribed)"
-//
-//                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
-//                if transcribed == compareString {
-//                    self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
-//                    self.skipThis.isEnabled = false
-//
-//                    self.advanceToNextPhrase(letterGrade: "A")
-//                } else if compareString.contains(transcribed) {
-//                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
-//                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
-//                } else {
-//                    self.primaryLabel.text = "Try again:\n\(transcribed)"
-//                    self.pronouncedSoFar = ""
-                    self.skipThis.isEnabled = true
-//                }
-//
-            }
-        }
-        
-        self.dbm.printAllResultsTable()
-    }
 
 }
 

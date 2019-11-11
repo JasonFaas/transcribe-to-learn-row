@@ -8,7 +8,7 @@
 
 import Foundation
 
-//TODO Delete these errors
+//TODO: Delete these errors
 
 enum TranscribtionError: Error {
     case durationTooLong(duration: Int)
