@@ -89,36 +89,26 @@ class RecordingForTranslation {
     func preparePlayer() throws {
         var error: NSError?
         do {
-            audioPlayer = try AVAudioPlayer(contentsOf: getFileURL() as URL)
+            self.audioPlayer = try AVAudioPlayer(contentsOf: getFileURL() as URL)
             
         } catch let error1 as NSError {
             error = error1
-            audioPlayer = nil
+            self.audioPlayer = nil
         }
         if let err = error {
             feedbackLabel.text = "\(String(feedbackLabel.text ?? "hello")) Error loading audio to playback."
             print("AVAudioPlayer error: \(err.localizedDescription)")
         } else {
-            audioPlayer.delegate = self as? AVAudioPlayerDelegate
-            audioPlayer.prepareToPlay()
+            self.audioPlayer.delegate = self as? AVAudioPlayerDelegate
+            self.audioPlayer.prepareToPlay()
             
-            audioPlayer.volume = 10.0
+            self.audioPlayer.volume = 10.0
             
             let maxTime:Int = 20
-            if Int(audioPlayer.duration) > maxTime {
-                feedbackLabel.text = "\(String(feedbackLabel.text ?? "hello"))\nDuration longer than \(maxTime) seconds cannot be transcribed (\(Int(audioPlayer.duration)))..."
-                throw TranscribtionError.durationTooLong(duration: Int(audioPlayer.duration))
+            if Int(self.audioPlayer.duration) > maxTime {
+                feedbackLabel.text = "\(String(feedbackLabel.text ?? "hello"))\nDuration longer than \(maxTime) seconds cannot be transcribed (\(Int(self.audioPlayer.duration)))..."
+                throw TranscribtionError.durationTooLong(duration: Int(self.audioPlayer.duration))
             }
-            
-        }
-    }
-    
-    func playback() {
-        do {
-            try preparePlayer()
-            
-            audioPlayer.play()
-        } catch {
             
         }
     }
@@ -145,9 +135,9 @@ class RecordingForTranslation {
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
         ]
         
-        audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
-        audioRecorder.delegate = self as? AVAudioRecorderDelegate
-        audioRecorder.record()
+        self.audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
+        self.audioRecorder.delegate = self as? AVAudioRecorderDelegate
+        self.audioRecorder.record()
     }
     
     func fullFinishRecording() {
@@ -157,15 +147,22 @@ class RecordingForTranslation {
         
         self.finishRecording()
         
-        self.playback()
-        self.transcribeFile(url: self.getFileURL() as URL)
+        do {
+            try preparePlayer()
+            
+            self.audioPlayer.play()
+            
+            self.transcribeFile(url: self.getFileURL() as URL)
+        } catch {
+            print("Function: \(#file):\(#line), Error: \(error)")
+        }
         
         self.buttonTextUpdate.isEnabled = true
     }
     
     func finishRecording() {
-        audioRecorder.stop()
-        audioRecorder = nil
+        self.audioRecorder.stop()
+        self.audioRecorder = nil
     }
     
     func _getDocumentsDirectory() -> URL {
@@ -197,7 +194,7 @@ class RecordingForTranslation {
         recognizer.recognitionTask(with: request) {
             [unowned self] (result, error) in
             guard let result = result else {
-                print("There was an error transcribing that file")
+                print("Function: \(#file):\(#line), Error: There was an error transcribing that file")
                 return
             }
             
@@ -294,20 +291,21 @@ class RecordingForTranslation {
     
     func setupRecordingSession() {
         do {
-            recordingSession = AVAudioSession.sharedInstance()
-            try recordingSession.setCategory(.playAndRecord, mode: .default)
-            try recordingSession.setActive(true)
-            recordingSession.requestRecordPermission() { [unowned self] allowed in
-                DispatchQueue.main.async {
+            self.recordingSession = AVAudioSession.sharedInstance()
+            try self.recordingSession.setCategory(.playAndRecord, mode: .default)
+            try self.recordingSession.setActive(true)
+            self.recordingSession.requestRecordPermission() {
+                [unowned self] allowed in DispatchQueue.main.async {
                     if allowed {
                         print("Recording setup complete")
                     } else {
-                        // failed to record
-                        print("Failed to Record Level 1")
+                        print("Function: \(#file):\(#line), Error: Failed to Record Level 1")
                         exit(0)
-                    }}}
-        } catch { // failed to record
-            print("Failed to Record Level 2")
+                    }
+                }
+            }
+        } catch {
+            print("Function: \(#file):\(#line), Error: Failed to Record Level 2")
             exit(0)
         }
     }

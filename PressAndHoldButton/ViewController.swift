@@ -24,8 +24,6 @@ class ViewController: UIViewController {
     var toPronounceCharacters = ""
     var pronouncedSoFar = ""
     
-    var currentTranslation: DbTranslation!
-    
     var translation: RecordingForTranslation!
     
     override func viewDidLoad() {
@@ -45,11 +43,35 @@ class ViewController: UIViewController {
         do {
             try translation.runUnitTests()
         } catch {
-            print(error.localizedDescription)
+            print("Function: \(#file):\(#line), Error: \(error)")
             exit(1)
         }
         
         self.translation.setupRecordingSession()
+    }
+    
+    @IBAction func pinyinToggle(_ sender: Any) {
+        self.translation.pinyinToggle()
+    }
+    
+    @IBAction func skipThisPress(_ sender: Any) {
+        self.translation.skipThisPress()
+    }
+    
+    @IBAction func releaseOutside(_ sender: Any) {
+        released()
+    }
+    
+    @IBAction func pressAndHoldBbutton(_ sender: UIButton) {
+        released()
+    }
+    
+    func released() {
+        self.translation.fullFinishRecording()
+    }
+    
+    @IBAction func release(_ sender: Any) {
+        self.translation.fullStartRecording()
     }
     
 //    func getToPronounce() -> (String, String) {
@@ -71,10 +93,6 @@ class ViewController: UIViewController {
 //        }
 //    }
     
-    @IBAction func pinyinToggle(_ sender: Any) {
-        self.translation.pinyinToggle()
-    }
-    
 //    func removeExtraNewlineForComparrison(_ str: String) -> String {
 //        let retStr = str.replacingOccurrences(of: "\n", with: "")
 //        return retStr
@@ -88,27 +106,4 @@ class ViewController: UIViewController {
 //        return retStr
 //    }
     
-    @IBAction func skipThisPress(_ sender: Any) {
-        self.translation.skipThisPress()
-    }
-    
-    
-    @IBAction func releaseOutside(_ sender: Any) {
-        released()
-    }
-    
-    @IBAction func pressAndHoldBbutton(_ sender: UIButton) {
-        released()
-    }
-    
-    func released() {
-        self.translation.fullFinishRecording()
-    }
-    
-    @IBAction func release(_ sender: Any) {
-        self.translation.fullStartRecording()
-    }
-    
-
 }
-

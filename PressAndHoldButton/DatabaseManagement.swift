@@ -82,7 +82,7 @@ class DatabaseManagement {
 //            getCreateTable
                                     
         } catch {
-            print(error)
+            print("Function: \(#function):\(#line), Error: \(error)")
             print("DB Setup Error")
             exit(0)
         }
@@ -118,7 +118,7 @@ class DatabaseManagement {
                 return dbTranslation
             }
         } catch {
-            print(error)
+            print("Function: \(#function):\(#line), Error: \(error)")
         }
         
         return DbTranslation()
@@ -130,7 +130,7 @@ class DatabaseManagement {
             print("Attempting to Drop RESULT Table")
             try self.sqliteConnection.run(DbResult.table.drop())
         } catch {
-            print(error)
+            print("Function: \(#function):\(#line), Error: \(error)")
         }
         
         do {
@@ -139,7 +139,7 @@ class DatabaseManagement {
             print("Created RESULT Table")
         } catch {
             print("DID NOT CREATE RESULT TABLE")
-            print(error)
+            print("Function: \(#function):\(#line), Error: \(error)")
         }
     }
     
@@ -158,7 +158,7 @@ class DatabaseManagement {
             try self.sqliteConnection.run(DbResult().getInsert(translation: quizInfo, grade: letterGrade, languageDisplayed: languageDisplayed))
         } catch {
             print("Logging failed")
-            print(error)
+            print("Function: \(#function):\(#line), Error: \(error)")
         }
         
         // let pinyinOn = self.pinyinOn
@@ -183,7 +183,7 @@ class DatabaseManagement {
 //            print("\t\(hanzi)")
 //            print("\t\(letterGrade)")
 //        } catch {
-//            print(error)
+//            print("Function: \(#function):\(#line), Error: \(error)")
 //        }
     }
     
