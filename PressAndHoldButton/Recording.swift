@@ -56,14 +56,20 @@ class RecordingForTranslation {
     }
     
     func skipThisPress() {
-        self.skipThis.isEnabled = false
-        
         self.advanceToNextPhrase(letterGrade: "F")
         self.feedbackLabel.text = "I know you'll get it next time"
+        
+        self.skipThis.isEnabled = false
+        
+        self.dbm.printAllResultsTable()
     }
     
-    func runUnitTests() throws {
-        try self.dbm.runUnitTests()
+    func perfectResult() {
+        self.advanceToNextPhrase(letterGrade: "A")
+        self.feedbackLabel.text = "Great Pronunciation:\n\(self.currentTranslation.getHanzi())"
+        
+        self.skipThis.isEnabled = false
+        self.dbm.printAllResultsTable()
     }
     
     func updateUiWithTranslation(_ dbTranslation: DbTranslation) {
@@ -154,8 +160,6 @@ class RecordingForTranslation {
         self.transcribeFile(url: self.getFileURL() as URL)
         
         self.buttonTextUpdate.isEnabled = true
-        
-        self.dbm.printAllResultsTable()
     }
     
     func finishRecording() {
@@ -173,8 +177,6 @@ class RecordingForTranslation {
         return path as URL
     }
     
-
-        
     fileprivate func transcribeFile(url: URL) {
         
         //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
@@ -212,11 +214,7 @@ class RecordingForTranslation {
 //
 //                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
                 if transribedForCompare == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
-                    print("\n\nWOWOW\n\n")
-//                    self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
-//                    self.skipThis.isEnabled = false
-//
-//                    self.advanceToNextPhrase(letterGrade: "A")
+                    self.perfectResult()
 //                } else if compareString.contains(transcribed) {
 //                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
 //                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
@@ -311,5 +309,9 @@ class RecordingForTranslation {
             print("Failed to Record Level 2")
             exit(0)
         }
+    }
+    
+    func runUnitTests() throws {
+        try self.dbm.runUnitTests()
     }
 }
