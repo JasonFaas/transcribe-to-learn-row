@@ -107,7 +107,7 @@ class DatabaseManagement {
     func getRandomRowFromTranslations() -> DbTranslation {
         do {
             let rows: Int64 = try self.sqliteConnection.scalar("SELECT count(*) FROM Translations") as! Int64
-            let random_int = Int.random(in: 1 ..< Int(rows))
+            let random_int = Int.random(in: 1 ... Int(rows))
             
             let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == random_int)
             

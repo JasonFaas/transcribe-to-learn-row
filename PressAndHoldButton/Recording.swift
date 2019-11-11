@@ -65,8 +65,9 @@ class RecordingForTranslation {
     }
     
     func perfectResult() {
-        self.advanceToNextPhrase(letterGrade: "A")
         self.feedbackLabel.text = "Great Pronunciation:\n\(self.currentTranslation.getHanzi())"
+        
+        self.advanceToNextPhrase(letterGrade: "A")
         
         self.skipThis.isEnabled = false
         self.dbm.printAllResultsTable()
@@ -234,7 +235,7 @@ class RecordingForTranslation {
     
     func cleanUpTranscribed(_ transcribed: String) -> String {
         var returnMe = transcribed
-        let charsToRemove = ["。", "！", "？", " "]
+        let charsToRemove = ["。", "！", "？", " ", "，"]
         
         for charToRemove in charsToRemove {
             returnMe = returnMe.replacingOccurrences(of: charToRemove, with: "")
