@@ -319,14 +319,15 @@ class DbResult {
         print("\t\(dbRow[DbResult.last_grade])")
         print("\t\(dbRow[DbResult.language_displayed])")
         print("\t\(dbRow[DbResult.like])")
-        
     }
     
     init() {
         
     }
     
-    func getInsert(translation: DbTranslation, grade: String, languageDisplayed: String) -> Insert { // TODO: Should this be static?
+    func getInsert(translation: DbTranslation,
+                   grade: String,
+                   languageDisplayed: String) -> Insert { // TODO: Should this be static?
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
         let minutesAhead: Int = self.generalDateAdding[grade, default: 1]
@@ -337,7 +338,7 @@ class DbResult {
             DbResult.translation_fk <- translation.getId(),
             DbResult.difficulty <- translation.getDifficulty(),
             DbResult.due_date <- dueDate, // TODO: This may need to be fixed
-            DbResult.last_grade <- "B",
+            DbResult.last_grade <- grade,
             DbResult.language_displayed <- languageDisplayed, // TODO: use enum
             DbResult.like <- true // TODO: use enum
         )
