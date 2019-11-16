@@ -29,6 +29,17 @@ class ViewController: UIViewController {
     var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
                                             false: "True Off Pinyin", ]
     
+//    var recordingSession: AVAudioSession!
+    var audioRecorder: AVAudioRecorder!
+    var audioPlayer: AVAudioPlayer!
+    
+    private let speechRecognizer = SFSpeechRecognizer(locale:
+            Locale(identifier: "en-US"))!
+
+    private var speechRecognitionRequest:
+        SFSpeechAudioBufferRecognitionRequest?
+    private let audioEngine = AVAudioEngine()
+    
     var currentTranslation: DbTranslation!
     
     var translation: RecordingForTranslation!
@@ -45,32 +56,36 @@ class ViewController: UIViewController {
 //        }
         
         // Setup
-        self.dbm = DatabaseManagement()
-        self.translation = RecordingForTranslation(primaryLabel: self.generalCommentLabel)
-        self.translation.setupRecordingSession()
         
         
-        // DB testing
-        do {
-            var testTranslation: DbTranslation = self.dbm.getRandomRowFromTranslations()
-            try testTranslation.verifyAll()
-            print(testTranslation.getHanzi())
-            
-            testTranslation = self.dbm.getRandomRowFromTranslations()
-            try testTranslation.verifyAll()
-            print(testTranslation.getHanzi())
-        } catch {
-            print(error.localizedDescription)
-            exit(33)
-        }
+//        SFSpeechRecognizer.requestAuthorization { [unowned self] authStatus in
+//            DispatchQueue.main.async {
+//                if authStatus == .authorized {
+//                    print("Good to go!")
+//                } else {
+//                    print("Transcription permission was declined.")
+//                }
+//            }
+//        }
         
-        self.currentTranslation = self.dbm.getRandomRowFromTranslations()
-        
-        self.toPronounce.text = self.currentTranslation.getHanzi()
-        self.toPronouncePinyin.text = self.currentTranslation.getPinyin()
-        
-        self.buttonPinyinToggle.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
-        self.toPronouncePinyin.isHidden = !self.pinyinOn
+//        recordingSession = AVAudioSession.sharedInstance()
+//
+//        do {
+//            try recordingSession.setCategory(.playAndRecord, mode: .default)
+//            try recordingSession.setActive(true)
+//            recordingSession.requestRecordPermission() { [unowned self] allowed in
+//                DispatchQueue.main.async {
+//                    if allowed {
+//                        print("Allowed to record :D")
+//                    } else {
+//                        print("Failed to record :D")
+//                        // failed to record!
+//                    }
+//                }
+//            }
+//        } catch {
+//            // failed to record!
+//        }
     }
     
 //    func getToPronounce() -> (String, String) {
@@ -114,7 +129,7 @@ class ViewController: UIViewController {
     @IBAction func skipThisPress(_ sender: Any) {
         self.skipThis.isEnabled = false
         
-        self.advanceToNextPhrase(letterGrade: "F")
+//        self.advanceToNextPhrase(letterGrade: "F")
         self.generalCommentLabel.text = "I know you'll get it next time"
     }
     
@@ -127,29 +142,179 @@ class ViewController: UIViewController {
         released()
     }
     
+    // Releasing buttom to translate
     func released() {
         self.buttonTextUpdate.isEnabled = false
         
         generalCommentLabel.text = "\(String(generalCommentLabel.text ?? "hello"))\nProcessing..."
         
-        self.translation.finishRecording()
+        self.finishRecording(success: true)
         
-        self.translation.playback()
-        self.transcribeFile(url: self.translation.getFileURL() as URL)
+//        self.translation.finishRecording()
+//
+//        self.translation.playback()
+//        self.transcribeFile(url: self.translation.getFileURL() as URL)
         
         self.buttonTextUpdate.isEnabled = true
     }
 
-    
-    @IBAction func release(_ sender: Any) {
+    // Holding down to start listening
+    @IBAction func holdDownAndListen(_ sender: Any) {
+        
+        
         generalCommentLabel.text = "Listening..."
         
-        do {
-            try self.translation.startRecording()
-        } catch {
-            self.translation.finishRecording()
-            generalCommentLabel.text = "\(String(generalCommentLabel.text ?? "hello")) Did not record."
+        startRecording()
+        
+//        do {
+//            try self.translation.startRecording()
+//        } catch {
+//            self.translation.finishRecording()
+//            generalCommentLabel.text = "\(String(generalCommentLabel.text ?? "hello")) Did not record."
+//        }
+    }
+    
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        if !flag {
+            finishRecording(success: false)
         }
+    }
+    
+    func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+    
+    func getFileURL() -> URL {
+    let path = getDocumentsDirectory().appendingPathComponent("recording.m4a")
+    return path as URL
+    }
+    
+    func startRecording() {
+        let audioFilename = getFileURL()
+        let settings = [
+        AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+        AVSampleRateKey: 12000,
+        AVNumberOfChannelsKey: 1,
+        AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+        do {
+            audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
+            audioRecorder.delegate = self as? AVAudioRecorderDelegate
+            audioRecorder.record()
+//        playButton.isEnabled = false
+        } catch {
+            finishRecording(success: false)
+        }
+
+    }
+    
+    func finishRecording(success: Bool) {
+        audioRecorder.stop()
+        audioRecorder = nil
+        if success {
+            print("Recording succeeded. Should I play back here?")
+//            transcribeFile(getFileURL())
+            preparePlayer()
+            audioPlayer.play()
+            transcribeFile()
+        } else {
+            print("Recording failed, try again")
+            // recording failed
+        }
+    }
+    
+//    func nextTranslation() {
+//
+//        guard let recognizer = SFSpeechRecognizer() else {
+//          return
+//        }
+//
+//        if !recognizer.isAvailable {
+//          print("Speech recognition not available")
+//          return
+//        }
+//
+//        let request = SFSpeechURLRecognitionRequest(url: getFileURL())
+//        request.shouldReportPartialResults = true
+//        recognizer.recognitionTask(with: request) {
+//          (result, error) in
+//          guard error == nil else { print("Error: \(error)"); return }
+//          guard let result = result else { print("No result!"); return }
+//
+//          print(result.bestTranscription.formattedString)
+//        }
+//
+//    }
+    
+    fileprivate func transcribeFile() {
+      var url = getFileURL()
+        
+      // 1
+//      guard let recognizer = SFSpeechRecognizer() else {
+//        print("Speech recognition not available for specified locale")
+//        return
+//      }
+
+//      if !recognizer.isAvailable {
+//        print("Speech recognition not currently available")
+//        return
+//      }
+
+      // 2
+      let srRequest = SFSpeechURLRecognitionRequest(url: url)
+
+        
+        speechRecognizer.recognitionTask(with: srRequest) { (result, error) in
+            if let error = error {
+            print(error.localizedDescription)
+                print("Url Translation Error")
+            } else {
+                if let result = result {
+                    print(4)
+                    print(result.bestTranscription.formattedString)
+                    if result.isFinal {
+                        print(5)
+                        print(result.bestTranscription.formattedString)
+                        // Store the transcript into the database.
+                    }
+                }
+            }
+        }
+
+
+//      // 3
+//      recognizer.recognitionTask(with: request) {
+//        [unowned self] (result, error) in
+//        guard let result = result else {
+//
+//          print("There was an error transcribing that file")
+//            print(error)
+//          return
+//        }
+//
+//        // 4
+//        if result.isFinal {
+//          print(result.bestTranscription.formattedString)
+//        }
+//      }
+    }
+    
+    func preparePlayer() {
+    var error: NSError?
+    do {
+    audioPlayer = try AVAudioPlayer(contentsOf: getFileURL() as URL)
+    } catch let error1 as NSError {
+    error = error1
+    audioPlayer = nil
+    }
+    if let err = error {
+    print("AVAudioPlayer error: \(err.localizedDescription)")
+    } else {
+        audioPlayer.delegate = self as? AVAudioPlayerDelegate
+    audioPlayer.prepareToPlay()
+    audioPlayer.volume = 10.0
+    }
     }
     
     func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
@@ -199,59 +364,60 @@ class ViewController: UIViewController {
 //        self.pronouncedSoFar = ""
     }
     
-    fileprivate func transcribeFile(url: URL) {
-        // 1
-        //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
-        guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN")) else {
-            print("Speech recognition not available for specified locale")
-            return
-        }
-        
-        if !recognizer.isAvailable {
-            print("Speech recognition not currently available")
-            return
-        }
-        
-        // 2
-//        updateUIForTranscriptionInProgress()
-        let request = SFSpeechURLRecognitionRequest(url: url)
-        
-        // 3
-        recognizer.recognitionTask(with: request) {
-            [unowned self] (result, error) in
-            guard let result = result else {
-                print("There was an error transcribing that file")
-                return
-            }
-            
-            // 4
+//    fileprivate func transcribeFile(url: URL) {
+//        // 1
+//        //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
+//        guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN")) else {
+//            print("Speech recognition not available for specified locale")
+//            return
+//        }
+//
+//        if !recognizer.isAvailable {
+//            print("Speech recognition not currently available")
+//            return
+//        }
+//
+//        // 2
+////        updateUIForTranscriptionInProgress()
+//        let request = SFSpeechURLRecognitionRequest(url: url)
+//
+//        // 3
+//        recognizer.recognitionTask(with: request) {
+//            [unowned self] (result, error) in
+//            guard let result = result else {
+//                print("There was an error transcribing that file")
+//                return
+//            }
+//
+//            // 4
 //            if result.isFinal {
 //                var transcribed:String = result.bestTranscription.formattedString
-//
-//                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
-//                transcribed = transcribed.replacingOccurrences(of: "！", with: "")
-//                transcribed = "\(self.pronouncedSoFar)\(transcribed)"
-//
-//                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
-//                if transcribed == compareString {
-//                    self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
-//                    self.skipThis.isEnabled = false
-//
-//                    self.advanceToNextPhrase(letterGrade: "A")
-//                } else if compareString.contains(transcribed) {
-//                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
-//                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
-//                } else {
-//                    self.primaryLabel.text = "Try again:\n\(transcribed)"
-//                    self.pronouncedSoFar = ""
-                    self.skipThis.isEnabled = true
-//                }
-//
+//                print(transcribed)
+////
+////                transcribed = transcribed.replacingOccurrences(of: "。", with: "")
+////                transcribed = transcribed.replacingOccurrences(of: "！", with: "")
+////                transcribed = "\(self.pronouncedSoFar)\(transcribed)"
+////
+////                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
+////                if transcribed == compareString {
+////                    self.primaryLabel.text = "Great Pronunciation:\n\(transcribed)"
+////                    self.skipThis.isEnabled = false
+////
+////                    self.advanceToNextPhrase(letterGrade: "A")
+////                } else if compareString.contains(transcribed) {
+////                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
+////                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
+////                } else {
+////                    self.primaryLabel.text = "Try again:\n\(transcribed)"
+////                    self.pronouncedSoFar = ""
+//                    self.skipThis.isEnabled = true
+////                }
+////
 //            }
-        }
-        
-        self.dbm.printAllResultsTable()
-    }
+//        }
+//
+//        self.dbm.printAllResultsTable()
+//    }
 
 }
 
