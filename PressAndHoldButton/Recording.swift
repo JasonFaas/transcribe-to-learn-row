@@ -39,6 +39,8 @@ class RecordingForTranslation {
     var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
                                             false: "True Off Pinyin", ]
     
+    var lastTranslation:String = ""
+    
     init(feedbackLabel: UILabel,
          toPronounceHanzi: UILabel,
          toPronouncePinyin: UILabel,
@@ -142,7 +144,14 @@ class RecordingForTranslation {
         
         recognitionTask = speechRecogniser.recognitionTask(with: recognitionRequest) { [unowned self] result, error in
             if let result = result {
-                print(result.bestTranscription.formattedString)
+                let transcribed = result.bestTranscription.formattedString
+                print(transcribed)
+                self.lastTranslation = self.cleanUpTranscribed(transcribed)
+                
+
+                self.feedbackLabel.text = "Listening...\n\(self.lastTranslation)"
+                
+                
 //                self.delegate.speechController(self, didRecogniseText: result.bestTranscription.formattedString)
             }
             
@@ -170,7 +179,7 @@ class RecordingForTranslation {
     func fullFinishRecording() {
         self.buttonTextUpdate.isEnabled = false
         
-        self.feedbackLabel.text = "\(String(self.feedbackLabel.text ?? "hello"))\nProcessing..."
+        self.feedbackLabel.text = "\(String(self.feedbackLabel.text ?? "hello"))\nComplete"
         
         self.finishRecording()
         
@@ -178,6 +187,12 @@ class RecordingForTranslation {
 //        } catch {
 //            print("Function: \(#file):\(#line), Error: \(error)")
 //        }
+        
+        if self.lastTranslation == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
+            self.perfectResult()
+        } else {
+            self.skipThis.isEnabled = true
+        }
         
         self.buttonTextUpdate.isEnabled = true
     }
@@ -197,62 +212,6 @@ class RecordingForTranslation {
 //            // We have a recognition task still running, so cancel it before starting a new one.
 //            recognitionTask.cancel()
 //        }
-    }
-    
-    // TODO: Move this somewhere?
-    fileprivate func transcribeFile(url: URL) {
-        
-        //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
-        guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN")) else {
-            print("Speech recognition not available for specified locale")
-            return
-        }
-        
-        if !recognizer.isAvailable {
-            print("Speech recognition not currently available")
-            return
-        }
-        
-        // updateUIForTranscriptionInProgress()
-        let request = SFSpeechURLRecognitionRequest(url: url)
-        
-        recognizer.recognitionTask(with: request) {
-            [unowned self] (result, error) in
-            guard let result = result else {
-                print("Function: \(#file):\(#line), Error: There was an error transcribing that file")
-                return
-            }
-            
-            if result.isFinal {
-                let transcribed:String = result.bestTranscription.formattedString
-                print("iOS Transcription:\(transcribed):")
-                
-                let transribedForCompare = self.cleanUpTranscribed(transcribed)
-                
-                self.feedbackLabel.text = transribedForCompare
-                
-//
-
-//                transcribed = "\(self.pronouncedSoFar)\(transcribed)"
-//
-//                let compareString = self.removeExtraNewlineForComparrison(self.toPronounceCharacters)
-                if transribedForCompare == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
-                    self.perfectResult()
-//                } else if compareString.contains(transcribed) {
-//                    self.pronouncedSoFar = "\(self.pronouncedSoFar)\(transcribed)"
-//                        self.primaryLabel.text = "\(String(self.primaryLabel.text ?? "hello")) \nKeep Going: \(self.pronouncedSoFar)"
-//                } else {
-//                    self.primaryLabel.text = "Try again:\n\(transcribed)"
-//                    self.pronouncedSoFar = ""
-                    
-//                }
-//
-                } else {
-                    self.skipThis.isEnabled = true
-                }
-            }
-        }
-        
     }
     
     func cleanUpTranscribed(_ transcribed: String) -> String {

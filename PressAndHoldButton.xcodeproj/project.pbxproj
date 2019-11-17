@@ -161,13 +161,13 @@
 			isa = PBXGroup;
 			children = (
 				8E89520822FF494C001B3B04 /* AppDelegate.swift */,
-				8E89520A22FF494C001B3B04 /* ViewController.swift */,
 				8E017FC523013D5500230A7E /* CustomErrors.swift */,
 				8E89520C22FF494C001B3B04 /* Main.storyboard */,
 				8E89521122FF494E001B3B04 /* LaunchScreen.storyboard */,
 				8E89521422FF494E001B3B04 /* Info.plist */,
-				8E40486F232472EE004B01BD /* Recording.swift */,
 				8E404890232D77CA004B01BD /* DatabaseManagement.swift */,
+				8E40486F232472EE004B01BD /* Recording.swift */,
+				8E89520A22FF494C001B3B04 /* ViewController.swift */,
 				8EBB02D823412EBB00079D8C /* first.sqlite3 */,
 			);
 			path = PressAndHoldButton;
