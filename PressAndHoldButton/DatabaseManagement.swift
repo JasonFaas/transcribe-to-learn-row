@@ -89,13 +89,10 @@ class DatabaseManagement {
     }
     
     func runUnitTests() throws {
-        let firstRandom: DbTranslation = self.getRandomRowFromTranslations()
-        var secondRandom: DbTranslation = self.getRandomRowFromTranslations()
-        var maxRandomTries = 10
-        while maxRandomTries > 0 && secondRandom.getId() == firstRandom.getId() {
-            maxRandomTries -= 1
-            secondRandom = self.getRandomRowFromTranslations()
-        }
+        let firstRandom: DbTranslation = self.getRandomRowFromTranslations(-1)
+        let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
+        
+        print("Testing random ids \(firstRandom.getId()) \(secondRandom.getId())")
         assert(firstRandom.getId() != secondRandom.getId())
         
         try firstRandom.verifyAll()
@@ -104,12 +101,11 @@ class DatabaseManagement {
         print("Test of 1st random database request:\(firstRandom.getHanzi()):")
     }
     
-    func getRandomRowFromTranslations() -> DbTranslation {
+    func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
-            let rows: Int64 = try self.sqliteConnection.scalar("SELECT count(*) FROM Translations") as! Int64
-            let random_int = Int.random(in: 1 ... Int(rows))
-            
-            let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == random_int)
+            let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
+                        
+            let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == Int(random_int))
             
             for translation in try self.sqliteConnection.prepare(extractedExpr) {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation)

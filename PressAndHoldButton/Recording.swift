@@ -55,7 +55,7 @@ class RecordingForTranslation {
         self.pinyinToggleButton = pinyinToggleButton
         
         self.dbm = DatabaseManagement()
-        self.currentTranslation = self.dbm.getRandomRowFromTranslations()
+        self.currentTranslation = self.dbm.getRandomRowFromTranslations(-1)
         self.updateUiWithTranslation(currentTranslation)
     }
     
@@ -237,7 +237,7 @@ class RecordingForTranslation {
                            quizInfo: self.currentTranslation,
                            pinyinOn: self.pinyinOn)
         
-        self.currentTranslation = self.dbm.getRandomRowFromTranslations()
+        self.currentTranslation = self.dbm.getRandomRowFromTranslations(self.currentTranslation.getId())
         
         self.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
         
