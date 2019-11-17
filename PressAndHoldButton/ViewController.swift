@@ -28,8 +28,17 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // Do any additional setup after loading the view.
+        
+        SFSpeechRecognizer.requestAuthorization { [unowned self] authStatus in
+               DispatchQueue.main.async {
+                   if authStatus == .authorized {
+                       print("Good to go!")
+                   } else {
+                       print("Transcription permission was declined.")
+                   }
+               }
+           }
         
         self.translation = RecordingForTranslation(
             feedbackLabel: self.generalCommentLabel,
@@ -46,8 +55,6 @@ class ViewController: UIViewController {
             print("Function: \(#file):\(#line), Error: \(error)")
             exit(1)
         }
-        
-        self.translation.setupRecordingSession()
     }
     
     @IBAction func pinyinToggle(_ sender: Any) {
