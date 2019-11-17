@@ -13,9 +13,17 @@ import Speech
 
 class RecordingForTranslation {
     
-    var recordingSession: AVAudioSession!
-    var audioRecorder: AVAudioRecorder!
-    var audioPlayer:AVAudioPlayer!
+    /// The speech recogniser used by the controller to record the user's speech.
+    private let speechRecogniser = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN"))!
+
+    /// The current speech recognition request. Created when the user wants to begin speech recognition.
+    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+
+    /// The current speech recognition task. Created when the user wants to begin speech recognition.
+    private var recognitionTask: SFSpeechRecognitionTask?
+
+    /// The audio engine used to record input from the microphone.
+    private let audioEngine = AVAudioEngine()
     
     var feedbackLabel: UILabel
     var toPronounceHanzi: UILabel
@@ -86,33 +94,6 @@ class RecordingForTranslation {
         self.toPronouncePinyin.text = pinyin
     }
     
-    func preparePlayer() throws {
-        var error: NSError?
-        do {
-            self.audioPlayer = try AVAudioPlayer(contentsOf: getFileURL() as URL)
-            
-        } catch let error1 as NSError {
-            error = error1
-            self.audioPlayer = nil
-        }
-        if let err = error {
-            feedbackLabel.text = "\(String(feedbackLabel.text ?? "hello")) Error loading audio to playback."
-            print("AVAudioPlayer error: \(err.localizedDescription)")
-        } else {
-            self.audioPlayer.delegate = self as? AVAudioPlayerDelegate
-            self.audioPlayer.prepareToPlay()
-            
-            self.audioPlayer.volume = 10.0
-            
-            let maxTime:Int = 20
-            if Int(self.audioPlayer.duration) > maxTime {
-                feedbackLabel.text = "\(String(feedbackLabel.text ?? "hello"))\nDuration longer than \(maxTime) seconds cannot be transcribed (\(Int(self.audioPlayer.duration)))..."
-                throw TranscribtionError.durationTooLong(duration: Int(self.audioPlayer.duration))
-            }
-            
-        }
-    }
-    
     func fullStartRecording() {
         self.feedbackLabel.text = "Listening..."
         
@@ -121,23 +102,69 @@ class RecordingForTranslation {
         } catch {
             self.finishRecording()
             self.feedbackLabel.text = "\(String(self.feedbackLabel.text ?? "hello")) Did not record."
+
+            print("Function: \(#file):\(#line), Error: \(error)")
         }
     }
     
-    
+   
     func _startRecording() throws {
-        let audioFilename = _getDocumentsDirectory().appendingPathComponent("recording.m4a")
+        print("Hello 1")
+        guard speechRecogniser.isAvailable else {
+            throw "Speech recognition is unavailable, so do not attempt to start."
+        }
         
-        let settings = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
+        if let recognitionTask = recognitionTask {
+            // We have a recognition task still running, so cancel it before starting a new one.
+            recognitionTask.cancel()
+            self.recognitionTask = nil
+        }
+        print("Hello 2")
         
-        self.audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
-        self.audioRecorder.delegate = self as? AVAudioRecorderDelegate
-        self.audioRecorder.record()
+        guard SFSpeechRecognizer.authorizationStatus() == .authorized else {
+            SFSpeechRecognizer.requestAuthorization({ _ in })
+            throw "SFSpeechRecognizer not authorized"
+        }
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setCategory(AVAudioSession.Category.record)
+        try audioSession.setMode(AVAudioSession.Mode.measurement)
+        try audioSession.setActive(true, options: AVAudioSession.SetActiveOptions.notifyOthersOnDeactivation)
+        
+        
+        print("Hello 3")
+        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        
+        let inputNode = audioEngine.inputNode
+        guard let recognitionRequest = recognitionRequest else {
+            throw "Could not create request instance"
+        }
+        
+        recognitionTask = speechRecogniser.recognitionTask(with: recognitionRequest) { [unowned self] result, error in
+            if let result = result {
+                print(result.bestTranscription.formattedString)
+//                self.delegate.speechController(self, didRecogniseText: result.bestTranscription.formattedString)
+            }
+            
+            if result?.isFinal ?? (error != nil) {
+                if let result = result {
+                    print("IS FINAL!!!")
+                    print(result.bestTranscription.formattedString)
+                }
+                inputNode.removeTap(onBus: 0)
+            }
+        }
+        
+        print("Hello 4")
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
+            self.recognitionRequest?.append(buffer)
+        }
+        
+        
+        print("Hello 5")
+        audioEngine.prepare()
+        try audioEngine.start()
     }
     
     func fullFinishRecording() {
@@ -147,34 +174,32 @@ class RecordingForTranslation {
         
         self.finishRecording()
         
-        do {
-            try preparePlayer()
-            
-            self.audioPlayer.play()
-            
-            self.transcribeFile(url: self.getFileURL() as URL)
-        } catch {
-            print("Function: \(#file):\(#line), Error: \(error)")
-        }
+//        do {
+//        } catch {
+//            print("Function: \(#file):\(#line), Error: \(error)")
+//        }
         
         self.buttonTextUpdate.isEnabled = true
     }
     
     func finishRecording() {
-        self.audioRecorder.stop()
-        self.audioRecorder = nil
+//        self.audioEngine.inputNode.removeTap(onBus: 0)
+        
+        self.audioEngine.stop()
+        self.recognitionRequest?.endAudio()
+        
+        if let recognitionTask = recognitionTask {
+            // We have a recognition task still running, so cancel it before starting a new one.
+            recognitionTask.cancel()
+            self.recognitionTask = nil
+        }
+//        if let recognitionTask = recognitionTask {
+//            // We have a recognition task still running, so cancel it before starting a new one.
+//            recognitionTask.cancel()
+//        }
     }
     
-    func _getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
-    }
-    
-    func getFileURL() -> URL {
-        let path = _getDocumentsDirectory().appendingPathComponent("recording.m4a")
-        return path as URL
-    }
-    
+    // TODO: Move this somewhere?
     fileprivate func transcribeFile(url: URL) {
         
         //en-US or zh_Hans_CN - https://gist.github.com/jacobbubu/1836273
@@ -287,27 +312,6 @@ class RecordingForTranslation {
 //        self.toPronouncePinyin.text = pinyin
 //
 //        self.pronouncedSoFar = ""
-    }
-    
-    func setupRecordingSession() {
-        do {
-            self.recordingSession = AVAudioSession.sharedInstance()
-            try self.recordingSession.setCategory(.playAndRecord, mode: .default)
-            try self.recordingSession.setActive(true)
-            self.recordingSession.requestRecordPermission() {
-                [unowned self] allowed in DispatchQueue.main.async {
-                    if allowed {
-                        print("Recording setup complete")
-                    } else {
-                        print("Function: \(#file):\(#line), Error: Failed to Record Level 1")
-                        exit(0)
-                    }
-                }
-            }
-        } catch {
-            print("Function: \(#file):\(#line), Error: Failed to Record Level 2")
-            exit(0)
-        }
     }
     
     func runUnitTests() throws {
