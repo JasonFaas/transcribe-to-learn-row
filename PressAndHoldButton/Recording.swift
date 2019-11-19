@@ -187,7 +187,7 @@ class RecordingForTranslation {
 //        } catch {
 //            print("Function: \(#file):\(#line), Error: \(error)")
 //        }
-        
+
         if self.lastTranslation == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
             self.perfectResult()
         } else {

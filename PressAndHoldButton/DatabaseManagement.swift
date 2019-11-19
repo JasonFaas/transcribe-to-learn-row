@@ -104,8 +104,32 @@ class DatabaseManagement {
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
             let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
+            
+//            let query = prices.select(defindex, average(price))
+//                              .filter(quality == 5 && price_index != 0)
+//                              .group(defindex)
+//                              .order(average(price).desc)
                         
             let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == Int(random_int))
+            
+            for translation in try self.sqliteConnection.prepare(extractedExpr) {
+                let dbTranslation = SpecificDbTranslation(dbRow: translation)
+                try dbTranslation.verifyAll()
+                
+                return dbTranslation
+            }
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+        }
+        
+        return DbTranslation()
+    }
+    
+    func getRandomRowFromTranslationsThatDoesNotHavePositiveGrade(_ rowsToNotGet: Int) -> DbTranslation {
+        do {
+            //TODO:
+            let listOfIdsWithPostitiveLetterGrades: [Int] = [1, 2, 3, 4, 5]
+            let extractedExpr: Table = DbTranslation.table.filter(listOfIdsWithPostitiveLetterGrades.contains(DbTranslation.static_id))
             
             for translation in try self.sqliteConnection.prepare(extractedExpr) {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation)
