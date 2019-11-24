@@ -103,6 +103,15 @@ class DatabaseManagement {
     
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
+            let select_fk_keys = DbResult.table.select(DbResult.translation_fk)
+            var answered_values:Array<Int> = []
+            for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
+                answered_values.append(result_row[DbResult.translation_fk])
+            }
+            
+//            let all_fk_keys = Array(try self.sqliteConnection.prepare(select_fk_keys))
+            print(answered_values)
+            
             let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
             
 //            let query = prices.select(defindex, average(price))
@@ -125,24 +134,22 @@ class DatabaseManagement {
         return DbTranslation()
     }
     
-    func getRandomRowFromTranslationsThatDoesNotHavePositiveGrade(_ rowsToNotGet: Int) -> DbTranslation {
-        do {
-            //TODO:
-            let listOfIdsWithPostitiveLetterGrades: [Int] = [1, 2, 3, 4, 5]
-            let extractedExpr: Table = DbTranslation.table.filter(listOfIdsWithPostitiveLetterGrades.contains(DbTranslation.static_id))
-            
-            for translation in try self.sqliteConnection.prepare(extractedExpr) {
-                let dbTranslation = SpecificDbTranslation(dbRow: translation)
-                try dbTranslation.verifyAll()
-                
-                return dbTranslation
-            }
-        } catch {
-            print("Function: \(#function):\(#line), Error: \(error)")
-        }
-        
-        return DbTranslation()
-    }
+//    func getRowFromTranslationsByDifficultlyThatHasNotBeenAnswered() -> DbTranslation {
+//        do {
+//            //TODO:
+//
+//            for translation in try self.sqliteConnection.prepare(DbResult.table.select(select_fk_keys)) {
+//                let dbTranslation = SpecificDbTranslation(dbRow: translation)
+//                try dbTranslation.verifyAll()
+//
+//                return dbTranslation
+//            }
+//        } catch {
+//            print("Function: \(#function):\(#line), Error: \(error)")
+//        }
+//
+//        return DbTranslation()
+//    }
     
     func createDatabaseTable() {
         
@@ -245,11 +252,11 @@ class DbTranslation {
 }
 
 class SpecificDbTranslation : DbTranslation {
-    let id = Expression<Int>("id")
-    let hanzi = Expression<String>("Hanzi")
-    let pinyin = Expression<String>("Pinyin")
-    let english = Expression<String>("English")
-    let difficulty = Expression<Int>("Difficulty")
+    static let id = Expression<Int>("id")
+    static let hanzi = Expression<String>("Hanzi")
+    static let pinyin = Expression<String>("Pinyin")
+    static let english = Expression<String>("English")
+    static let difficulty = Expression<Int>("Difficulty")
     
     var intElements: Array<Expression<Int>>!
     var stringElements: Array<Expression<String>>!
@@ -259,8 +266,8 @@ class SpecificDbTranslation : DbTranslation {
     init(dbRow: Row) {
         self.dbRow = dbRow
         // TODO populate these dynamically
-        intElements = [id, difficulty]
-        stringElements = [hanzi, pinyin, english]
+        intElements = [SpecificDbTranslation.id, SpecificDbTranslation.difficulty]
+        stringElements = [SpecificDbTranslation.hanzi, SpecificDbTranslation.pinyin, SpecificDbTranslation.english]
     }
     
     override func verifyAll() throws {
@@ -277,23 +284,23 @@ class SpecificDbTranslation : DbTranslation {
     }
     
     override func getId() -> Int {
-        self.dbRow[self.id]
+        self.dbRow[SpecificDbTranslation.id]
     }
     
     override func getHanzi() -> String {
-        self.dbRow[self.hanzi]
+        self.dbRow[SpecificDbTranslation.hanzi]
     }
     
     override func getPinyin() -> String {
-        self.dbRow[self.pinyin]
+        self.dbRow[SpecificDbTranslation.pinyin]
     }
     
     override func getEnglish() -> String {
-        self.dbRow[self.english]
+        self.dbRow[SpecificDbTranslation.english]
     }
     
     override func getDifficulty() -> Int {
-        self.dbRow[self.difficulty]
+        self.dbRow[SpecificDbTranslation.difficulty]
     }
 }
 
