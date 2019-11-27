@@ -89,7 +89,7 @@ class DatabaseManagement {
     }
     
     func runUnitTests() throws {
-        let firstRandom: DbTranslation = self.getRandomRowFromTranslations(-1)
+        let firstRandom: DbTranslation = self.getEasiestRowFromTranslations(-1)
         let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
         
         print("Testing random ids \(firstRandom.getId()) \(secondRandom.getId())")
@@ -99,6 +99,41 @@ class DatabaseManagement {
         try secondRandom.verifyAll()
         
         print("Test of 1st random database request:\(firstRandom.getHanzi()):")
+    }
+    
+
+        
+    func getEasiestRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
+        do {
+            let select_fk_keys = DbResult.table.select(DbResult.translation_fk)
+            var answered_values:Array<Int> = []
+            for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
+                answered_values.append(result_row[DbResult.translation_fk])
+            }
+            
+//            let all_fk_keys = Array(try self.sqliteConnection.prepare(select_fk_keys))
+            print(answered_values)
+            
+//            let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
+            
+//            let query = prices.select(defindex, average(price))
+//                              .filter(quality == 5 && price_index != 0)
+//                              .group(defindex)
+//                              .order(average(price).desc)
+            
+            let extractedExpr: Table = DbTranslation.table.filter(!answered_values.contains(DbTranslation.static_id)).order(SpecificDbTranslation.difficulty.asc)
+            
+            for translation in try self.sqliteConnection.prepare(extractedExpr) {
+                let dbTranslation = SpecificDbTranslation(dbRow: translation)
+                try dbTranslation.verifyAll()
+                
+                return dbTranslation
+            }
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+        }
+        
+        return DbTranslation()
     }
     
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
