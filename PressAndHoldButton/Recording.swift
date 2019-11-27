@@ -183,11 +183,6 @@ class RecordingForTranslation {
         self.feedbackLabel.text = "\(String(self.feedbackLabel.text ?? "hello"))\nComplete"
         
         self.finishRecording()
-        
-//        do {
-//        } catch {
-//            print("Function: \(#file):\(#line), Error: \(error)")
-//        }
 
         if self.lastTranslation == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
             self.perfectResult()
@@ -199,8 +194,6 @@ class RecordingForTranslation {
     }
     
     func finishRecording() {
-//        self.audioEngine.inputNode.removeTap(onBus: 0)
-        
         self.audioEngine.stop()
         self.recognitionRequest?.endAudio()
         

@@ -54,18 +54,6 @@ class DatabaseManagement {
     func createDatabaseConnection() {
         
         do {
-//            let documentDirectory = try FileManager.default.url(
-//                for: .documentDirectory,
-//                in: .userDomainMask,
-//                appropriateFor: nil,
-//                create: true)
-//
-//            //TODO: Remove code for results database
-//            let fileUrl = documentDirectory.appendingPathComponent("results").appendingPathExtension("sqlite3")
-//            self.resultsDatabase = try Connection(fileUrl.path)
-//            print("Original db working")
-            
-            
             let importSqlFileName = "first.sqlite3"
             let fileManager = FileManager.default
             let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -76,11 +64,6 @@ class DatabaseManagement {
             copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
             
             self.sqliteConnection = try Connection(clientsFileUrl.path)
-            
-            
-            
-//            getCreateTable
-                                    
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
             print("DB Setup Error")
@@ -111,15 +94,7 @@ class DatabaseManagement {
                 answered_values.append(result_row[DbResult.translation_fk])
             }
             
-//            let all_fk_keys = Array(try self.sqliteConnection.prepare(select_fk_keys))
             print(answered_values)
-            
-//            let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
-            
-//            let query = prices.select(defindex, average(price))
-//                              .filter(quality == 5 && price_index != 0)
-//                              .group(defindex)
-//                              .order(average(price).desc)
             
             let extractedExpr: Table = DbTranslation.table.filter(!answered_values.contains(DbTranslation.static_id)).order(SpecificDbTranslation.difficulty.asc)
             
@@ -138,21 +113,8 @@ class DatabaseManagement {
     
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
-            let select_fk_keys = DbResult.table.select(DbResult.translation_fk)
-            var answered_values:Array<Int> = []
-            for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
-                answered_values.append(result_row[DbResult.translation_fk])
-            }
-            
-//            let all_fk_keys = Array(try self.sqliteConnection.prepare(select_fk_keys))
-            print(answered_values)
             
             let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
-            
-//            let query = prices.select(defindex, average(price))
-//                              .filter(quality == 5 && price_index != 0)
-//                              .group(defindex)
-//                              .order(average(price).desc)
                         
             let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == Int(random_int))
             
@@ -168,24 +130,7 @@ class DatabaseManagement {
         
         return DbTranslation()
     }
-    
-//    func getRowFromTranslationsByDifficultlyThatHasNotBeenAnswered() -> DbTranslation {
-//        do {
-//            //TODO:
-//
-//            for translation in try self.sqliteConnection.prepare(DbResult.table.select(select_fk_keys)) {
-//                let dbTranslation = SpecificDbTranslation(dbRow: translation)
-//                try dbTranslation.verifyAll()
-//
-//                return dbTranslation
-//            }
-//        } catch {
-//            print("Function: \(#function):\(#line), Error: \(error)")
-//        }
-//
-//        return DbTranslation()
-//    }
-    
+        
     func createDatabaseTable() {
         
         do {
@@ -204,8 +149,6 @@ class DatabaseManagement {
             print("Function: \(#function):\(#line), Error: \(error)")
         }
     }
-    
-    
     
     func logResult(letterGrade: String, quizInfo: DbTranslation, pinyinOn: Bool) {
         print("Logging:")
@@ -419,44 +362,4 @@ class DbResult {
             t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
         }
     }
-        
-//    init(dbRow: Row) {
-//        self.dbRow = dbRow
-//        // TODO populate these dynamically
-//        intElements = [id, difficulty]
-//        stringElements = [hanzi, pinyin, english]
-//    }
-//
-//    override func verifyAll() throws {
-//        for intElement in self.intElements {
-//            if self.dbRow[intElement] < 0 {
-//                throw "bad int element \(intElement)"
-//            }
-//        }
-//        for stringElement in self.stringElements {
-//            if self.dbRow[stringElement].count <= 0 {
-//                throw "bad string element \(stringElement)"
-//            }
-//        }
-//    }
-//
-//    override func getId() -> Int {
-//        self.dbRow[self.id]
-//    }
-//
-//    override func getHanzi() -> String {
-//        self.dbRow[self.hanzi]
-//    }
-//
-//    override func getPinyin() -> String {
-//        self.dbRow[self.pinyin]
-//    }
-//
-//    override func getEnglish() -> String {
-//        self.dbRow[self.english]
-//    }
-//
-//    override func getDifficulty() -> Int {
-//        self.dbRow[self.difficulty]
-//    }
 }
