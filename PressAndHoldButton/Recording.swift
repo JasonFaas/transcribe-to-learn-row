@@ -93,6 +93,7 @@ class RecordingForTranslation {
     }
     
     func _setPinyinField(_ pinyin: String) {
+        self.toPronouncePinyin.isHidden = !self.pinyinOn
         self.toPronouncePinyin.text = pinyin
     }
     
