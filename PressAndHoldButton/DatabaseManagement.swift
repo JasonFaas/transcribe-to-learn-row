@@ -52,7 +52,6 @@ class DatabaseManagement {
     }
     
     func createDatabaseConnection() {
-        
         do {
             let importSqlFileName = "first.sqlite3"
             let fileManager = FileManager.default
@@ -72,7 +71,7 @@ class DatabaseManagement {
     }
     
     func runUnitTests() throws {
-        let firstRandom: DbTranslation = self.getEasiestRowFromTranslations(-1)
+        let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
         let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
         
         print("Testing random ids \(firstRandom.getId()) \(secondRandom.getId())")
@@ -86,10 +85,10 @@ class DatabaseManagement {
     
 
         
-    func getEasiestRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
+    func getEasiestUnansweredRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
-            let select_fk_keys = DbResult.table.select(DbResult.translation_fk)
-            var answered_values:Array<Int> = []
+            let select_fk_keys = DbResult.table.select(DbResult.translation_fk).filter(DbResult.last_grade == "A")
+            var answered_values:Array<Int> = [rowToNotGet]
             for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
                 answered_values.append(result_row[DbResult.translation_fk])
             }
