@@ -132,21 +132,38 @@ class DatabaseManagement {
         return dueDate
     }
     
-    func replaceBlanks(_ phrase: String) -> String {
+    func replaceBlanks(_ phrase: String) throws -> String {
         
         var newPhrase: Substring = phrase[phrase.startIndex..<phrase.endIndex]
         while newPhrase.contains("{") {
             let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
-            var closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
+            let closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
             
-            closeIndex = phrase.index(closeIndex, offsetBy: 1)
+            let blankStartIndex = newPhrase.index(openIndex, offsetBy: 1)
+            let blankPhrase = newPhrase[blankStartIndex..<closeIndex]
+            assert(blankPhrase == "int:[33,33]", String(newPhrase[blankStartIndex..<closeIndex]))
+            if blankPhrase.contains(":") {
+                let colonIndex: String.Index = newPhrase.firstIndex(of: ":")!
+                if blankPhrase[..<colonIndex] == "int" {
+                    let intRangeStartIndex = blankPhrase.index(colonIndex, offsetBy: 1)
+                    
+//                    newPhrase.replaceSubrange(openIndex...closeIndex, with: randomFromIntRange(blankPhrase[intRangeStartIndex...]))
+                    let replacement: String = self.randomFromIntRange(blankPhrase[intRangeStartIndex...])
+                    newPhrase.replaceSubrange(openIndex...closeIndex, with: replacement)
+                } else {
+                    throw "Terrible Exception, what could it be?"
+                }
+            } else {
+                throw "Terrible Exception, populate more"
+            }
             
-            newPhrase = newPhrase.prefix(upTo: openIndex) + "33" + newPhrase.suffix(from: closeIndex)
-
-//            let openIndex: Range<String.Index> = newPhrase.range(of: "{")!
-//            let closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
-//            newPhrase = String(newPhrase[newPhrase.startIndex..<openIndex])
-//            newPhrase = String(newPhrase.prefix(upTo: openIndex) + newPhrase.suffix(from: closeIndex))
+//            newPhrase = newPhrase.prefix(upTo: openIndex) + "33" + newPhrase.suffix(from: closeIndex)
+            
+//            var stars = "***XYZ***"
+//            if let xyzRange = stars.range(of: "XYZ") {
+//              stars.replaceSubrange(xyzRange, with: "ABC") // "***ABC***"
+//            }
+            
             
             
             
@@ -155,17 +172,20 @@ class DatabaseManagement {
         return String(newPhrase)
     }
     
-    func replaceNumberBlank(_ numberBlank: String) -> String {
+    func randomFromIntRange(_ intRange: Substring) -> String {
+        assert(intRange == "[33,33]", String(intRange))
         
-        
-        return "Stop"
+        return "33"
         
     }
     
     func runUnitTests() throws {
-        let firstNumberBlank: String = "what{number:33-33}how"
-        assert(self.replaceBlanks(firstNumberBlank) == "what33how", self.replaceBlanks(firstNumberBlank))
-        assert(self.replaceBlanks("what what") == "what what")
+        let firstNumberBlank: String = "what{int:[33,33]}how"
+        let firstResponse = try self.replaceBlanks(firstNumberBlank)
+        let noBlankPhrase: String = "what what"
+        let secondResponse = try self.replaceBlanks(noBlankPhrase)
+        assert(firstResponse == "what33how", firstResponse)
+        assert(secondResponse == noBlankPhrase)
         
         
         let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
