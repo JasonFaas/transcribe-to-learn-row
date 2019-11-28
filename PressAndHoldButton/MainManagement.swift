@@ -111,8 +111,6 @@ class MainManagement {
         try audioSession.setMode(AVAudioSession.Mode.measurement)
         try audioSession.setActive(true, options: AVAudioSession.SetActiveOptions.notifyOthersOnDeactivation)
         
-        
-        print("Hello 3")
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         
         let inputNode = audioEngine.inputNode
@@ -139,14 +137,11 @@ class MainManagement {
             }
         }
         
-        print("Hello 4")
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
             self.recognitionRequest?.append(buffer)
         }
         
-        
-        print("Hello 5")
         audioEngine.prepare()
         try audioEngine.start()
     }
@@ -190,7 +185,6 @@ class MainManagement {
         
         return returnMe
     }
-    
 
     func advanceToNextPhrase(letterGrade: String) {
         // log info
