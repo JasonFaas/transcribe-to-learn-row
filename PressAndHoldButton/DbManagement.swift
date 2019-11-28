@@ -14,8 +14,7 @@ class DatabaseManagement {
     var sqliteConnection: Connection!
     
     init() {
-        self.createDatabaseConnection()
-        self.createDatabaseTable()
+        sqliteConnection = DbConnectionSetup().setupConnection()
     }
     
     func printAllResultsTable() {
@@ -28,62 +27,6 @@ class DatabaseManagement {
             print("Why is there nothing to print???")
         }
     }
-    
-    fileprivate func deleteFirstSqliteIfExistsToReset(_ fileManager: FileManager, _ finalDatabaseURL: URL) {
-        do {
-            try fileManager.removeItem(at: finalDatabaseURL)
-        } catch {
-            print("No database to remove on device")
-        }
-    }
-    
-    fileprivate func copyDatabaseToDevice(_ finalDatabaseURL: URL, _ importSqlFileName: String, _ fileManager: FileManager) {
-        if !((try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
-            print("DB does not exist in documents folder")
-            let finalDocumentsURL = Bundle.main.resourceURL?.appendingPathComponent(importSqlFileName)
-            do {
-                try fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: finalDatabaseURL.path)
-            } catch let error as NSError {
-                print("Couldn't copy file to final location! Error:\(error.description)")
-            }
-        } else {
-            print("Database file found at path: \(finalDatabaseURL.path)")
-        }
-    }
-    
-    func createDatabaseConnection() {
-        do {
-            let importSqlFileName = "first.sqlite3"
-            let fileManager = FileManager.default
-            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
-            let fromDocumentsurl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-            let finalDatabaseURL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
-            deleteFirstSqliteIfExistsToReset(fileManager, finalDatabaseURL)
-            copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
-            
-            self.sqliteConnection = try Connection(clientsFileUrl.path)
-        } catch {
-            print("Function: \(#function):\(#line), Error: \(error)")
-            print("DB Setup Error")
-            exit(0)
-        }
-    }
-    
-    func runUnitTests() throws {
-        let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
-        let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
-        
-        print("Testing random ids \(firstRandom.getId()) \(secondRandom.getId())")
-        assert(firstRandom.getId() != secondRandom.getId())
-        
-        try firstRandom.verifyAll()
-        try secondRandom.verifyAll()
-        
-        print("Test of 1st random database request:\(firstRandom.getHanzi()):")
-    }
-    
-
         
     func getEasiestUnansweredRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
@@ -92,8 +35,6 @@ class DatabaseManagement {
             for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
                 answered_values.append(result_row[DbResult.translation_fk])
             }
-            
-            print(answered_values)
             
             let extractedExpr: Table = DbTranslation.table.filter(!answered_values.contains(DbTranslation.static_id)).order(SpecificDbTranslation.difficulty.asc)
             
@@ -112,7 +53,6 @@ class DatabaseManagement {
     
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
-            
             let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
                         
             let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == Int(random_int))
@@ -128,25 +68,6 @@ class DatabaseManagement {
         }
         
         return DbTranslation()
-    }
-        
-    func createDatabaseTable() {
-        
-        do {
-            print("Attempting to Drop RESULT Table")
-            try self.sqliteConnection.run(DbResult.table.drop())
-        } catch {
-            print("Function: \(#function):\(#line), Error: \(error)")
-        }
-        
-        do {
-            let createTable = DbResult.getCreateTable()
-            try self.sqliteConnection.run(createTable)
-            print("Created RESULT Table")
-        } catch {
-            print("DID NOT CREATE RESULT TABLE")
-            print("Function: \(#function):\(#line), Error: \(error)")
-        }
     }
     
     func logResult(letterGrade: String, quizInfo: DbTranslation, pinyinOn: Bool) {
@@ -189,6 +110,19 @@ class DatabaseManagement {
 //        } catch {
 //            print("Function: \(#function):\(#line), Error: \(error)")
 //        }
+    }
+    
+    func runUnitTests() throws {
+        let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
+        let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
+        
+        print("Testing random ids \(firstRandom.getId()) \(secondRandom.getId())")
+        assert(firstRandom.getId() != secondRandom.getId())
+        
+        try firstRandom.verifyAll()
+        try secondRandom.verifyAll()
+        
+        print("Test of 1st random database request:\(firstRandom.getHanzi()):")
     }
     
 }
