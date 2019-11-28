@@ -56,7 +56,6 @@ class Transcription {
         self.advanceToNextPhrase(letterGrade: "A")
         
         self.updateUi.disableSkip()
-        self.dbm.printAllResultsTable()
     }
     
     func skipCurrentPhrase() {

@@ -79,37 +79,46 @@ class DatabaseManagement {
         } else {
             languageDisplayed = "\(languageDisplayed)-Simplified"
         }
-        do {
-            try self.sqliteConnection.run(DbResult().getInsert(translation: quizInfo, grade: letterGrade, languageDisplayed: languageDisplayed))
-        } catch {
-            print("Logging failed")
-            print("Function: \(#function):\(#line), Error: \(error)")
-        }
         
-        // let pinyinOn = self.pinyinOn
-//        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-//        do {
-//            let currentPhraseResult = resultsTable.filter(self.phrase == hanzi)
-//            let currentInTable = currentPhraseResult.count
-//            let count = try self.resultsDatabase.scalar(currentInTable)
-//            let currentPhraseinDatabase: Bool = count != 0
-//
-//            if currentPhraseinDatabase {
-//                let insertResult = self.resultsTable.insert(self.phrase <- hanzi,
-//                                                            self.lastGrade <- letterGrade,
-//                                                            self.pinyinDisplayed <- pinyinOn)
-//                try self.resultsDatabase.run(insertResult)
-//            } else {
-//                let updateResult = currentPhraseResult.update(self.lastGrade <- letterGrade,
-//                                                              self.pinyinDisplayed <- pinyinOn)
-//                try self.resultsDatabase.run(updateResult)
-//            }
-//
-//            print("\t\(hanzi)")
-//            print("\t\(letterGrade)")
-//        } catch {
-//            print("Function: \(#function):\(#line), Error: \(error)")
-//        }
+        do {
+            let newDate: Date = self.getNewDueDate(grade: letterGrade)
+            var quizSpecific = DbResult.table.filter(DbResult.translation_fk == quizInfo.getId()).filter(DbResult.language_displayed == languageDisplayed)
+            if try self.sqliteConnection.run(quizSpecific.update(DbResult.due_date <- newDate, DbResult.last_grade <- letterGrade)) > 0 {
+                print("updated row")
+            } else {
+                try self.sqliteConnection.run(
+                DbResult.table.insert(
+                                DbResult.translation_fk <- quizInfo.getId(),
+                                DbResult.difficulty <- quizInfo.getDifficulty(),
+                                DbResult.due_date <- newDate, // TODO: This may need to be fixed
+                                DbResult.last_grade <- letterGrade,
+                                DbResult.language_displayed <- languageDisplayed, // TODO: use enum
+                                DbResult.like <- true // TODO: use enum
+                            ))
+                
+                print("New row created")
+            }
+        } catch {
+            print("update failed: \(error)")
+        }
+    }
+    
+    func getNewDueDate(grade: String) -> Date {
+
+        let generalDateAdding: [String: Int] = [
+            "A": 60,
+            "B": 30,
+            "C": 15,
+            "D": 5,
+            "F": 1,
+        ]
+        let now: Date = Date()
+        let calendar: Calendar = Calendar.current
+        let minutesAhead: Int = generalDateAdding[grade, default: 1]
+        let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
+        let dueDate: Date = calendar.date(byAdding: interval, to: now) ?? Date()
+        
+        return dueDate
     }
     
     func runUnitTests() throws {
@@ -218,14 +227,6 @@ class SpecificDbTranslation : DbTranslation {
 
 class DbResult {
     
-    let generalDateAdding: [String: Int] = [
-        "A": 60,
-        "B": 30,
-        "C": 15,
-        "D": 5,
-        "F": 1,
-    ]
-    
     //TODO: Duplicate removal
     static let table = Table("Results")
     
@@ -251,35 +252,16 @@ class DbResult {
     
     func printInfo() {
         print(dbRow[DbResult.id])
-        print("\t\(dbRow[DbResult.translation_fk])")
-        print("\t\(dbRow[DbResult.difficulty])")
-        print("\t\(dbRow[DbResult.due_date])")
-        print("\t\(dbRow[DbResult.last_grade])")
-        print("\t\(dbRow[DbResult.language_displayed])")
-        print("\t\(dbRow[DbResult.like])")
+        print("\tFK:   \(dbRow[DbResult.translation_fk])")
+        print("\tDiff: \(dbRow[DbResult.difficulty])")
+        print("\tDue:  \(dbRow[DbResult.due_date])")
+        print("\tGrade:\(dbRow[DbResult.last_grade])")
+        print("\tLang: \(dbRow[DbResult.language_displayed])")
+        print("\tLike: \(dbRow[DbResult.like])")
     }
     
     init() {
         
-    }
-    
-    func getInsert(translation: DbTranslation,
-                   grade: String,
-                   languageDisplayed: String) -> Insert { // TODO: Should this be static?
-        let now: Date = Date()
-        let calendar: Calendar = Calendar.current
-        let minutesAhead: Int = self.generalDateAdding[grade, default: 1]
-        let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
-        let dueDate: Date = calendar.date(byAdding: interval, to: now) ?? Date()
-        
-        return DbResult.table.insert(
-            DbResult.translation_fk <- translation.getId(),
-            DbResult.difficulty <- translation.getDifficulty(),
-            DbResult.due_date <- dueDate, // TODO: This may need to be fixed
-            DbResult.last_grade <- grade,
-            DbResult.language_displayed <- languageDisplayed, // TODO: use enum
-            DbResult.like <- true // TODO: use enum
-        )
     }
     
     static func getCreateTable() -> String {
