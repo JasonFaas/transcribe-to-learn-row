@@ -16,6 +16,7 @@
 		8E89520B22FF494C001B3B04 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E89520A22FF494C001B3B04 /* ViewController.swift */; };
 		8E89520E22FF494C001B3B04 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E89520C22FF494C001B3B04 /* Main.storyboard */; };
 		8E89521322FF494E001B3B04 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E89521122FF494E001B3B04 /* LaunchScreen.storyboard */; };
+		8E9D4A3F238F468900ECF4FB /* UiUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A3E238F468900ECF4FB /* UiUpdate.swift */; };
 		8EBB02D923412EBB00079D8C /* first.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 8EBB02D823412EBB00079D8C /* first.sqlite3 */; };
 /* End PBXBuildFile section */
 
@@ -103,6 +104,7 @@
 		8E89520D22FF494C001B3B04 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8E89521222FF494E001B3B04 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8E89521422FF494E001B3B04 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8E9D4A3E238F468900ECF4FB /* UiUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UiUpdate.swift; sourceTree = "<group>"; };
 		8EBB02D823412EBB00079D8C /* first.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = file; name = first.sqlite3; path = "../../mandarin-translations-sql-creation/sql/first.sqlite3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -162,13 +164,14 @@
 			children = (
 				8E89520822FF494C001B3B04 /* AppDelegate.swift */,
 				8E017FC523013D5500230A7E /* CustomErrors.swift */,
+				8EBB02D823412EBB00079D8C /* first.sqlite3 */,
 				8E89520C22FF494C001B3B04 /* Main.storyboard */,
 				8E89521122FF494E001B3B04 /* LaunchScreen.storyboard */,
 				8E89521422FF494E001B3B04 /* Info.plist */,
 				8E404890232D77CA004B01BD /* DatabaseManagement.swift */,
 				8E40486F232472EE004B01BD /* Recording.swift */,
 				8E89520A22FF494C001B3B04 /* ViewController.swift */,
-				8EBB02D823412EBB00079D8C /* first.sqlite3 */,
+				8E9D4A3E238F468900ECF4FB /* UiUpdate.swift */,
 			);
 			path = PressAndHoldButton;
 			sourceTree = "<group>";
@@ -304,6 +307,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E9D4A3F238F468900ECF4FB /* UiUpdate.swift in Sources */,
 				8E017FC623013D5500230A7E /* CustomErrors.swift in Sources */,
 				8E89520B22FF494C001B3B04 /* ViewController.swift in Sources */,
 				8E404891232D77CA004B01BD /* DatabaseManagement.swift in Sources */,

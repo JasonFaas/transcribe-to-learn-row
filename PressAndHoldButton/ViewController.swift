@@ -24,7 +24,7 @@ class ViewController: UIViewController {
     var toPronounceCharacters = ""
     var pronouncedSoFar = ""
     
-    var translation: RecordingForTranslation!
+    var translation: MainManagement!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,7 +40,7 @@ class ViewController: UIViewController {
                }
            }
         
-        self.translation = RecordingForTranslation(
+        self.translation = MainManagement(
             feedbackLabel: self.generalCommentLabel,
             toPronounceHanzi: self.toPronounce,
             toPronouncePinyin: self.toPronouncePinyin,

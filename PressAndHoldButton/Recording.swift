@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 import Speech
 
-class RecordingForTranslation {
+class MainManagement {
     
     /// The speech recogniser used by the controller to record the user's speech.
     private let speechRecogniser = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN"))!
@@ -25,19 +25,11 @@ class RecordingForTranslation {
     /// The audio engine used to record input from the microphone.
     private let audioEngine = AVAudioEngine()
     
-    var feedbackLabel: UILabel
-    var toPronounceHanzi: UILabel
-    var toPronouncePinyin: UILabel
-    var buttonTextUpdate: UIButton
-    var skipThis: UIButton
-    var pinyinToggleButton: UIButton
     
     var dbm: DatabaseManagement
     var currentTranslation: DbTranslation
     
-    var pinyinOn = false
-    var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
-                                            false: "True Off Pinyin", ]
+    var updateUi: UiUpdate
     
     var lastTranslation:String = ""
     
@@ -47,72 +39,58 @@ class RecordingForTranslation {
          buttonTextUpdate: UIButton,
          skipThis: UIButton,
          pinyinToggleButton: UIButton) {
-        self.feedbackLabel = feedbackLabel
-        self.buttonTextUpdate = buttonTextUpdate
-        self.skipThis = skipThis
-        self.toPronounceHanzi = toPronounceHanzi
-        self.toPronouncePinyin = toPronouncePinyin
-        self.pinyinToggleButton = pinyinToggleButton
         
         self.dbm = DatabaseManagement()
         self.currentTranslation = self.dbm.getEasiestUnansweredRowFromTranslations(-1)
-        self.updateUiWithTranslation(currentTranslation)
-    }
-    
-    func pinyinToggle() {
-        self.pinyinOn = !self.pinyinOn
-        self.pinyinToggleButton.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
-        self.toPronouncePinyin.isHidden = !self.pinyinOn
+        
+        self.updateUi = UiUpdate(feedbackLabel: feedbackLabel,
+                                 toPronounceHanzi: toPronounceHanzi,
+                                 toPronouncePinyin: toPronouncePinyin,
+                                 buttonTextUpdate: buttonTextUpdate,
+                                 skipThis: skipThis,
+                                 pinyinToggleButton: pinyinToggleButton)
+        
+        self.updateUi.updateUiWithTranslation(currentTranslation)
     }
     
     func skipThisPress() {
         self.advanceToNextPhrase(letterGrade: "F")
-        self.feedbackLabel.text = "I know you'll get it next time"
+        self.updateUi.updateFeedbackText("I know you'll get it next time")
         
-        self.skipThis.isEnabled = false
+        self.updateUi.disableSkip()
         
         self.dbm.printAllResultsTable()
+    }
+    
+    func pinyinToggle() {
+        self.updateUi.pinyinToggle()
     }
     
     func perfectResult() {
-        self.feedbackLabel.text = "Great Pronunciation:\n\(self.currentTranslation.getHanzi())"
+        self.updateUi.updateFeedbackText("Great Pronunciation:\n\(self.currentTranslation.getHanzi())")
         
         self.advanceToNextPhrase(letterGrade: "A")
         
-        self.skipThis.isEnabled = false
+        self.updateUi.disableSkip()
         self.dbm.printAllResultsTable()
     }
     
-    func updateUiWithTranslation(_ dbTranslation: DbTranslation) {
-        self._setHanziField(self.currentTranslation.getHanzi())
-        self._setPinyinField(self.currentTranslation.getPinyin())
-    }
-    
-    func _setHanziField(_ hanzi: String) {
-        self.toPronounceHanzi.text = hanzi
-    }
-    
-    func _setPinyinField(_ pinyin: String) {
-        self.toPronouncePinyin.isHidden = !self.pinyinOn
-        self.toPronouncePinyin.text = pinyin
-    }
-    
     func fullStartRecording() {
-        self.feedbackLabel.text = "Listening..."
+        self.updateUi.disableRecording()
+        self.updateUi.updateFeedbackText("Listening...")
         
         do {
             try self._startRecording()
         } catch {
             self.finishRecording()
-            self.feedbackLabel.text = "\(String(self.feedbackLabel.text ?? "hello")) Did not record."
+            self.updateUi.addToFeedbackText(" Did not record.")
 
             print("Function: \(#file):\(#line), Error: \(error)")
         }
     }
     
-   
+    // TODO: Add better stack trace info
     func _startRecording() throws {
-        print("Hello 1")
         guard speechRecogniser.isAvailable else {
             throw "Speech recognition is unavailable, so do not attempt to start."
         }
@@ -122,7 +100,6 @@ class RecordingForTranslation {
             recognitionTask.cancel()
             self.recognitionTask = nil
         }
-        print("Hello 2")
         
         guard SFSpeechRecognizer.authorizationStatus() == .authorized else {
             SFSpeechRecognizer.requestAuthorization({ _ in })
@@ -149,11 +126,8 @@ class RecordingForTranslation {
                 print(transcribed)
                 self.lastTranslation = self.cleanUpTranscribed(transcribed)
                 
+                self.updateUi.updateFeedbackText("Listening... \n\(self.lastTranslation)")
 
-                self.feedbackLabel.text = "Listening...\n\(self.lastTranslation)"
-                
-                
-//                self.delegate.speechController(self, didRecogniseText: result.bestTranscription.formattedString)
             }
             
             if result?.isFinal ?? (error != nil) {
@@ -178,19 +152,17 @@ class RecordingForTranslation {
     }
     
     func fullFinishRecording() {
-        self.buttonTextUpdate.isEnabled = false
-        
-        self.feedbackLabel.text = "\(String(self.feedbackLabel.text ?? "hello"))\nComplete"
+        self.updateUi.addToFeedbackText("\nComplete")
         
         self.finishRecording()
 
         if self.lastTranslation == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
             self.perfectResult()
         } else {
-            self.skipThis.isEnabled = true
+            self.updateUi.enableSkip()
         }
         
-        self.buttonTextUpdate.isEnabled = true
+        self.updateUi.enableRecording()
     }
     
     func finishRecording() {
@@ -219,52 +191,16 @@ class RecordingForTranslation {
         return returnMe
     }
     
-    
-    func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
-        self.toPronounceHanzi.text = quizInfo.getHanzi()
-        self.toPronouncePinyin.text = quizInfo.getPinyin()
-    }
 
     func advanceToNextPhrase(letterGrade: String) {
         // log info
         self.dbm.logResult(letterGrade: letterGrade,
                            quizInfo: self.currentTranslation,
-                           pinyinOn: self.pinyinOn)
+                           pinyinOn: self.updateUi.pinyinOn)
         
         self.currentTranslation = self.dbm.getEasiestUnansweredRowFromTranslations(self.currentTranslation.getId())
         
-        self.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
-        
-        
-
-//        let currentParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-//        let pinyinOn = self.pinyinOn
-//        let currentHanzi = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-//        if !currentParagraph.contains("。") {
-//
-//            self.dbm.logResult(letterGrade: letterGrade,
-//                               hanzi: currentHanzi,
-//                               pinyinOn: pinyinOn)
-//
-//            self.translationValue += 1
-//        } else {
-//            let sentences:[Substring] = currentParagraph.split(separator: "。")
-//            self.paragraphValue += 1
-//            if sentences.count == self.paragraphValue {
-//                self.dbm.logResult(letterGrade: letterGrade,
-//                                   hanzi: currentHanzi,
-//                                   pinyinOn: pinyinOn)
-//
-//                self.translationValue += 1
-//                self.paragraphValue = 0
-//            }
-//        }
-//
-//        let (characters, pinyin) = self.getToPronounce()
-//        self.toPronounce.text = characters
-//        self.toPronouncePinyin.text = pinyin
-//
-//        self.pronouncedSoFar = ""
+        self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
     }
     
     func runUnitTests() throws {
