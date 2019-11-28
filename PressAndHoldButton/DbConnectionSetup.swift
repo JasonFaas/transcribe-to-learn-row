@@ -11,29 +11,53 @@ import Foundation
 import SQLite
 
 class DbConnectionSetup {
+
+    // TODO: ENABLE ONLY IF WANTING TO RESET DATABASE
+    // TODO: Regularlly turn this to true to verify it still works
+    let deleteExistingAndCopyNew: Bool = false
     
     init() {
         
     }
     
     func setupConnection() -> Connection {
-        let connection: Connection = self.createDatabaseConnection()
-        self.createDatabaseTable(connection)
+
+        let importSqlFileName: String = "first.sqlite3"
+        let fileManager: FileManager = FileManager.default
+        
+        let fromDocumentsurl: Array<URL> = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let finalDatabaseURL: URL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
+        
+        // TODO: If database does not exist, copy database over
+        if deleteExistingAndCopyNew {
+            self.dropTranslationDb(finalDatabaseURL, fileManager)
+            self.copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
+        }
+        let connection: Connection = self.createDatabaseConnection(importSqlFileName, fileManager)
+        
+        if deleteExistingAndCopyNew {
+            self.deleteDatabaseTable(connection)
+        }
+        self.createResultDbTableIfNotExists(connection)
         
         return connection
     }
     
-    func createDatabaseConnection() -> Connection {
+    func dropTranslationDb(_ finalDatabaseURL: URL, _ fileManager: FileManager) {
         do {
-            let importSqlFileName = "first.sqlite3"
-            let fileManager = FileManager.default
-            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            try fileManager.removeItem(at: finalDatabaseURL)
+        } catch {
+            print("No database to remove on device")
+            print("Function: \(#function):\(#line), Error: \(error)")
+            exit(0)
+        }
+    }
+    
+    func createDatabaseConnection(_ importSqlFileName: String, _ fileManager: FileManager) -> Connection {
+        let documentsURL: URL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        
+        do {
             let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
-            let fromDocumentsurl = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-            let finalDatabaseURL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
-            deleteFirstSqliteIfExistsToReset(fileManager, finalDatabaseURL)
-            copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
-            
             return try Connection(clientsFileUrl.path)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
@@ -42,43 +66,49 @@ class DbConnectionSetup {
         }
     }
         
-    func createDatabaseTable(_ sqliteConnection: Connection) {
+    func deleteDatabaseTable(_ sqliteConnection: Connection) {
         do {
-            print("Attempting to Drop RESULT Table")
             try sqliteConnection.run(DbResult.table.drop())
+            print("DB :: Dropped RESULT Table")
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
         }
+    }
+        
+    func createResultDbTableIfNotExists(_ sqliteConnection: Connection) {
+        let createDbResult: String = DbResult.table.create(ifNotExists: true) { t in
+            t.column(DbResult.id, primaryKey: true)
+            t.column(DbResult.translation_fk)
+            t.column(DbResult.difficulty)
+            t.column(DbResult.due_date)
+            t.column(DbResult.last_grade)
+            t.column(DbResult.language_displayed)
+            t.column(DbResult.like)
+            
+            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
+        }
         
         do {
-            let createTable = DbResult.getCreateTable()
-            try sqliteConnection.run(createTable)
-            print("Created RESULT Table")
+            try sqliteConnection.run(createDbResult)
+            print("DB :: Created RESULT Table or it already existed")
         } catch {
-            print("DID NOT CREATE RESULT TABLE")
+            print("DB Error :: DID NOT CREATE RESULT TABLE")
             print("Function: \(#function):\(#line), Error: \(error)")
         }
     }
     
     fileprivate func copyDatabaseToDevice(_ finalDatabaseURL: URL, _ importSqlFileName: String, _ fileManager: FileManager) {
         if !((try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
-            print("DB does not exist in documents folder")
+            print("DB :: does not exist in documents folder")
             let finalDocumentsURL = Bundle.main.resourceURL?.appendingPathComponent(importSqlFileName)
             do {
                 try fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: finalDatabaseURL.path)
+                print("DB :: copied over")
             } catch let error as NSError {
-                print("Couldn't copy file to final location! Error:\(error.description)")
+                print("DB Error :: Couldn't copy file to final location! Error:\(error.description)")
             }
         } else {
-            print("Database file found at path: \(finalDatabaseURL.path)")
-        }
-    }
-    
-    fileprivate func deleteFirstSqliteIfExistsToReset(_ fileManager: FileManager, _ finalDatabaseURL: URL) {
-        do {
-            try fileManager.removeItem(at: finalDatabaseURL)
-        } catch {
-            print("No database to remove on device")
+            print("DB Error :: Database file found at path: \(finalDatabaseURL.path)")
         }
     }
 }

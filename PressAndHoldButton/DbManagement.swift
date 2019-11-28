@@ -42,6 +42,8 @@ class DatabaseManagement {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation)
                 try dbTranslation.verifyAll()
                 
+                self.updateBlanks(dbTranslation)
+                
                 return dbTranslation
             }
         } catch {
@@ -49,6 +51,14 @@ class DatabaseManagement {
         }
         
         return DbTranslation()
+    }
+    
+    func updateBlanks(_ dbTranslation: DbTranslation) {
+        var hanziTemp = dbTranslation.getHanzi().replacingOccurrences(of: " ", with: "")
+        let numberBlank: String  = "{number:"
+//        if let numberIndex = hanziTemp.index(of: numberBlank) {
+//
+//        }
     }
     
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
@@ -82,7 +92,8 @@ class DatabaseManagement {
         
         do {
             let newDate: Date = self.getNewDueDate(grade: letterGrade)
-            var quizSpecific = DbResult.table.filter(DbResult.translation_fk == quizInfo.getId()).filter(DbResult.language_displayed == languageDisplayed)
+            let quizSpecific = DbResult.table.filter(DbResult.translation_fk == quizInfo.getId()).filter(DbResult.language_displayed == languageDisplayed)
+            
             if try self.sqliteConnection.run(quizSpecific.update(DbResult.due_date <- newDate, DbResult.last_grade <- letterGrade)) > 0 {
                 print("updated row")
             } else {
@@ -121,7 +132,18 @@ class DatabaseManagement {
         return dueDate
     }
     
+    func replaceNumberBlank(_ numberBlank: String) -> String {
+        
+        
+        return "Stop"
+        
+    }
+    
     func runUnitTests() throws {
+        assert(self.replaceNumberBlank("what {number:33-33}") == "what 33")
+        assert(self.replaceNumberBlank("what what") == "what what")
+        
+        
         let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
         let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
         
@@ -262,19 +284,5 @@ class DbResult {
     
     init() {
         
-    }
-    
-    static func getCreateTable() -> String {
-        return DbResult.table.create { t in
-            t.column(DbResult.id, primaryKey: true)
-            t.column(DbResult.translation_fk)
-            t.column(DbResult.difficulty)
-            t.column(DbResult.due_date)
-            t.column(DbResult.last_grade)
-            t.column(DbResult.language_displayed)
-            t.column(DbResult.like)
-            
-            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
-        }
     }
 }
