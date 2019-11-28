@@ -132,6 +132,29 @@ class DatabaseManagement {
         return dueDate
     }
     
+    func replaceBlanks(_ phrase: String) -> String {
+        
+        var newPhrase: Substring = phrase[phrase.startIndex..<phrase.endIndex]
+        while newPhrase.contains("{") {
+            let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
+            var closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
+            
+            closeIndex = phrase.index(closeIndex, offsetBy: 1)
+            
+            newPhrase = newPhrase.prefix(upTo: openIndex) + "33" + newPhrase.suffix(from: closeIndex)
+
+//            let openIndex: Range<String.Index> = newPhrase.range(of: "{")!
+//            let closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
+//            newPhrase = String(newPhrase[newPhrase.startIndex..<openIndex])
+//            newPhrase = String(newPhrase.prefix(upTo: openIndex) + newPhrase.suffix(from: closeIndex))
+            
+            
+            
+        }
+        
+        return String(newPhrase)
+    }
+    
     func replaceNumberBlank(_ numberBlank: String) -> String {
         
         
@@ -140,8 +163,9 @@ class DatabaseManagement {
     }
     
     func runUnitTests() throws {
-        assert(self.replaceNumberBlank("what {number:33-33}") == "what 33")
-        assert(self.replaceNumberBlank("what what") == "what what")
+        let firstNumberBlank: String = "what{number:33-33}how"
+        assert(self.replaceBlanks(firstNumberBlank) == "what33how", self.replaceBlanks(firstNumberBlank))
+        assert(self.replaceBlanks("what what") == "what what")
         
         
         let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
