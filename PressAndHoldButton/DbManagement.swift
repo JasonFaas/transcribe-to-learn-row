@@ -121,18 +121,31 @@ class DatabaseManagement {
             do {
                 let newDate: Date = self.getNewDueDate(grade: letterGrade)
                 
-                try self.sqliteConnection.run(
-                DbResult.table.insert(
-                                DbResult.translation_fk <- quizInfo.getId(),
-                                DbResult.difficulty <- quizInfo.getDifficulty(),
-                                DbResult.due_date <- newDate, // TODO: This may need to be fixed
-                                DbResult.last_grade <- letterGrade,
-                                DbResult.language_displayed <- languageDisplayed, // TODO: use enum
-                                DbResult.like <- true, // TODO: use enum
-                                DbResult.pronunciation_help <- pronunciationHelp,
-                                DbResult.language_pronounced <- languagePronounced
-                            ))
+                let firstMandarinInsert: Insert = DbResult.table.insert(
+                    DbResult.translation_fk <- quizInfo.getId(),
+                    DbResult.difficulty <- quizInfo.getDifficulty(),
+                    DbResult.due_date <- newDate, // TODO: This may need to be fixed
+                    DbResult.last_grade <- letterGrade,
+                    DbResult.language_displayed <- languageDisplayed, // TODO: use enum
+                    DbResult.like <- true, // TODO: use enum
+                    DbResult.pronunciation_help <- pronunciationHelp,
+                    DbResult.language_pronounced <- languagePronounced
+                )
                 
+                let newEnglishInsert: Insert = DbResult.table.insert(
+                    DbResult.translation_fk <- quizInfo.getId(),
+                    DbResult.difficulty <- quizInfo.getDifficulty(),
+                    DbResult.due_date <- self.getUpdatedDueDate(newGrade: "C",
+                                                                lastGrade: letterGrade,
+                                                                lastDate: newDate),
+                    DbResult.last_grade <- letterGrade,
+                    DbResult.language_displayed <- "English", // TODO: use enum
+                    DbResult.like <- true, // TODO: use enum
+                    DbResult.pronunciation_help <- "Off",
+                    DbResult.language_pronounced <- languagePronounced
+                )
+                try self.sqliteConnection.run(firstMandarinInsert)
+                try self.sqliteConnection.run(newEnglishInsert)
             
             } catch {
                 print("update failed: \(error)")
@@ -171,7 +184,7 @@ class DatabaseManagement {
         ]
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
-        let dateComponents = calendar.dateComponents([Calendar.Component.second], from: lastDate, to: now)
+        let dateComponents = calendar.dateComponents([Calendar.Component.second], from: now, to: lastDate)
         let seconds: Int = Int(Float(dateComponents.second!) * generalDateAdding[newGrade, default: 0.01])
         
         let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: nil, second: seconds, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
