@@ -14,7 +14,7 @@ class DbConnectionSetup {
 
     // TODO: ENABLE ONLY IF WANTING TO RESET DATABASE
     // TODO: Regularlly turn this to true to verify it still works
-    let deleteExistingAndCopyNew: Bool = false
+    let deleteExistingAndCopyNew: Bool = true
     
     init() {
         
@@ -49,7 +49,7 @@ class DbConnectionSetup {
         } catch {
             print("No database to remove on device")
             print("Function: \(#function):\(#line), Error: \(error)")
-            exit(0)
+            print("Not exiting, but think about it?")
         }
     }
     
@@ -76,20 +76,8 @@ class DbConnectionSetup {
     }
         
     func createResultDbTableIfNotExists(_ sqliteConnection: Connection) {
-        let createDbResult: String = DbResult.table.create(ifNotExists: true) { t in
-            t.column(DbResult.id, primaryKey: true)
-            t.column(DbResult.translation_fk)
-            t.column(DbResult.difficulty)
-            t.column(DbResult.due_date)
-            t.column(DbResult.last_grade)
-            t.column(DbResult.language_displayed)
-            t.column(DbResult.like)
-            
-            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
-        }
-        
         do {
-            try sqliteConnection.run(createDbResult)
+            try sqliteConnection.run(DbResult.tableCreationString())
             print("DB :: Created RESULT Table or it already existed")
         } catch {
             print("DB Error :: DID NOT CREATE RESULT TABLE")

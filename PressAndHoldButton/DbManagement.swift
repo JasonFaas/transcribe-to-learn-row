@@ -81,23 +81,46 @@ class DatabaseManagement {
         return DbTranslation()
     }
     
+    func getResultRow(languageDisplayed: String, translationId: Int) throws -> DbResult {
+    
+        let extractedExpr: Table = DbResult.table.filter(DbResult.translation_fk == translationId).filter(DbResult.language_displayed == languageDisplayed)
+        
+        let what: Row! = try self.sqliteConnection.pluck(extractedExpr)
+        if what == nil {
+            throw "DbResult row not found"
+        }
+        return DbResult(dbRow: what)
+    
+    }
+    
     func logResult(letterGrade: String, quizInfo: DbTranslation, pinyinOn: Bool) {
         print("Logging:")
         
-        var languageDisplayed = "Mandarin"
+        let languageDisplayed = "Mandarin-Simplified" // or english
+        let languagePronounced = "Mandarin" // always
+        var pronunciationHelp = "Off"
         if pinyinOn {
-            languageDisplayed = "\(languageDisplayed)-Pinyin"
-        } else {
-            languageDisplayed = "\(languageDisplayed)-Simplified"
+            pronunciationHelp = "On"
         }
         
         do {
-            let newDate: Date = self.getNewDueDate(grade: letterGrade)
-            let quizSpecific = DbResult.table.filter(DbResult.translation_fk == quizInfo.getId()).filter(DbResult.language_displayed == languageDisplayed)
+            let resultRow: DbResult = try self.getResultRow(languageDisplayed: languageDisplayed,
+                                                            translationId: quizInfo.getId())
+            let newDueDate: Date = self.getUpdatedDueDate(newGrade: letterGrade,
+                                                          lastGrade: resultRow.getLastGrade(),
+                                                          lastDate: resultRow.getDueDate())
+
+            let quizSpecific = DbResult.table.filter(DbResult.translation_fk == quizInfo.getId())
+                .filter(DbResult.language_displayed == languageDisplayed)
+            try self.sqliteConnection.run(quizSpecific.update(DbResult.due_date <- newDueDate,
+                                                              DbResult.last_grade <- letterGrade,
+                                                              DbResult.pronunciation_help <- pronunciationHelp))
             
-            if try self.sqliteConnection.run(quizSpecific.update(DbResult.due_date <- newDate, DbResult.last_grade <- letterGrade)) > 0 {
-                print("updated row")
-            } else {
+            print("New row created")
+        } catch {
+            do {
+                let newDate: Date = self.getNewDueDate(grade: letterGrade)
+                
                 try self.sqliteConnection.run(
                 DbResult.table.insert(
                                 DbResult.translation_fk <- quizInfo.getId(),
@@ -105,30 +128,54 @@ class DatabaseManagement {
                                 DbResult.due_date <- newDate, // TODO: This may need to be fixed
                                 DbResult.last_grade <- letterGrade,
                                 DbResult.language_displayed <- languageDisplayed, // TODO: use enum
-                                DbResult.like <- true // TODO: use enum
+                                DbResult.like <- true, // TODO: use enum
+                                DbResult.pronunciation_help <- pronunciationHelp,
+                                DbResult.language_pronounced <- languagePronounced
                             ))
                 
-                print("New row created")
+            
+            } catch {
+                print("update failed: \(error)")
             }
-        } catch {
-            print("update failed: \(error)")
         }
     }
     
     func getNewDueDate(grade: String) -> Date {
 
         let generalDateAdding: [String: Int] = [
-            "A": 60,
-            "B": 30,
-            "C": 15,
-            "D": 5,
-            "F": 1,
+            "A": 240,
+            "B": 120,
+            "C": 60,
+            "D": 30,
+            "F": 10,
         ]
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
         let minutesAhead: Int = generalDateAdding[grade, default: 1]
         let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
-        let dueDate: Date = calendar.date(byAdding: interval, to: now) ?? Date()
+        let dueDate: Date = calendar.date(byAdding: interval, to: now)!
+        
+        return dueDate
+    }
+    
+    func getUpdatedDueDate(newGrade: String,
+                           lastGrade: String,
+                           lastDate: Date) -> Date {
+
+        let generalDateAdding: [String: Float] = [
+            "A": 2.0,
+            "B": 1.0,
+            "C": 0.5,
+            "D": 0.25,
+            "F": 0.125,
+        ]
+        let now: Date = Date()
+        let calendar: Calendar = Calendar.current
+        let dateComponents = calendar.dateComponents([Calendar.Component.second], from: lastDate, to: now)
+        let seconds: Int = Int(Float(dateComponents.second!) * generalDateAdding[newGrade, default: 0.01])
+        
+        let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: nil, second: seconds, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
+        let dueDate: Date = calendar.date(byAdding: interval, to: now)!
         
         return dueDate
     }
@@ -183,7 +230,6 @@ class DatabaseManagement {
         let secondResponse = try self.replaceBlanks(noBlankPhrase)
         assert(firstResponse == "what33how", firstResponse)
         assert(secondResponse == noBlankPhrase)
-        
         
         let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
         let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
@@ -306,36 +352,71 @@ class DbResult {
     static let table = Table("Results")
     
     static let id = Expression<Int>("id")
-    static let translation_fk = Expression<Int>("translation")
+    static let translation_fk = Expression<Int>("translation") // TODO Change this to translation_fk
     static let difficulty = Expression<Int>("difficulty")
     static let due_date = Expression<Date>("due_date")
     static let last_grade: Expression<String> = Expression<String>("last_grade")
     static let language_displayed = Expression<String>("language_displayed") //TODO: enum to English, Mandarin-Simplified, or Mandarin-Pinyin
+    static let language_pronounced = Expression<String>("language_pronounced")
     static let like = Expression<Bool>("like")
+    static let pronunciation_help = Expression<String>("pronunciation_help")
     
-    let valuesDict: [String: Any] = [:]
-    
-    var intElements: Array<Expression<Int>>!
-    var stringElements: Array<Expression<String>>!
+//    let valuesDict: [String: Any] = [:]
+//
+//    var intElements: Array<Expression<Int>>!
+//    var stringElements: Array<Expression<String>>!
     
     var dbRow: Row!
     
     init(dbRow: Row) {
-        // TODO Set this up?
         self.dbRow = dbRow
+    }
+    
+    func getId() -> Int {
+        self.dbRow[DbResult.id]
+    }
+    
+    func getTranslationFk() -> Int {
+        self.dbRow[DbResult.translation_fk]
+    }
+    
+    func getDueDate() -> Date {
+        self.dbRow[DbResult.due_date]
+    }
+    
+    func getLastGrade() -> String {
+        self.dbRow[DbResult.language_displayed]
     }
     
     func printInfo() {
         print(dbRow[DbResult.id])
-        print("\tFK:   \(dbRow[DbResult.translation_fk])")
-        print("\tDiff: \(dbRow[DbResult.difficulty])")
-        print("\tDue:  \(dbRow[DbResult.due_date])")
-        print("\tGrade:\(dbRow[DbResult.last_grade])")
-        print("\tLang: \(dbRow[DbResult.language_displayed])")
-        print("\tLike: \(dbRow[DbResult.like])")
+        print("\tFK:       \(dbRow[DbResult.translation_fk])")
+        print("\tDiff:     \(dbRow[DbResult.difficulty])")
+        print("\tDue:      \(dbRow[DbResult.due_date])")
+        print("\tGrade:    \(dbRow[DbResult.last_grade])")
+        print("\tLangDisp: \(dbRow[DbResult.language_displayed])")
+        print("\tLangPron: \(dbRow[DbResult.language_pronounced])")
+        print("\tPronHelp: \(dbRow[DbResult.pronunciation_help])")
+        print("\tLike:     \(dbRow[DbResult.like])")
     }
     
     init() {
         
+    }
+    
+    static func tableCreationString() -> String {
+        return DbResult.table.create(ifNotExists: true) { t in
+            t.column(DbResult.id, primaryKey: true)
+            t.column(DbResult.translation_fk)
+            t.column(DbResult.difficulty)
+            t.column(DbResult.due_date)
+            t.column(DbResult.last_grade)
+            t.column(DbResult.language_displayed)
+            t.column(DbResult.language_pronounced)
+            t.column(DbResult.pronunciation_help)
+            t.column(DbResult.like)
+            
+            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
+        }
     }
 }
