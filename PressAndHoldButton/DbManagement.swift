@@ -122,7 +122,9 @@ class DatabaseManagement {
     
     func getResultRow(languageDisplayed: String, translationId: Int) throws -> DbResult {
     
-        let extractedExpr: Table = DbResult.table.filter(DbResult.translation_fk == translationId).filter(DbResult.language_displayed == languageDisplayed)
+        let extractedExpr: Table = DbResult.table
+            .filter(DbResult.translation_fk == translationId)
+            .filter(DbResult.language_displayed == languageDisplayed)
         
         let what: Row! = try self.sqliteConnection.pluck(extractedExpr)
         if what == nil {
@@ -145,19 +147,27 @@ class DatabaseManagement {
         do {
             let resultRow: DbResult = try self.getResultRow(languageDisplayed: languageDisplayed,
                                                             translationId: quizInfo.getId())
-            let newDueDate: Date = self.getNewDueDate(grade: "5")
+            let newDueDate: Date = self.getUpdatedDueDate(newGrade: letterGrade,
+                                                          lastGrade: resultRow.getLastGrade(),
+                                                          lastDate: resultRow.getLastUpdatedDate())
 
-            let quizSpecific = DbResult.table.filter(DbResult.translation_fk == quizInfo.getId())
+            // TODO: extract to DbResult
+            let quizSpecific = DbResult.table
+                .filter(DbResult.translation_fk == quizInfo.getId())
                 .filter(DbResult.language_displayed == languageDisplayed)
-            try self.sqliteConnection.run(quizSpecific.update(DbResult.due_date <- newDueDate,
-                                                              DbResult.last_grade <- letterGrade,
-                                                              DbResult.pronunciation_help <- pronunciationHelp))
+            try self.sqliteConnection.run(
+                quizSpecific.update(DbResult.due_date <- newDueDate,
+                                    DbResult.last_grade <- letterGrade,
+                                    DbResult.pronunciation_help <- pronunciationHelp,
+                                    DbResult.last_updated_date <- Date())
+            )
             
             print("Row Updated")
         } catch {
             do {
                 let newDate: Date = self.getNewDueDate(grade: letterGrade)
                 
+                // TODO: extract to DbResult
                 let firstMandarinInsert: Insert = DbResult.table.insert(
                     DbResult.translation_fk <- quizInfo.getId(),
                     DbResult.difficulty <- quizInfo.getDifficulty(),
@@ -166,20 +176,20 @@ class DatabaseManagement {
                     DbResult.language_displayed <- languageDisplayed, // TODO: use enum
                     DbResult.like <- true, // TODO: use enum
                     DbResult.pronunciation_help <- pronunciationHelp,
-                    DbResult.language_pronounced <- languagePronounced
+                    DbResult.language_pronounced <- languagePronounced,
+                    DbResult.last_updated_date <- Date()
                 )
                 
                 let newEnglishInsert: Insert = DbResult.table.insert(
                     DbResult.translation_fk <- quizInfo.getId(),
                     DbResult.difficulty <- quizInfo.getDifficulty(),
-                    DbResult.due_date <- self.getUpdatedDueDate(newGrade: "C",
-                                                                lastGrade: letterGrade,
-                                                                lastDate: newDate),
+                    DbResult.due_date <- self.getNewDueDate(grade: "5"),
                     DbResult.last_grade <- "C",
                     DbResult.language_displayed <- "English", // TODO: use enum
                     DbResult.like <- true, // TODO: use enum
                     DbResult.pronunciation_help <- "Off", // TODO: use enum
-                    DbResult.language_pronounced <- languagePronounced
+                    DbResult.language_pronounced <- languagePronounced,
+                    DbResult.last_updated_date <- Date()
                 )
                 
                 try self.sqliteConnection.run(firstMandarinInsert)
@@ -422,6 +432,7 @@ class DbResult {
     static let translation_fk = Expression<Int>("translation") // TODO Change this to translation_fk
     static let difficulty = Expression<Int>("difficulty")
     static let due_date = Expression<Date>("due_date")
+    static let last_updated_date = Expression<Date>("last_updated_date")
     static let last_grade: Expression<String> = Expression<String>("last_grade")
     static let language_displayed = Expression<String>("language_displayed") //TODO: enum to English, Mandarin-Simplified, or Mandarin-Pinyin
     static let language_pronounced = Expression<String>("language_pronounced")
@@ -451,6 +462,10 @@ class DbResult {
         self.dbRow[DbResult.due_date]
     }
     
+    func getLastUpdatedDate() -> Date {
+        self.dbRow[DbResult.last_updated_date]
+    }
+    
     func getLastGrade() -> String {
         self.dbRow[DbResult.last_grade]
     }
@@ -464,6 +479,7 @@ class DbResult {
         print("\tFK:       \(dbRow[DbResult.translation_fk])")
         print("\tDiff:     \(dbRow[DbResult.difficulty])")
         print("\tDue:      \(dbRow[DbResult.due_date])")
+        print("\tUpdated:  \(dbRow[DbResult.last_updated_date])")
         print("\tGrade:    \(dbRow[DbResult.last_grade])")
         print("\tLangDisp: \(dbRow[DbResult.language_displayed])")
         print("\tLangPron: \(dbRow[DbResult.language_pronounced])")
@@ -481,6 +497,7 @@ class DbResult {
             t.column(DbResult.translation_fk)
             t.column(DbResult.difficulty)
             t.column(DbResult.due_date)
+            t.column(DbResult.last_updated_date)
             t.column(DbResult.last_grade)
             t.column(DbResult.language_displayed)
             t.column(DbResult.language_pronounced)
