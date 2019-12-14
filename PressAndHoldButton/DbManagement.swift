@@ -52,6 +52,14 @@ class DatabaseManagement {
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: dbResult.getLanguageDisplayed())
     }
+    
+    func getNextPhrase(_ rowToNotGet: Int) -> DbTranslation {
+        do {
+            return try self.getTranslationForOldestDueByNowResult()
+        } catch {
+            return self.getEasiestUnansweredRowFromTranslations(rowToNotGet)
+        }
+    }
         
     func getEasiestUnansweredRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
@@ -137,9 +145,7 @@ class DatabaseManagement {
         do {
             let resultRow: DbResult = try self.getResultRow(languageDisplayed: languageDisplayed,
                                                             translationId: quizInfo.getId())
-            let newDueDate: Date = self.getUpdatedDueDate(newGrade: letterGrade,
-                                                          lastGrade: resultRow.getLastGrade(),
-                                                          lastDate: resultRow.getDueDate())
+            let newDueDate: Date = self.getNewDueDate(grade: "5")
 
             let quizSpecific = DbResult.table.filter(DbResult.translation_fk == quizInfo.getId())
                 .filter(DbResult.language_displayed == languageDisplayed)
@@ -199,7 +205,7 @@ class DatabaseManagement {
         ]
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
-        let minutesAhead: Int = generalDateAdding[grade, default: 1]
+        let minutesAhead: Int = generalDateAdding[grade, default: Int(grade) ?? 1]
         let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
         let dueDate: Date = calendar.date(byAdding: interval, to: now)!
         
@@ -219,7 +225,9 @@ class DatabaseManagement {
         ]
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
-        let dateComponents = calendar.dateComponents([Calendar.Component.second], from: now, to: lastDate)
+        let dateComponents = calendar.dateComponents([Calendar.Component.second],
+                                                     from: lastDate,
+                                                     to: now)
         let seconds: Int = Int(Float(dateComponents.second!) * generalDateAdding[newGrade, default: 0.01])
         
         let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: nil, second: seconds, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)

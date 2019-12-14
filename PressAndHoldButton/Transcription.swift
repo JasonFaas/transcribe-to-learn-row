@@ -22,7 +22,7 @@ class Transcription {
         self.updateUi = updateUi
         
         self.dbm = DatabaseManagement()
-        self.currentTranslation = self.dbm.getEasiestUnansweredRowFromTranslations(-1)
+        self.currentTranslation = self.dbm.getNextPhrase(-1)
         self.updateUi.updateUiWithTranslation(currentTranslation)
     }
     
@@ -71,14 +71,11 @@ class Transcription {
 
     func advanceToNextPhrase() {
         self.updateUi.disableSkip()
+        self.updateUi.pinyinToggle()
         self.lastTranscription = ""
         
-        do {
-            try self.currentTranslation = self.dbm.getTranslationForOldestDueByNowResult()
-        } catch {
-            self.currentTranslation = self.dbm.getEasiestUnansweredRowFromTranslations(self.currentTranslation.getId())
-        }
-        
+        self.currentTranslation = self.dbm.getNextPhrase(self.currentTranslation.getId())
+                
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
     }
     
