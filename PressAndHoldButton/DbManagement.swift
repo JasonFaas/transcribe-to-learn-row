@@ -30,7 +30,7 @@ class DatabaseManagement {
     
     func getTranslationForOldestDueByNowResult() throws -> DbTranslation {
         let selectResult = DbResult.table.select(DbResult.translation_fk, DbResult.language_displayed)
-//            .filter(DbResult.due_date < Date())
+            .filter(DbResult.due_date < Date())
             .order(DbResult.due_date.asc)
         
         let resultRow: Row! = try self.sqliteConnection.pluck(selectResult)
@@ -57,7 +57,7 @@ class DatabaseManagement {
         do {
             let select_fk_keys = DbResult.table
                 .select(DbResult.translation_fk, DbResult.language_displayed)
-                .filter(DbResult.last_grade == "A")
+//                .filter(DbResult.last_grade == "A")
             var answered_values:Array<Int> = [rowToNotGet]
             for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
                 answered_values.append(result_row[DbResult.translation_fk])
