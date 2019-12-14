@@ -58,8 +58,13 @@ class UiUpdate {
     }
     
     func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
-        self.toPronounceHanzi.text = quizInfo.getHanzi()
-        self.toPronouncePinyin.text = quizInfo.getPinyin()
+        if quizInfo.getLanguageToDisplay() == "Mandarin-Simplified" {
+            self.toPronounceHanzi.text = quizInfo.getHanzi()
+            self.toPronouncePinyin.text = quizInfo.getPinyin()
+        } else {
+            self.toPronounceHanzi.text = quizInfo.getEnglish()
+            self.toPronouncePinyin.text = quizInfo.getPinyin()
+        }
     }
     
     func updateFeedbackText(_ feedback: String) {

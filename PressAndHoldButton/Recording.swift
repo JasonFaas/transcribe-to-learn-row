@@ -66,9 +66,6 @@ class Recording {
                 let transcribed = result.bestTranscription.formattedString
                 print(transcribed)
                 self.translation.mostRecentTranscription(transcribed)
-                
-               
-
             }
             
             if result?.isFinal ?? (error != nil) {

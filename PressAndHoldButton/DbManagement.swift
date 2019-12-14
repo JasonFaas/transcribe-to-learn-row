@@ -27,19 +27,49 @@ class DatabaseManagement {
             print("Why is there nothing to print???")
         }
     }
+    
+    func getTranslationForOldestDueByNowResult() throws -> DbTranslation {
+        let selectResult = DbResult.table.select(DbResult.translation_fk, DbResult.language_displayed)
+//            .filter(DbResult.due_date < Date())
+            .order(DbResult.due_date.asc)
+        
+        let resultRow: Row! = try self.sqliteConnection.pluck(selectResult)
+        
+        if resultRow == nil {
+            throw "DbResult row not found in getTranslationForOldestDueByNowResult"
+        }
+        let dbResult = DbResult(dbRow: resultRow)
+        
+        let selectTranslation = DbTranslation
+            .table
+            .filter(DbTranslation.static_id == dbResult.getTranslationFk())
+        
+        let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
+        if translationRow == nil {
+            throw "DbTranslation row not found in getTranslationForOldestDueByNowResult"
+        }
+        
+        return SpecificDbTranslation(dbRow: translationRow,
+                                     displayLanguage: dbResult.getLanguageDisplayed())
+    }
         
     func getEasiestUnansweredRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
-            let select_fk_keys = DbResult.table.select(DbResult.translation_fk).filter(DbResult.last_grade == "A")
+            let select_fk_keys = DbResult.table
+                .select(DbResult.translation_fk, DbResult.language_displayed)
+                .filter(DbResult.last_grade == "A")
             var answered_values:Array<Int> = [rowToNotGet]
             for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
                 answered_values.append(result_row[DbResult.translation_fk])
             }
             
-            let extractedExpr: Table = DbTranslation.table.filter(!answered_values.contains(DbTranslation.static_id)).order(SpecificDbTranslation.difficulty.asc)
+            let extractedExpr: Table = DbTranslation.table
+                .filter(!answered_values.contains(DbTranslation.static_id))
+                .order(SpecificDbTranslation.difficulty.asc)
             
             for translation in try self.sqliteConnection.prepare(extractedExpr) {
-                let dbTranslation = SpecificDbTranslation(dbRow: translation)
+                let dbTranslation = SpecificDbTranslation(dbRow: translation,
+                                                          displayLanguage: "Mandarin-Simplified")
                 try dbTranslation.verifyAll()
                 
                 self.updateBlanks(dbTranslation)
@@ -69,7 +99,8 @@ class DatabaseManagement {
             let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == Int(random_int))
             
             for translation in try self.sqliteConnection.prepare(extractedExpr) {
-                let dbTranslation = SpecificDbTranslation(dbRow: translation)
+                let dbTranslation = SpecificDbTranslation(dbRow: translation,
+                                                          displayLanguage: "Mandarin-Simplified")
                 try dbTranslation.verifyAll()
                 
                 return dbTranslation
@@ -96,7 +127,7 @@ class DatabaseManagement {
     func logResult(letterGrade: String, quizInfo: DbTranslation, pinyinOn: Bool) {
         print("Logging:")
         
-        let languageDisplayed = "Mandarin-Simplified" // or english
+        let languageDisplayed = quizInfo.getLanguageToDisplay() // or english
         let languagePronounced = "Mandarin" // always
         var pronunciationHelp = "Off"
         if pinyinOn {
@@ -116,7 +147,7 @@ class DatabaseManagement {
                                                               DbResult.last_grade <- letterGrade,
                                                               DbResult.pronunciation_help <- pronunciationHelp))
             
-            print("New row created")
+            print("Row Updated")
         } catch {
             do {
                 let newDate: Date = self.getNewDueDate(grade: letterGrade)
@@ -138,19 +169,23 @@ class DatabaseManagement {
                     DbResult.due_date <- self.getUpdatedDueDate(newGrade: "C",
                                                                 lastGrade: letterGrade,
                                                                 lastDate: newDate),
-                    DbResult.last_grade <- letterGrade,
+                    DbResult.last_grade <- "C",
                     DbResult.language_displayed <- "English", // TODO: use enum
                     DbResult.like <- true, // TODO: use enum
-                    DbResult.pronunciation_help <- "Off",
+                    DbResult.pronunciation_help <- "Off", // TODO: use enum
                     DbResult.language_pronounced <- languagePronounced
                 )
+                
                 try self.sqliteConnection.run(firstMandarinInsert)
                 try self.sqliteConnection.run(newEnglishInsert)
             
+                print("Now rows created for DbResult Mandarin and English")
             } catch {
                 print("update failed: \(error)")
             }
         }
+        
+        self.printAllResultsTable()
     }
     
     func getNewDueDate(grade: String) -> Date {
@@ -295,6 +330,10 @@ class DbTranslation {
         
     }
     
+    func getLanguageToDisplay() -> String { // TODO Enum
+        return "Mandarin"
+    }
+    
 }
 
 class SpecificDbTranslation : DbTranslation {
@@ -308,11 +347,14 @@ class SpecificDbTranslation : DbTranslation {
     var stringElements: Array<Expression<String>>!
     
     let dbRow: Row!
+    let displayLanguage: String!
     
     var tempHanzi = ""
         
-    init(dbRow: Row) {
+    init(dbRow: Row, displayLanguage: String) {
         self.dbRow = dbRow
+        self.displayLanguage = displayLanguage
+        
         // TODO populate these dynamically
         intElements = [SpecificDbTranslation.id, SpecificDbTranslation.difficulty]
         stringElements = [SpecificDbTranslation.hanzi, SpecificDbTranslation.pinyin, SpecificDbTranslation.english]
@@ -356,6 +398,10 @@ class SpecificDbTranslation : DbTranslation {
     override func setHanzi(_ tempHanzi: String) {
         self.tempHanzi = tempHanzi
     }
+    
+    override func getLanguageToDisplay() -> String { // TODO Enum
+        return self.displayLanguage
+    }
 }
 
 
@@ -398,6 +444,10 @@ class DbResult {
     }
     
     func getLastGrade() -> String {
+        self.dbRow[DbResult.last_grade]
+    }
+    
+    func getLanguageDisplayed() -> String {
         self.dbRow[DbResult.language_displayed]
     }
     

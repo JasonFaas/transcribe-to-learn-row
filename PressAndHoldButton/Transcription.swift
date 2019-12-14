@@ -53,28 +53,33 @@ class Transcription {
     func perfectResult() {
         self.updateUi.updateFeedbackText("Great Pronunciation:\n\(self.currentTranslation.getHanzi())")
         
-        self.advanceToNextPhrase(letterGrade: "A")
-        
-        self.updateUi.disableSkip()
-    }
-    
-    func skipCurrentPhrase() {
-        
-        self.advanceToNextPhrase(letterGrade: "F")
-        self.updateUi.updateFeedbackText("I know you'll get it next time")
-    }
-
-    func advanceToNextPhrase(letterGrade: String) {
-        // log info
-        self.dbm.logResult(letterGrade: letterGrade,
+        self.dbm.logResult(letterGrade: "A",
                            quizInfo: self.currentTranslation,
                            pinyinOn: self.updateUi.pinyinOn)
         
-        self.currentTranslation = self.dbm.getEasiestUnansweredRowFromTranslations(self.currentTranslation.getId())
+        self.advanceToNextPhrase()
+    }
+    
+    func skipCurrentPhrase() {
+        self.dbm.logResult(letterGrade: "F",
+                           quizInfo: self.currentTranslation,
+                           pinyinOn: self.updateUi.pinyinOn)
+        
+        self.advanceToNextPhrase()
+        self.updateUi.updateFeedbackText("I know you'll get it next time")
+    }
+
+    func advanceToNextPhrase() {
+        self.updateUi.disableSkip()
+        self.lastTranscription = ""
+        
+        do {
+            try self.currentTranslation = self.dbm.getTranslationForOldestDueByNowResult()
+        } catch {
+            self.currentTranslation = self.dbm.getEasiestUnansweredRowFromTranslations(self.currentTranslation.getId())
+        }
         
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
-        
-        self.dbm.printAllResultsTable()
     }
     
     func runUnitTests() throws {

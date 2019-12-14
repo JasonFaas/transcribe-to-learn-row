@@ -34,8 +34,6 @@ class MainManagement {
     
     func skipThisPress() {
         self.transcription.skipCurrentPhrase()
-        
-        self.updateUi.disableSkip()
     }
     
     func pinyinToggle() {
