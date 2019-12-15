@@ -19,6 +19,13 @@ class Transcription {
     
     var dbm: DatabaseManagement
     
+    let letterGradeMap: Dictionary<Int, String> = [
+        0: "A",
+        -1: "B",
+        -2: "C",
+        -3: "D",
+    ]
+    
     init(updateUi: UiUpdate) {
         self.updateUi = updateUi
         
@@ -56,14 +63,21 @@ class Transcription {
     func correctPronunciation() {
         self.updateUi.updateFeedbackText("Great Pronunciation:\n\(self.currentTranslation.getHanzi())")
         
-        var letterGrade = "A"
+        var letterGradeNum = 0
+        
         if self.attempts > 8 {
-            letterGrade = "D"
+            letterGradeNum -= 3
         } else if self.attempts > 4 {
-           letterGrade = "C"
+            letterGradeNum -= 2
         } else if self.attempts > 1 {
-          letterGrade = "B"
+            letterGradeNum -= 1
         }
+        
+        if self.updateUi.getPinyinOn() {
+            letterGradeNum -= 1
+        }
+        
+        let letterGrade = self.letterGradeMap[letterGradeNum, default: "F"]
             
         self.dbm.logResult(letterGrade: letterGrade,
                            quizInfo: self.currentTranslation,

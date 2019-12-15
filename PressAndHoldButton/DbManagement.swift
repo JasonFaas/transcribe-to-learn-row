@@ -154,45 +154,35 @@ class DatabaseManagement {
                                                           lastGrade: resultRow.getLastGrade(),
                                                           lastDate: resultRow.getLastUpdatedDate())
 
-            // TODO: extract to DbResult
-            let quizSpecific = DbResult.table
-                .filter(DbResult.translation_fk == quizInfo.getId())
-                .filter(DbResult.language_displayed == languageDisplayed)
-            var whatwhat: Update = quizSpecific.update(DbResult.due_date <- newDueDate,
-            DbResult.last_grade <- letterGrade,
-            DbResult.pronunciation_help <- pronunciationHelp,
-            DbResult.last_updated_date <- Date())
-            try self.sqliteConnection.run(whatwhat)
+            let update: Update = DbResult.getUpdate(fk: quizInfo.getId(),
+                                                   langDisp: languageDisplayed,
+                                                   newDueDate: newDueDate,
+                                                   letterGrade: letterGrade,
+                                                   pronunciationHelp: pronunciationHelp)
+            
+            try self.sqliteConnection.run(update)
             
             print("Row Updated")
         } catch {
             do {
-                let newDate: Date = self.getNewDueDate(grade: letterGrade)
                 
-                // TODO: extract to DbResult
-                let firstMandarinInsert: Insert = DbResult.table.insert(
-                    DbResult.translation_fk <- quizInfo.getId(),
-                    DbResult.difficulty <- quizInfo.getDifficulty(),
-                    DbResult.due_date <- newDate, // TODO: This may need to be fixed
-                    DbResult.last_grade <- letterGrade,
-                    DbResult.language_displayed <- languageDisplayed, // TODO: use enum
-                    DbResult.like <- true, // TODO: use enum
-                    DbResult.pronunciation_help <- pronunciationHelp,
-                    DbResult.language_pronounced <- languagePronounced,
-                    DbResult.last_updated_date <- Date()
-                )
+                let firstMandarinInsert: Insert = DbResult
+                    .getInsert(fk: quizInfo.getId(),
+                               difficulty: quizInfo.getDifficulty(),
+                               due_date: self.getNewDueDate(grade: letterGrade),
+                               letterGrade: letterGrade,
+                               languageDisplayed: languageDisplayed,
+                               pronunciationHelp: pronunciationHelp,
+                               languagePronounced: languagePronounced)
                 
-                let newEnglishInsert: Insert = DbResult.table.insert(
-                    DbResult.translation_fk <- quizInfo.getId(),
-                    DbResult.difficulty <- quizInfo.getDifficulty(),
-                    DbResult.due_date <- self.getNewDueDate(grade: "5"),
-                    DbResult.last_grade <- "C",
-                    DbResult.language_displayed <- "English", // TODO: use enum
-                    DbResult.like <- true, // TODO: use enum
-                    DbResult.pronunciation_help <- "Off", // TODO: use enum
-                    DbResult.language_pronounced <- languagePronounced,
-                    DbResult.last_updated_date <- Date()
-                )
+                let newEnglishInsert: Insert = DbResult
+                    .getInsert(fk: quizInfo.getId(),
+                               difficulty: quizInfo.getDifficulty(),
+                               due_date: self.getNewDueDate(grade: "5"),
+                               letterGrade: "C",
+                               languageDisplayed: "English",
+                               pronunciationHelp: "Off",
+                               languagePronounced: languagePronounced)
                 
                 try self.sqliteConnection.run(firstMandarinInsert)
                 try self.sqliteConnection.run(newEnglishInsert)
@@ -508,5 +498,41 @@ class DbResult {
             
             t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
         }
+    }
+    
+    static func getUpdate(fk: Int,
+                          langDisp: String,
+                          newDueDate: Date,
+                          letterGrade: String,
+                          pronunciationHelp: String) -> Update {
+        let quizSpecific = DbResult.table
+            .filter(DbResult.translation_fk == fk)
+            .filter(DbResult.language_displayed == langDisp)
+        let whatwhat: Update = quizSpecific.update(DbResult.due_date <- newDueDate,
+                                                    DbResult.last_grade <- letterGrade,
+                                                    DbResult.pronunciation_help <- pronunciationHelp,
+                                                    DbResult.last_updated_date <- Date())
+        return whatwhat
+    }
+    
+    static func getInsert(fk: Int,
+                          difficulty: Int,
+                          due_date: Date,
+                          letterGrade: String,
+                          languageDisplayed: String,
+                          pronunciationHelp: String,
+                          languagePronounced: String) -> Insert {
+
+        return DbResult.table.insert(
+            DbResult.translation_fk <- fk,
+            DbResult.difficulty <- difficulty,
+            DbResult.due_date <- due_date,
+            DbResult.last_grade <- letterGrade,
+            DbResult.language_displayed <- languageDisplayed, // TODO: use enum
+            DbResult.like <- true, // TODO: use enum
+            DbResult.pronunciation_help <- pronunciationHelp,
+            DbResult.language_pronounced <- languagePronounced,
+            DbResult.last_updated_date <- Date()
+        )
     }
 }

@@ -37,6 +37,10 @@ class UiUpdate {
         self.pinyinToggleButton = pinyinToggleButton
     }
     
+    func getPinyinOn() -> Bool {
+        return self.pinyinOn
+    }
+    
     func pinyinOff() {
         if self.pinyinOn {
             self.pinyinToggle()
