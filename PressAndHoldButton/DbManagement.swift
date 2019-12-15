@@ -134,7 +134,10 @@ class DatabaseManagement {
     
     }
     
-    func logResult(letterGrade: String, quizInfo: DbTranslation, pinyinOn: Bool) {
+    func logResult(letterGrade: String,
+                   quizInfo: DbTranslation,
+                   pinyinOn: Bool,
+                   attempts: Int) {
         print("Logging:")
         
         let languageDisplayed = quizInfo.getLanguageToDisplay() // or english
@@ -155,12 +158,11 @@ class DatabaseManagement {
             let quizSpecific = DbResult.table
                 .filter(DbResult.translation_fk == quizInfo.getId())
                 .filter(DbResult.language_displayed == languageDisplayed)
-            try self.sqliteConnection.run(
-                quizSpecific.update(DbResult.due_date <- newDueDate,
-                                    DbResult.last_grade <- letterGrade,
-                                    DbResult.pronunciation_help <- pronunciationHelp,
-                                    DbResult.last_updated_date <- Date())
-            )
+            var whatwhat: Update = quizSpecific.update(DbResult.due_date <- newDueDate,
+            DbResult.last_grade <- letterGrade,
+            DbResult.pronunciation_help <- pronunciationHelp,
+            DbResult.last_updated_date <- Date())
+            try self.sqliteConnection.run(whatwhat)
             
             print("Row Updated")
         } catch {

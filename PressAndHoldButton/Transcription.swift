@@ -15,6 +15,7 @@ class Transcription {
     var lastTranscription: String = ""
     
     var currentTranslation: DbTranslation
+    var attempts = 0
     
     var dbm: DatabaseManagement
     
@@ -43,19 +44,31 @@ class Transcription {
     }
     
     func gradeTranscription() {
+        self.attempts += 1
+        
         if self.lastTranscription == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
-            self.perfectResult()
+            self.correctPronunciation()
         } else {
             self.updateUi.enableSkip()
         }
     }
     
-    func perfectResult() {
+    func correctPronunciation() {
         self.updateUi.updateFeedbackText("Great Pronunciation:\n\(self.currentTranslation.getHanzi())")
         
-        self.dbm.logResult(letterGrade: "A",
+        var letterGrade = "A"
+        if self.attempts > 8 {
+            letterGrade = "D"
+        } else if self.attempts > 4 {
+           letterGrade = "C"
+        } else if self.attempts > 1 {
+          letterGrade = "B"
+        }
+            
+        self.dbm.logResult(letterGrade: letterGrade,
                            quizInfo: self.currentTranslation,
-                           pinyinOn: self.updateUi.pinyinOn)
+                           pinyinOn: self.updateUi.pinyinOn,
+                           attempts: attempts)
         
         self.advanceToNextPhrase()
     }
@@ -63,7 +76,8 @@ class Transcription {
     func skipCurrentPhrase() {
         self.dbm.logResult(letterGrade: "F",
                            quizInfo: self.currentTranslation,
-                           pinyinOn: self.updateUi.pinyinOn)
+                           pinyinOn: self.updateUi.pinyinOn,
+                           attempts: attempts)
         
         self.advanceToNextPhrase()
         self.updateUi.updateFeedbackText("I know you'll get it next time")
@@ -71,7 +85,7 @@ class Transcription {
 
     func advanceToNextPhrase() {
         self.updateUi.disableSkip()
-        self.updateUi.pinyinToggle()
+        self.updateUi.pinyinOff()
         self.lastTranscription = ""
         
         self.currentTranslation = self.dbm.getNextPhrase(self.currentTranslation.getId())
