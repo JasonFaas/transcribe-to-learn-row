@@ -19,7 +19,7 @@ class FillInBlanks {
     
     func processBlanks() {
         // TODO: Identify blanks
-//        populateBlanksDictionary()
+        self.populateBlanksDictionary()
         
         // TODO: call setHanzi
         
@@ -32,7 +32,55 @@ class FillInBlanks {
         
     }
     
+    func getDictionaryParts(_ stringParts: String) -> [String] {
+        
+        var returnList: [String] = []
+        
+        var newPhrase: Substring = stringParts[stringParts.startIndex..<stringParts.endIndex]
+        while newPhrase.contains("{") {
+            print(String(newPhrase))
+            let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
+            let closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
+            let closePlusOne = newPhrase.index(closeIndex, offsetBy: 1)
+            let json: String = String(newPhrase[openIndex...closeIndex])
+            returnList.append(json)
+            
+            newPhrase = newPhrase[closePlusOne...]
+            print(String(newPhrase))
+        }
+        
+        return returnList
+    }
+    
+    func populateBlanksDictionary() {
+        let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getHanzi())
+    }
+    
+    func getBlanksDictionary() -> Dictionary<Int, DbTranslation> {
+        return self.blanksDictionary
+    }
+    
+    func getRefDict(_ refDict: String) -> Dictionary<String, String> {
+        var refWithQuotes = refDict.replacingOccurrences(of: "(\\w+)", with: "\"$1\"", options: .regularExpression)
+        print(refWithQuotes)
+        
+        let empty: Dictionary<String, String> = [:]
+        
+        if let returnDict = refWithQuotes.data(using: .utf8) {
+            do {
+                return try (JSONSerialization.jsonObject(with: returnDict, options: []) as? [String: String])!
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        
+        return empty
+    }
+    
+    
+    
     func runUnitTests() {
+        self.testJsonBlankToDict()
         self.testBlanksToJson()
         self.testPopulateBlanksDictNumber()
         self.testPopulateBlanksDictFromDb()
@@ -40,7 +88,27 @@ class FillInBlanks {
         self.testFillInBlanksFromDict()
     }
     
+    func testJsonBlankToDict() {
+        let test_fib = FillInBlanks(dbTranslation: DbTranslation())
+        
+        let individualDict: Dictionary<String, String> = test_fib.getRefDict("{ref:1,type:int,min:21,max:22}")
+        
+        assert(individualDict["ref"] == "1")
+        assert(individualDict["type"] == "int")
+        assert(individualDict["min"] == "21")
+        assert(individualDict["max"] == "22")
+    }
+    
     func testBlanksToJson() {
+        let dbTranslation = DbTranslation()
+        dbTranslation.setHanzi("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
+        test_fib.populateBlanksDictionary()
+        let blanksDict: Dictionary<Int, DbTranslation> = test_fib.getBlanksDictionary()
+        
+        assert(blanksDict[1]?.getHanzi() == "21" || blanksDict[1]?.getHanzi() == "22")
+        assert(blanksDict[2]?.getPinyin() == "1950")
+        
         assert(false)
     }
     
