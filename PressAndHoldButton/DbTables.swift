@@ -75,12 +75,15 @@ class SpecificDbTranslation : DbTranslation {
     let displayLanguage: String!
         
     init(dbRow: Row, displayLanguage: String) {
+        
         self.dbRow = dbRow
         self.displayLanguage = displayLanguage
         
         // TODO populate these dynamically
         intElements = [SpecificDbTranslation.id, SpecificDbTranslation.difficulty]
         stringElements = [SpecificDbTranslation.hanzi, SpecificDbTranslation.pinyin, SpecificDbTranslation.english]
+        
+        super.init()
         
         self.tempHanzi = self.dbRow[SpecificDbTranslation.hanzi]
         self.tempPinyin = self.dbRow[SpecificDbTranslation.pinyin]

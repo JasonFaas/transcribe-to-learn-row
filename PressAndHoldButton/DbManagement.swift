@@ -94,7 +94,9 @@ class DatabaseManagement {
     func updateBlanks(_ dbTranslation: DbTranslation) {
         do {
             var hanziTemp = dbTranslation.getHanzi().replacingOccurrences(of: " ", with: "")
-            var dictionaryOfBlanks = self.
+//            assert(false)
+            // TODO: Fix below
+//            var dictionaryOfBlanks = self.
             try dbTranslation.setHanzi(self.replaceBlanks(hanziTemp))
         } catch {
             print("Update Blanks failed: \(error)")
@@ -283,6 +285,9 @@ class DatabaseManagement {
     }
     
     func runUnitTests() throws {
+        let fib = FillInBlanks(dbTranslation: DbTranslation())
+        fib.runUnitTests()
+        
         let firstNumberBlank: String = "what{number:33-33}how"
         let firstResponse = try self.replaceBlanks(firstNumberBlank)
         let noBlankPhrase: String = "what what"
