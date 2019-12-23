@@ -21,6 +21,8 @@
 		8E9D4A49238F4F2400ECF4FB /* Transcription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A48238F4F2400ECF4FB /* Transcription.swift */; };
 		8E9D4A4B238F587500ECF4FB /* DbConnectionSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A4A238F587500ECF4FB /* DbConnectionSetup.swift */; };
 		8EBB02D923412EBB00079D8C /* first.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 8EBB02D823412EBB00079D8C /* first.sqlite3 */; };
+		8EEA1CDA23B08B97005D8093 /* FillInBlanks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEA1CD923B08B97005D8093 /* FillInBlanks.swift */; };
+		8EEA1CDC23B08F87005D8093 /* DbTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEA1CDB23B08F87005D8093 /* DbTables.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +114,8 @@
 		8E9D4A48238F4F2400ECF4FB /* Transcription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transcription.swift; sourceTree = "<group>"; };
 		8E9D4A4A238F587500ECF4FB /* DbConnectionSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbConnectionSetup.swift; sourceTree = "<group>"; };
 		8EBB02D823412EBB00079D8C /* first.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = text; name = first.sqlite3; path = "../../mandarin-translations-sql-creation/sql/first.sqlite3"; sourceTree = "<group>"; };
+		8EEA1CD923B08B97005D8093 /* FillInBlanks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillInBlanks.swift; sourceTree = "<group>"; };
+		8EEA1CDB23B08F87005D8093 /* DbTables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbTables.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,12 +174,14 @@
 			children = (
 				8E89520822FF494C001B3B04 /* AppDelegate.swift */,
 				8E017FC523013D5500230A7E /* CustomErrors.swift */,
+				8EEA1CD923B08B97005D8093 /* FillInBlanks.swift */,
 				8EBB02D823412EBB00079D8C /* first.sqlite3 */,
 				8E89520C22FF494C001B3B04 /* Main.storyboard */,
 				8E89521122FF494E001B3B04 /* LaunchScreen.storyboard */,
 				8E89521422FF494E001B3B04 /* Info.plist */,
 				8E9D4A4A238F587500ECF4FB /* DbConnectionSetup.swift */,
 				8E404890232D77CA004B01BD /* DbManagement.swift */,
+				8EEA1CDB23B08F87005D8093 /* DbTables.swift */,
 				8E40486F232472EE004B01BD /* MainManagement.swift */,
 				8E9D4A46238F4DAF00ECF4FB /* Recording.swift */,
 				8E9D4A48238F4F2400ECF4FB /* Transcription.swift */,
@@ -322,8 +328,10 @@
 				8E9D4A49238F4F2400ECF4FB /* Transcription.swift in Sources */,
 				8E404891232D77CA004B01BD /* DbManagement.swift in Sources */,
 				8E89520922FF494C001B3B04 /* AppDelegate.swift in Sources */,
+				8EEA1CDA23B08B97005D8093 /* FillInBlanks.swift in Sources */,
 				8E9D4A47238F4DAF00ECF4FB /* Recording.swift in Sources */,
 				8E404870232472EE004B01BD /* MainManagement.swift in Sources */,
+				8EEA1CDC23B08F87005D8093 /* DbTables.swift in Sources */,
 				8E9D4A4B238F587500ECF4FB /* DbConnectionSetup.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
