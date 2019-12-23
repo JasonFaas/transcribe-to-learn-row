@@ -309,7 +309,7 @@ extension String: LocalizedError {
 
 class DbTranslation {
     
-    static let table = Table("Translations")
+    static let table = Table("translations")
     static let static_id = Expression<Int>("id")
     
     func verifyAll() throws {
