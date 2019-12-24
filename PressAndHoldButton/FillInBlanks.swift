@@ -11,7 +11,7 @@ import Foundation
 class FillInBlanks {
     
     let dbTranslation: DbTranslation!
-    let blanksDictionary: Dictionary<Int, DbTranslation> = [:]
+    var blanksDictionary: Dictionary<Int, DbTranslation> = [:]
     
     init(dbTranslation: DbTranslation) {
         self.dbTranslation = dbTranslation
@@ -54,6 +54,24 @@ class FillInBlanks {
     
     func populateBlanksDictionary() {
         let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getHanzi())
+        
+        for what in blankParts {
+            let refDict: Dictionary<String, String> = getRefDict(what)
+            let refVal: String! = refDict["ref"]
+            
+            
+            let refType: String! = refDict["type"]
+            if refType == "int" {
+                let minString: String! = refDict["min"]
+                let minVal: Int! = Int(minString)
+                let maxString: String! = refDict["max"]
+                let maxVal: Int! = Int(maxString)
+                
+                let resultVal: String = String(Int.random(in: minVal...maxVal))
+                
+                self.blanksDictionary[Int(refVal)!] = DbTranslation(hanzi: resultVal, pinyin: resultVal, english: resultVal)
+            }
+        }
     }
     
     func getBlanksDictionary() -> Dictionary<Int, DbTranslation> {
@@ -106,6 +124,7 @@ class FillInBlanks {
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, DbTranslation> = test_fib.getBlanksDictionary()
         
+        print(String(blanksDict[1]!.getHanzi()))
         assert(blanksDict[1]?.getHanzi() == "21" || blanksDict[1]?.getHanzi() == "22")
         assert(blanksDict[2]?.getPinyin() == "1950")
         

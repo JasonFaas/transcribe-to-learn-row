@@ -19,6 +19,15 @@ class DbTranslation {
     var tempPinyin:String = "Error Pinyin"
     var tempEnglish:String = "Error English"
     
+    init() {
+    }
+    
+    init(hanzi: String, pinyin: String, english: String) {
+        self.tempHanzi = hanzi
+        self.tempPinyin = pinyin
+        self.tempEnglish = english
+    }
+    
     func verifyAll() throws {
         throw "Base DbTranslation is not very good"
     }
