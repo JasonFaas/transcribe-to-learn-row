@@ -129,11 +129,10 @@ class FillInBlanks {
     
     func runUnitTests() {
         self.testJsonBlankToDict()
-        self.testBlanksToJson()
+        self.testBlanksToJsonNumber()
+        self.testBlanksToJsonInDatabase()
+        self.testBlanksToJsonInDatabaseFk()
         self.testPopulateBlanksDictNumber()
-        self.testPopulateBlanksDictFromDb()
-        self.testPopulateBlanksDictFromDbNested()
-        self.testFillInBlanksFromDict()
     }
     
     func testJsonBlankToDict() {
@@ -147,7 +146,7 @@ class FillInBlanks {
         assert(individualDict["max"] == "22")
     }
     
-    func testBlanksToJson() {
+    func testBlanksToJsonNumber() {
         let dbTranslation = DbTranslation()
         dbTranslation.setHanzi("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
         let test_fib = FillInBlanks(dbTranslation: dbTranslation)
@@ -158,16 +157,31 @@ class FillInBlanks {
         assert(blanksDict[2]?["pinyin"] == "1950")
     }
     
-    func testPopulateBlanksDictFromDb() {
-        assert(false)
+    func testBlanksToJsonInDatabase() {
+        let dbTranslation = DbTranslation()
+        dbTranslation.setHanzi("{ref:1,type:country_person_name}")
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
+        test_fib.populateBlanksDictionary()
+        let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
+        
+        assert(blanksDict[1]?["hanzi"] == "中国人" || blanksDict[1]?["english"] == "American")
     }
     
-    func testFillInBlanksFromDict() {
-        assert(false)
-    }
-    
-    func testPopulateBlanksDictFromDbNested() {
-        assert(false)
+    func testBlanksToJsonInDatabaseFk() {
+        let dbTranslation = DbTranslation()
+        dbTranslation.setHanzi("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
+        test_fib.populateBlanksDictionary()
+        let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
+        
+        if blanksDict[1]?["hanzi"] == "水果" {
+            assert(blanksDict[2]?["hanzi"] == "苹果" || blanksDict[2]?["english"] == "banana")
+        } else if blanksDict[1]?["english"] == "vegetable" {
+            assert(blanksDict[2]?["hanzi"] == "西红柿" || blanksDict[2]?["english"] == "corn")
+        } else {
+            assert(false)
+        }
+        
     }
     
     func testPopulateBlanksDictNumber() {
