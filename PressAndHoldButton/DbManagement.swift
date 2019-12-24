@@ -103,6 +103,12 @@ class DatabaseManagement {
         }
     }
     
+    func getRandomRowFromSpecified(database: String) -> DbTranslation {
+        let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM \(database) ORDER BY RANDOM() LIMIT 1;") as! Int64
+        
+        return DbTranslation()
+    }
+    
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
             let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64

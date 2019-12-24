@@ -85,6 +85,7 @@ class FillInBlanks {
         let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getHanzi())
         
         for what in blankParts {
+            print(what)
             let refDict: Dictionary<String, String> = getRefDict(what)
             let refVal: String! = refDict["ref"]
             
@@ -101,6 +102,13 @@ class FillInBlanks {
                 self.blanksDictionary[Int(refVal)!] = ["hanzi": resultVal,
                                                        "pinyin": resultVal,
                                                        "english": resultVal]
+            } else {
+                getRandomRowFromSpecified(refType) //TODO: How to get this?
+                
+                let resultVal: String = "Type Error"
+                self.blanksDictionary[Int(refVal)!] = ["hanzi": resultVal,
+                "pinyin": resultVal,
+                "english": resultVal]
             }
         }
     }
@@ -164,6 +172,7 @@ class FillInBlanks {
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
+        print(blanksDict[1]?["hanzi"])
         assert(blanksDict[1]?["hanzi"] == "中国人" || blanksDict[1]?["english"] == "American")
     }
     
