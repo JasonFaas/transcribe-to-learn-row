@@ -50,6 +50,10 @@ class ViewController: UIViewController {
               }
           }
         
+        if !SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN"))!.isAvailable {
+            print("Go to Settings->General->Keyboard and \"Enable Dictation\". Then select \"Dictation Languages\" and select \"Mandarin\"")
+        }
+        
         self.translation = MainManagement(
             feedbackLabel: self.generalCommentLabel,
             toPronounceHanzi: self.toPronounce,

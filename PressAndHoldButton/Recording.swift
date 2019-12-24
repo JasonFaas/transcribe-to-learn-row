@@ -34,14 +34,15 @@ class Recording {
     
     // TODO: Add better stack trace info
     func _startRecording() throws {
-        switch SFSpeechRecognizer.authorizationStatus() {
-            case .notDetermined:
-                print("Not Determined")
-            case .authorized:
-                print("Still Authorized")
-            case .denied, .restricted:
-                print("Denied or Restricted")
-        }
+        //TODO: Put this on loop here for original authorization
+//        switch SFSpeechRecognizer.authorizationStatus() {
+//            case .notDetermined:
+//                print("Not Determined")
+//            case .authorized:
+//                print("Still Authorized")
+//            case .denied, .restricted:
+//                print("Denied or Restricted")
+//        }
         
         guard speechRecogniser.isAvailable else {
             throw "Speech recognition is unavailable, so do not attempt to start."

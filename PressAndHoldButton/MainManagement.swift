@@ -48,7 +48,7 @@ class MainManagement {
             try self.recording._startRecording()
         } catch {
             self.recording._finishRecording()
-            self.updateUi.addToFeedbackText(" Did not record.")
+            self.updateUi.addToFeedbackText("\nUnable to transcribe at this time.")
 
             print("Function: \(#file):\(#line), Error: \(error)")
         }
