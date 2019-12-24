@@ -14,7 +14,7 @@ class DbConnectionSetup {
 
     // TODO: ENABLE ONLY IF WANTING TO RESET DATABASE
     // TODO: Regularlly turn this to true to verify it still works
-    let deleteExistingAndCopyNew: Bool = false
+    let deleteExistingAndCopyNew: Bool = true
     
     init() {
         

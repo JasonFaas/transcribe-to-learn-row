@@ -229,7 +229,8 @@ class FillInBlanks {
             print(blanksDict[1]?["english"])
             print(blanksDict[2]?["english"])
             if blanksDict[1]?["hanzi"] == "水果" {
-                assert(blanksDict[2]?["hanzi"] == "苹果" || blanksDict[2]?["english"] == "banana")
+                assert(blanksDict[2]?["hanzi"] == "苹果" || blanksDict[2]?["english"] == "banana" ||
+                    blanksDict[2]?["pinyin"] == "huǒlóng guǒ")
             } else if blanksDict[1]?["english"] == "vegetable" {
                 assert(blanksDict[2]?["hanzi"] == "西红柿" || blanksDict[2]?["english"] == "corn")
             } else {
