@@ -42,7 +42,7 @@ class DatabaseManagement {
         
         let selectTranslation = DbTranslation
             .table
-            .filter(DbTranslation.static_id == dbResult.getTranslationFk())
+            .filter(DbTranslation.id == dbResult.getTranslationFk())
         
         let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
         if translationRow == nil {
@@ -78,8 +78,8 @@ class DatabaseManagement {
             }
             
             let extractedExpr: Table = DbTranslation.table
-                .filter(!answered_values.contains(DbTranslation.static_id))
-                .order(SpecificDbTranslation.difficulty.asc)
+                .filter(!answered_values.contains(DbTranslation.id))
+                .order(DbTranslation.difficulty.asc)
             
             for translation in try self.sqliteConnection.prepare(extractedExpr) {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation,
@@ -96,29 +96,32 @@ class DatabaseManagement {
     }
     
     func updateBlanks(_ dbTranslation: DbTranslation) {
-        do {
-            let what = FillInBlanks(dbTranslation: dbTranslation, dbm: self)
-            what.processBlanks()
-        } catch {
-            print("Update Blanks failed: \(error)")
-        }
+        let what = FillInBlanks(dbTranslation: dbTranslation, dbm: self)
+        what.processBlanks()
     }
     
-    func getRandomRowFromSpecified(database: String) throws -> DbTranslation {
+    func getRandomRowFromSpecified(database: String, fk_ref: Int) throws -> DbTranslation {
          
-        let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM \(database) ORDER BY RANDOM() LIMIT 1;") as! Int64
-                    
-        let extractedExpr: Table = Table(database).filter(DbTranslation.static_id == Int(random_int))
-        
-        
-        let selectTranslation = Table(database)
-            .filter(DbTranslation.static_id == Int(random_int))
-        
-        let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
-        if translationRow == nil {
-            throw "Unique database \"\(database)\" not found"
+        print("a")
+        var fk_helper: String = ""
+        if fk_ref >= 1 {
+            fk_helper = "where fk_parent = \(fk_ref) "
         }
         
+        let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM \(database) \(fk_helper)ORDER BY RANDOM() LIMIT 1;") as! Int64
+
+        print("b")
+        var selectTranslation = Table(database).filter(DbTranslation.id == Int(random_int))
+    
+        
+        print("d")
+        let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
+        print("e")
+        if translationRow == nil {
+            throw "Unique database \"\(database)\" not found \(random_int) \(fk_ref)"
+        }
+        
+        print("f")
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: "none")
     
@@ -128,7 +131,7 @@ class DatabaseManagement {
         do {
             let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
                         
-            let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.static_id == Int(random_int))
+            let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.id == Int(random_int))
             
             for translation in try self.sqliteConnection.prepare(extractedExpr) {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation,

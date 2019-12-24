@@ -13,7 +13,12 @@ import SQLite
 class DbTranslation {
     
     static let table = Table("translations")
-    static let static_id = Expression<Int>("id")
+    static let id = Expression<Int>("id")
+    static let hanzi = Expression<String>("Hanzi")
+    static let pinyin = Expression<String>("Pinyin")
+    static let english = Expression<String>("English")
+    static let difficulty = Expression<Int>("Difficulty")
+    static let fk_parent = Expression<Int>("fk_parent")
     
     var tempHanzi:String = "Error Hanzi"
     var tempPinyin:String = "Error Pinyin"
@@ -71,11 +76,6 @@ class DbTranslation {
 }
 
 class SpecificDbTranslation : DbTranslation {
-    static let id = Expression<Int>("id")
-    static let hanzi = Expression<String>("Hanzi")
-    static let pinyin = Expression<String>("Pinyin")
-    static let english = Expression<String>("English")
-    static let difficulty = Expression<Int>("Difficulty")
     
     var intElements: Array<Expression<Int>>!
     var stringElements: Array<Expression<String>>!
@@ -207,7 +207,7 @@ class DbResult {
             t.column(DbResult.pronunciation_help)
             t.column(DbResult.like)
             
-            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.static_id)
+            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.id)
         }
     }
     
