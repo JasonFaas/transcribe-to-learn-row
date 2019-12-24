@@ -31,12 +31,14 @@ class DbConnectionSetup {
         // TODO: If database does not exist, copy database over
         if deleteExistingAndCopyNew {
             self.dropTranslationDb(finalDatabaseURL, fileManager)
-            self.copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
         }
+        
+        self.copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
+        
         let connection: Connection = self.createDatabaseConnection(importSqlFileName, fileManager)
         
         if deleteExistingAndCopyNew {
-            self.deleteDatabaseTable(connection)
+            self.dropDbResultTable(connection)
         }
         self.createResultDbTableIfNotExists(connection)
         
@@ -66,7 +68,7 @@ class DbConnectionSetup {
         }
     }
         
-    func deleteDatabaseTable(_ sqliteConnection: Connection) {
+    func dropDbResultTable(_ sqliteConnection: Connection) {
         do {
             try sqliteConnection.run(DbResult.table.drop())
             print("DB :: Dropped RESULT Table")

@@ -30,15 +30,25 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        SFSpeechRecognizer.requestAuthorization { [unowned self] authStatus in
+        AVCaptureDevice.requestAccess(for: .audio) { [unowned self] authStatus in
                DispatchQueue.main.async {
-                   if authStatus == .authorized {
-                       print("Good to go!")
+                   if authStatus == true {
+                       print("Good to go! - Microphone ")
                    } else {
-                       print("Transcription permission was declined.")
+                       print("Recording NOT Authorized")
                    }
                }
            }
+           
+       SFSpeechRecognizer.requestAuthorization { [unowned self] authStatus in
+              DispatchQueue.main.async {
+                  if authStatus == .authorized {
+                      print("Good to go! - Transcription")
+                  } else {
+                      print("Transcription permission was declined.")
+                  }
+              }
+          }
         
         self.translation = MainManagement(
             feedbackLabel: self.generalCommentLabel,
