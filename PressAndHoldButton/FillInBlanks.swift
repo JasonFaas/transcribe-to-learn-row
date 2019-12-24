@@ -11,10 +11,32 @@ import Foundation
 class FillInBlanks {
     
     let dbTranslation: DbTranslation!
-    var blanksDictionary: Dictionary<Int, DbTranslation> = [:]
+    var blanksDictionary: Dictionary<Int, Dictionary<String, String>> = [:]
     
     init(dbTranslation: DbTranslation) {
         self.dbTranslation = dbTranslation
+    }
+    
+    func fillBlanks(phrase: String, howTo: String) -> String {
+        
+        var newPhrase: Substring = phrase[phrase.startIndex..<phrase.endIndex]
+        while newPhrase.contains("{") {
+            let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
+            let closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
+            let closePlusOne = newPhrase.index(closeIndex, offsetBy: 1)
+            let json: String = String(newPhrase[openIndex...closeIndex])
+            
+            let refDict: Dictionary<String, String> = getRefDict(json)
+            let refStr: String! = refDict["ref"]
+            
+            let what = blanksDictionary[Int(refStr)!]
+            let toFillIn: String! = what![howTo]
+            
+            newPhrase = newPhrase[..<openIndex] + toFillIn + newPhrase[closePlusOne...]
+        }
+        
+        print(String(newPhrase))
+        return String(newPhrase)
     }
     
     func processBlanks() {
@@ -26,6 +48,9 @@ class FillInBlanks {
         // TODO: call setPinyin
         
         // TODO: call setEnglish
+        let blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getEnglish(),
+                                             howTo: "english")
+        dbTranslation.setEnglish(blanksFilledIn)
     }
     
     func updateDbTranslation() {
@@ -38,7 +63,6 @@ class FillInBlanks {
         
         var newPhrase: Substring = stringParts[stringParts.startIndex..<stringParts.endIndex]
         while newPhrase.contains("{") {
-            print(String(newPhrase))
             let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
             let closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
             let closePlusOne = newPhrase.index(closeIndex, offsetBy: 1)
@@ -46,7 +70,6 @@ class FillInBlanks {
             returnList.append(json)
             
             newPhrase = newPhrase[closePlusOne...]
-            print(String(newPhrase))
         }
         
         return returnList
@@ -69,18 +92,19 @@ class FillInBlanks {
                 
                 let resultVal: String = String(Int.random(in: minVal...maxVal))
                 
-                self.blanksDictionary[Int(refVal)!] = DbTranslation(hanzi: resultVal, pinyin: resultVal, english: resultVal)
+                self.blanksDictionary[Int(refVal)!] = ["hanzi": resultVal,
+                                                       "pinyin": resultVal,
+                                                       "english": resultVal]
             }
         }
     }
     
-    func getBlanksDictionary() -> Dictionary<Int, DbTranslation> {
+    func getBlanksDictionary() -> Dictionary<Int, Dictionary<String, String>> {
         return self.blanksDictionary
     }
     
     func getRefDict(_ refDict: String) -> Dictionary<String, String> {
         var refWithQuotes = refDict.replacingOccurrences(of: "(\\w+)", with: "\"$1\"", options: .regularExpression)
-        print(refWithQuotes)
         
         let empty: Dictionary<String, String> = [:]
         
@@ -122,20 +146,13 @@ class FillInBlanks {
         dbTranslation.setHanzi("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
         let test_fib = FillInBlanks(dbTranslation: dbTranslation)
         test_fib.populateBlanksDictionary()
-        let blanksDict: Dictionary<Int, DbTranslation> = test_fib.getBlanksDictionary()
+        let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
-        print(String(blanksDict[1]!.getHanzi()))
-        assert(blanksDict[1]?.getHanzi() == "21" || blanksDict[1]?.getHanzi() == "22")
-        assert(blanksDict[2]?.getPinyin() == "1950")
-        
-        assert(false)
+        assert(blanksDict[1]?["hanzi"] == "21" || blanksDict[1]?["english"] == "22")
+        assert(blanksDict[2]?["pinyin"] == "1950")
     }
     
     func testPopulateBlanksDictFromDb() {
-        assert(false)
-    }
-    
-    func testPopulateBlanksDictFromDbNested() {
         assert(false)
     }
     
@@ -143,17 +160,23 @@ class FillInBlanks {
         assert(false)
     }
     
-    func testPopulateBlanksDictNumber() {
+    func testPopulateBlanksDictFromDbNested() {
         assert(false)
-//        let translation = DbTranslation()
-//        translation.setHanzi("我今年{ref:1,type:int,min:21-41}岁{ref:2,type:int,min:1950,max:1999}")
-//        test_fib = FillInBlanks(translation: translation)
-//        test_fib.populateBlanksDictionary()
-//
-//        let testDict: Dictionary<Int, DbTranslation> = test_fib.getBlanksDictionary()
-//        assert testDict['1'] ==
-//        assert translation.getEnglish() == "I am 33 years old"
-//        assert translation.getHanzi() == "wǒ jīnnián 33 suì"
-//        assert translation.getPinyin() == "我今年33岁"
+    }
+    
+    func testPopulateBlanksDictNumber() {
+        let hanzi = "我今年{ref:1,type:int,min:33,max:33}岁"
+        let pinyin = "wǒ jīnnián {ref:1,type:int,min:33,max:33} suì"
+        let english = "I am {ref:1,type:int,min:33,max:33} years old"
+        let translation = DbTranslation(hanzi: hanzi,
+                                        pinyin: pinyin,
+                                        english: english)
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
+        test_fib.populateBlanksDictionary()
+
+        print(translation.getEnglish())
+        assert(translation.getEnglish() == "I am 33 years old")
+        assert(translation.getHanzi() == "wǒ jīnnián 33 suì")
+        assert(translation.getPinyin() == "我今年33岁")
     }
 }
