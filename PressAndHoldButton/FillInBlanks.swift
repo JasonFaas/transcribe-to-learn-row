@@ -44,11 +44,17 @@ class FillInBlanks {
         self.populateBlanksDictionary()
         
         // TODO: call setHanzi
+        var blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getHanzi(),
+                                             howTo: "hanzi")
+        dbTranslation.setHanzi(blanksFilledIn)
         
         // TODO: call setPinyin
+        blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getPinyin(),
+                                             howTo: "pinyin")
+        dbTranslation.setPinyin(blanksFilledIn)
         
         // TODO: call setEnglish
-        let blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getEnglish(),
+        blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getEnglish(),
                                              howTo: "english")
         dbTranslation.setEnglish(blanksFilledIn)
     }
@@ -168,15 +174,15 @@ class FillInBlanks {
         let hanzi = "我今年{ref:1,type:int,min:33,max:33}岁"
         let pinyin = "wǒ jīnnián {ref:1,type:int,min:33,max:33} suì"
         let english = "I am {ref:1,type:int,min:33,max:33} years old"
-        let translation = DbTranslation(hanzi: hanzi,
+        let testTranslation = DbTranslation(hanzi: hanzi,
                                         pinyin: pinyin,
                                         english: english)
-        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
-        test_fib.populateBlanksDictionary()
+        let test_fib = FillInBlanks(dbTranslation: testTranslation)
+        test_fib.processBlanks()
 
-        print(translation.getEnglish())
-        assert(translation.getEnglish() == "I am 33 years old")
-        assert(translation.getHanzi() == "wǒ jīnnián 33 suì")
-        assert(translation.getPinyin() == "我今年33岁")
+        print(testTranslation.getEnglish())
+        assert(testTranslation.getEnglish() == "I am 33 years old")
+        assert(testTranslation.getPinyin() == "wǒ jīnnián 33 suì")
+        assert(testTranslation.getHanzi() == "我今年33岁")
     }
 }
