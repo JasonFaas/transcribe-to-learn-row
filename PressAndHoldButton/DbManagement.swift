@@ -54,11 +54,17 @@ class DatabaseManagement {
     }
     
     func getNextPhrase(_ rowToNotGet: Int) -> DbTranslation {
+        var dbTranslation: DbTranslation!
+        
         do {
-            return try self.getTranslationForOldestDueByNowResult()
+            dbTranslation = try self.getTranslationForOldestDueByNowResult()
         } catch {
-            return self.getEasiestUnansweredRowFromTranslations(rowToNotGet)
+            dbTranslation = self.getEasiestUnansweredRowFromTranslations(rowToNotGet)
         }
+        
+        self.updateBlanks(dbTranslation)
+        
+        return dbTranslation
     }
         
     func getEasiestUnansweredRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
@@ -80,8 +86,6 @@ class DatabaseManagement {
                                                           displayLanguage: "Mandarin-Simplified")
                 try dbTranslation.verifyAll()
                 
-                self.updateBlanks(dbTranslation)
-                
                 return dbTranslation
             }
         } catch {
@@ -93,20 +97,31 @@ class DatabaseManagement {
     
     func updateBlanks(_ dbTranslation: DbTranslation) {
         do {
-            var hanziTemp = dbTranslation.getHanzi().replacingOccurrences(of: " ", with: "")
-//            assert(false)
-            // TODO: Fix below
-//            var dictionaryOfBlanks = self.
-            try dbTranslation.setHanzi(self.replaceBlanks(hanziTemp))
+            let what = FillInBlanks(dbTranslation: dbTranslation, dbm: self)
+            what.processBlanks()
         } catch {
             print("Update Blanks failed: \(error)")
         }
     }
     
-    func getRandomRowFromSpecified(database: String) -> DbTranslation {
+    func getRandomRowFromSpecified(database: String) throws -> DbTranslation {
+         
         let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM \(database) ORDER BY RANDOM() LIMIT 1;") as! Int64
+                    
+        let extractedExpr: Table = Table(database).filter(DbTranslation.static_id == Int(random_int))
         
-        return DbTranslation()
+        
+        let selectTranslation = Table(database)
+            .filter(DbTranslation.static_id == Int(random_int))
+        
+        let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
+        if translationRow == nil {
+            throw "Unique database \"\(database)\" not found"
+        }
+        
+        return SpecificDbTranslation(dbRow: translationRow,
+                                     displayLanguage: "none")
+    
     }
     
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
@@ -291,7 +306,7 @@ class DatabaseManagement {
     }
     
     func runUnitTests() throws {
-        let fib = FillInBlanks(dbTranslation: DbTranslation())
+        let fib = FillInBlanks(dbTranslation: DbTranslation(), dbm: self)
         fib.runUnitTests()
         
         let firstNumberBlank: String = "what{number:33-33}how"

@@ -11,10 +11,12 @@ import Foundation
 class FillInBlanks {
     
     let dbTranslation: DbTranslation!
+    let dbm: DatabaseManagement!
     var blanksDictionary: Dictionary<Int, Dictionary<String, String>> = [:]
     
-    init(dbTranslation: DbTranslation) {
+    init(dbTranslation: DbTranslation, dbm: DatabaseManagement) {
         self.dbTranslation = dbTranslation
+        self.dbm = dbm
     }
     
     func fillBlanks(phrase: String, howTo: String) -> String {
@@ -103,12 +105,20 @@ class FillInBlanks {
                                                        "pinyin": resultVal,
                                                        "english": resultVal]
             } else {
-                getRandomRowFromSpecified(refType) //TODO: How to get this?
+                do {
+                let reference:DbTranslation = try self.dbm.getRandomRowFromSpecified(database: refType)
                 
-                let resultVal: String = "Type Error"
-                self.blanksDictionary[Int(refVal)!] = ["hanzi": resultVal,
-                "pinyin": resultVal,
-                "english": resultVal]
+                self.blanksDictionary[Int(refVal)!] = ["hanzi": reference.getHanzi(),
+                                                       "pinyin": reference.getPinyin(),
+                                                       "english": reference.getEnglish()]
+                } catch {
+                    print("Function: \(#function):\(#line), Error: \(error)")
+                    
+                    let resultVal: String = "Lookup Error"
+                    self.blanksDictionary[Int(refVal)!] = ["hanzi": resultVal,
+                                                           "pinyin": resultVal,
+                                                           "english": resultVal]
+                }
             }
         }
     }
@@ -144,7 +154,8 @@ class FillInBlanks {
     }
     
     func testJsonBlankToDict() {
-        let test_fib = FillInBlanks(dbTranslation: DbTranslation())
+        let test_fib = FillInBlanks(dbTranslation: DbTranslation(),
+                                    dbm: self.dbm)
         
         let individualDict: Dictionary<String, String> = test_fib.getRefDict("{ref:1,type:int,min:21,max:22}")
         
@@ -157,7 +168,8 @@ class FillInBlanks {
     func testBlanksToJsonNumber() {
         let dbTranslation = DbTranslation()
         dbTranslation.setHanzi("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
-        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation,
+        dbm: self.dbm)
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
@@ -168,21 +180,26 @@ class FillInBlanks {
     func testBlanksToJsonInDatabase() {
         let dbTranslation = DbTranslation()
         dbTranslation.setHanzi("{ref:1,type:country_person_name}")
-        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation,
+        dbm: self.dbm)
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
         print(blanksDict[1]?["hanzi"])
-        assert(blanksDict[1]?["hanzi"] == "中国人" || blanksDict[1]?["english"] == "American")
+        assert(blanksDict[1]?["hanzi"] == "中国 人" || blanksDict[1]?["english"] == "American")
     }
     
     func testBlanksToJsonInDatabaseFk() {
         let dbTranslation = DbTranslation()
         dbTranslation.setHanzi("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
-        let test_fib = FillInBlanks(dbTranslation: dbTranslation)
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation,
+        dbm: self.dbm)
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
+        print("Testing!")
+        print(blanksDict[1]?["english"])
+        print(blanksDict[2]?["english"])
         if blanksDict[1]?["hanzi"] == "水果" {
             assert(blanksDict[2]?["hanzi"] == "苹果" || blanksDict[2]?["english"] == "banana")
         } else if blanksDict[1]?["english"] == "vegetable" {
@@ -200,7 +217,8 @@ class FillInBlanks {
         let testTranslation = DbTranslation(hanzi: hanzi,
                                         pinyin: pinyin,
                                         english: english)
-        let test_fib = FillInBlanks(dbTranslation: testTranslation)
+        let test_fib = FillInBlanks(dbTranslation: testTranslation,
+        dbm: self.dbm)
         test_fib.processBlanks()
 
         print(testTranslation.getEnglish())
