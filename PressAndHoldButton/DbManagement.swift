@@ -102,7 +102,6 @@ class DatabaseManagement {
     
     func getRandomRowFromSpecified(database: String, fk_ref: Int) throws -> DbTranslation {
          
-        print("a")
         var fk_helper: String = ""
         if fk_ref >= 1 {
             fk_helper = "where fk_parent = \(fk_ref) "
@@ -110,18 +109,13 @@ class DatabaseManagement {
         
         let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM \(database) \(fk_helper)ORDER BY RANDOM() LIMIT 1;") as! Int64
 
-        print("b")
         var selectTranslation = Table(database).filter(DbTranslation.id == Int(random_int))
     
-        
-        print("d")
         let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
-        print("e")
         if translationRow == nil {
             throw "Unique database \"\(database)\" not found \(random_int) \(fk_ref)"
         }
         
-        print("f")
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: "none")
     
@@ -269,68 +263,6 @@ class DatabaseManagement {
         let startOffByOne = input.index(openIndex, offsetBy: 1)
         return input[startOffByOne..<closeIndex]
     }
-    
-    func replaceBlanks(_ phrase: String) throws -> String {
-        
-        print(phrase)
-        
-        var newPhrase: Substring = phrase[phrase.startIndex..<phrase.endIndex]
-        while newPhrase.contains("{") {
-            let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
-            let closeIndex: String.Index = newPhrase.firstIndex(of: "}")!
-            let closePlusOne = newPhrase.index(closeIndex, offsetBy: 1)
-            
-            let contentInsideBracket = self.contentInsideBracket(newPhrase, openIndex, closeIndex)
-            
-            if contentInsideBracket.contains(":") {
-                let colonIndex: String.Index = newPhrase.firstIndex(of: ":")!
-                if contentInsideBracket[..<colonIndex] == "number" {
-                    let intRangeStartIndex = contentInsideBracket.index(colonIndex, offsetBy: 1)
-                    
-                    let replacement: String = self.randomFromIntRange(contentInsideBracket[intRangeStartIndex...])
-                    newPhrase = newPhrase[..<openIndex] + replacement + newPhrase[closePlusOne...]
-                } else {
-                    throw "Terrible Exception, what could it be?"
-                }
-            } else {
-                throw "Terrible Exception, populate more"
-            }
-        }
-        
-        print(String(newPhrase))
-        return String(newPhrase)
-    }
-    
-    func randomFromIntRange(_ intRange: Substring) -> String {
-        return "33"
-//        let vals: Array<Substring> = intRange.split(separator: "-")
-//
-//        return String(Int.random(in: Int(String(vals[0]))!...Int(String(vals[1]))!))
-    }
-    
-    func runUnitTests() throws {
-        let fib = FillInBlanks(dbTranslation: DbTranslation(), dbm: self)
-        fib.runUnitTests()
-        
-        let firstNumberBlank: String = "what{number:33-33}how"
-        let firstResponse = try self.replaceBlanks(firstNumberBlank)
-        let noBlankPhrase: String = "what what"
-        let secondResponse = try self.replaceBlanks(noBlankPhrase)
-        assert(firstResponse == "what33how", firstResponse)
-        assert(secondResponse == noBlankPhrase)
-        
-        let firstRandom: DbTranslation = self.getEasiestUnansweredRowFromTranslations(-1)
-        let secondRandom: DbTranslation = self.getRandomRowFromTranslations(firstRandom.getId())
-        
-        print("Testing random ids \(firstRandom.getId()) \(secondRandom.getId())")
-        assert(firstRandom.getId() != secondRandom.getId())
-        
-        try firstRandom.verifyAll()
-        try secondRandom.verifyAll()
-        
-        print("Test of 1st random database request:\(firstRandom.getHanzi()):")
-    }
-    
 }
 
 extension String: LocalizedError {

@@ -65,6 +65,6 @@ class MainManagement {
     }
     
     func runUnitTests() throws {
-        try self.transcription.runUnitTests()
+        
     }
 }

@@ -108,6 +108,6 @@ class Transcription {
     }
     
     func runUnitTests() throws {
-        try self.dbm.runUnitTests()
+        
     }
 }

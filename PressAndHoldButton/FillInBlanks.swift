@@ -20,7 +20,7 @@ class FillInBlanks {
     }
     
     func fillBlanks(phrase: String, howTo: String) -> String {
-        print(phrase)
+//        print(phrase)
         var newPhrase: Substring = phrase[phrase.startIndex..<phrase.endIndex]
         while newPhrase.contains("{") {
             let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
@@ -37,7 +37,7 @@ class FillInBlanks {
             newPhrase = newPhrase[..<openIndex] + toFillIn + newPhrase[closePlusOne...]
         }
         
-        print(String(newPhrase))
+//        print(String(newPhrase))
         return String(newPhrase)
     }
     
@@ -87,7 +87,7 @@ class FillInBlanks {
         let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getHanzi())
         
         for what in blankParts {
-            print(what)
+//            print(what)
             let refDict: Dictionary<String, String> = getRefDict(what)
             let refVal: String! = refDict["ref"]
             
@@ -112,17 +112,14 @@ class FillInBlanks {
                 do {
                     let reference:DbTranslation!
                     if let fk_ref = refDict["fk_ref"] {
-                        print("VAL: \(fk_ref)")
+//                        print("VAL: \(fk_ref)")
                         
                         let whatWhat: Dictionary<String, String>! = self.blanksDictionary[Int(fk_ref)!]
                         let fk_str: String! = whatWhat["db_id"]
                         let fk_val: Int! = Int(fk_str)
                         
-                        
-                        print("TRYING HERE")
                         reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: fk_val)
                     } else {
-                        print("STILL TRYING")
                         reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: -1)
                     }
                     
@@ -211,12 +208,13 @@ class FillInBlanks {
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             
-            print(blanksDict[1]?["hanzi"])
-            assert(blanksDict[1]?["hanzi"] == "中国 人" || blanksDict[1]?["english"] == "American")
+            assert(blanksDict[1]?["hanzi"] == "中国 人" || blanksDict[1]?["english"] == "American",
+                   (blanksDict[1]?["hanzi"])!)
         }
     }
     
     func testBlanksToJsonInDatabaseFk() {
+        var fruit_once = false
         for i in 1...10 {
             let dbTranslation = DbTranslation()
             dbTranslation.setHanzi("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
@@ -225,18 +223,16 @@ class FillInBlanks {
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             
-            print("Testing!")
-            print(blanksDict[1]?["english"])
-            print(blanksDict[2]?["english"])
-            if blanksDict[1]?["hanzi"] == "水果" {
-                assert(blanksDict[2]?["hanzi"] == "苹果" || blanksDict[2]?["english"] == "banana" ||
-                    blanksDict[2]?["pinyin"] == "huǒlóng guǒ")
-            } else if blanksDict[1]?["english"] == "vegetable" {
-                assert(blanksDict[2]?["hanzi"] == "西红柿" || blanksDict[2]?["english"] == "corn")
-            } else {
-                assert(false)
+            let current_fruit_list: [String] = ["苹果", "香蕉", "火龙果", "黑莓", "蓝莓", "樱桃", "葡萄", "柠檬", "芒果", "橙子", "桃", "李", "菠萝", "草莓", "西瓜"]
+            
+            let food_type: String? = blanksDict[1]?["hanzi"]
+            let food_specific: String? = blanksDict[2]?["hanzi"]
+            if food_type == "水果" {
+                assert(current_fruit_list.contains(food_specific!), food_specific!)
+                fruit_once = true
             }
         }
+        assert(fruit_once)
         
     }
     
@@ -251,8 +247,7 @@ class FillInBlanks {
         dbm: self.dbm)
         test_fib.processBlanks()
 
-        print(testTranslation.getEnglish())
-        assert(testTranslation.getEnglish() == "I am 33 years old")
+        assert(testTranslation.getEnglish() == "I am 33 years old", testTranslation.getEnglish())
         assert(testTranslation.getPinyin() == "wǒ jīnnián 33 suì")
         assert(testTranslation.getHanzi() == "我今年33岁")
     }

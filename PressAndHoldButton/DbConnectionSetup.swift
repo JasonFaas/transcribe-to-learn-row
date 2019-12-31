@@ -14,7 +14,7 @@ class DbConnectionSetup {
 
     // TODO: ENABLE ONLY IF WANTING TO RESET DATABASE
     // TODO: Regularlly turn this to true to verify it still works
-    let deleteExistingAndCopyNew: Bool = true
+    let deleteExistingAndCopyNew: Bool = false
     
     init() {
         
@@ -49,9 +49,8 @@ class DbConnectionSetup {
         do {
             try fileManager.removeItem(at: finalDatabaseURL)
         } catch {
-            print("No database to remove on device")
-            print("Function: \(#function):\(#line), Error: \(error)")
-            print("Not exiting, but think about it?")
+            print("Function: \(#function):\(#line), Error: \(error)...\nNo database to remove on device")
+            exit(0)
         }
     }
     
@@ -62,8 +61,7 @@ class DbConnectionSetup {
             let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
             return try Connection(clientsFileUrl.path)
         } catch {
-            print("Function: \(#function):\(#line), Error: \(error)")
-            print("DB Setup Error")
+            print("Function: \(#function):\(#line), Error: \(error)...\nDB Setup Error")
             exit(0)
         }
     }
