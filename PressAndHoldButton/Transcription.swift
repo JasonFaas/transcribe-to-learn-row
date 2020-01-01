@@ -87,14 +87,21 @@ class Transcription {
         self.advanceToNextPhrase()
     }
     
-    func skipCurrentPhrase() {
-        self.dbm.logResult(letterGrade: "F",
+    func skipCurrentPhrase(grade: String) {
+        self.dbm.logResult(letterGrade: grade,
                            quizInfo: self.currentTranslation,
                            pinyinOn: self.updateUi.pinyinOn,
                            attempts: attempts)
         
+        if grade == "F" {
+            self.updateUi.updateFeedbackText("I know you'll get it next time")
+        } else {
+            self.updateUi.updateFeedbackText("I know you'll get it next time\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())")
+        }
+        
+        
+        
         self.advanceToNextPhrase()
-        self.updateUi.updateFeedbackText("I know you'll get it next time")
     }
 
     func advanceToNextPhrase() {

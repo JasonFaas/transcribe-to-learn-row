@@ -11,6 +11,7 @@ import Speech
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var devQuickSkip: UIButton!
     @IBOutlet weak var toPronounce: UILabel!
     @IBOutlet weak var generalCommentLabel: UILabel!
     @IBOutlet weak var buttonTextUpdate: UIButton!
@@ -76,7 +77,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func skipThisPress(_ sender: Any) {
-        self.translation.skipThisPress()
+        self.translation.skipThisPress(grade: "F")
     }
     
     @IBAction func releaseOutside(_ sender: Any) {
@@ -85,6 +86,9 @@ class ViewController: UIViewController {
     
     @IBAction func pressAndHoldBbutton(_ sender: UIButton) {
         released()
+    }
+    @IBAction func devQuickSkip(_ sender: Any) {
+        self.translation.skipThisPress(grade: "B")
     }
     
     func released() {

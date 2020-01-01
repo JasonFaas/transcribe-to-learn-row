@@ -32,8 +32,8 @@ class MainManagement {
         self.recording = Recording(translation: transcription)
     }
     
-    func skipThisPress() {
-        self.transcription.skipCurrentPhrase()
+    func skipThisPress(grade: String) {
+        self.transcription.skipCurrentPhrase(grade: grade)
     }
     
     func pinyinToggle() {
