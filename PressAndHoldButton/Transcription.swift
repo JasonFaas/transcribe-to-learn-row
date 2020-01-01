@@ -61,7 +61,7 @@ class Transcription {
     }
     
     func correctPronunciation() {
-        self.updateUi.updateFeedbackText("Great Pronunciation:\n\(self.currentTranslation.getHanzi())")
+        self.updateUi.updateFeedbackText("Great Pronunciation:\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())")
         
         var letterGradeNum = 0
         

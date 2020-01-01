@@ -22,7 +22,7 @@ class DatabaseManagement {
         let deleteResultDb: Bool = false
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
-                                                   deleteResultsDb: deleteResultDb)
+                                              deleteResultsDb: deleteResultDb)
         print("Row Count:")
         print("\t\(self.getRowsInTable(table: DbTranslation.table)) Translations")
         print("\t\(self.getRowsInTable(table: DbResult.table)) Results")
@@ -199,7 +199,8 @@ class DatabaseManagement {
                                                    langDisp: languageDisplayed,
                                                    newDueDate: newDueDate,
                                                    letterGrade: letterGrade,
-                                                   pronunciationHelp: pronunciationHelp)
+                                                   pronunciationHelp: pronunciationHelp,
+                                                   difficulty: quizInfo.getDifficulty())
             
             try self.dbConn.run(update)
             
@@ -240,11 +241,11 @@ class DatabaseManagement {
     func getNewDueDate(grade: String) -> Date {
 
         let generalDateAdding: [String: Int] = [
-            "A": 240,
-            "B": 120,
-            "C": 60,
-            "D": 30,
-            "F": 10,
+            "A": 60 * 24,
+            "B": 60 * 4,
+            "C": 60 * 1,
+            "D": 60 / 4,
+            "F": 60 / 16,
         ]
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
