@@ -129,7 +129,7 @@ class SpecificDbTranslation : DbTranslation {
 class DbResult {
     
     //TODO: Duplicate removal
-    static let table = Table("Results")
+    static let table: Table = Table("Results")
     
     static let id = Expression<Int>("id")
     static let translation_fk = Expression<Int>("translation") // TODO Change this to translation_fk

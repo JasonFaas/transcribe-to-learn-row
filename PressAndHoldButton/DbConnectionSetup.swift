@@ -11,51 +11,47 @@ import Foundation
 import SQLite
 
 class DbConnectionSetup {
-
-    // TODO: ENABLE ONLY IF WANTING TO RESET DATABASE
-    // TODO: Regularlly turn this to true to verify it still works
-    let deleteExistingAndCopyNew: Bool = false
     
+    let fileManager: FileManager!
     init() {
-        
+        self.fileManager = FileManager.default
     }
     
-    func setupConnection() -> Connection {
+    func setupConnection(copyNewDb: Bool, deleteResultsDb: Bool) -> Connection {
+        print("Setting up DbConn")
+        let dbFileName: String = "first.sqlite3"
 
-        let importSqlFileName: String = "first.sqlite3"
-        let fileManager: FileManager = FileManager.default
+        let dbUrl: URL = self.fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+                                         .first!
+                                         .appendingPathComponent(dbFileName)
         
-        let fromDocumentsurl: Array<URL> = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-        let finalDatabaseURL: URL = fromDocumentsurl.first!.appendingPathComponent(importSqlFileName)
-        
-        // TODO: If database does not exist, copy database over
-        if deleteExistingAndCopyNew {
-            self.dropTranslationDb(finalDatabaseURL, fileManager)
+        // If database does not exist, copy database over
+        if copyNewDb {
+            self.removeSqlliteFile(dbUrl)
+            self.copyDatabaseToDevice(dbUrl, dbFileName)
         }
         
-        self.copyDatabaseToDevice(finalDatabaseURL, importSqlFileName, fileManager)
+        let connection = self.createDatabaseConnection(dbFileName)
         
-        let connection: Connection = self.createDatabaseConnection(importSqlFileName, fileManager)
-        
-        if deleteExistingAndCopyNew {
-            self.dropDbResultTable(connection)
+        if deleteResultsDb {
+            self.dropTable(sqlConn: connection, tableToDrop: DbResult.table)
         }
-        self.createResultDbTableIfNotExists(connection)
+        self.createResultDbTableIfNotExists(sqlConn: connection)
         
         return connection
     }
     
-    func dropTranslationDb(_ finalDatabaseURL: URL, _ fileManager: FileManager) {
+    func removeSqlliteFile(_ dbUrl: URL) {
         do {
-            try fileManager.removeItem(at: finalDatabaseURL)
+            try self.fileManager.removeItem(at: dbUrl)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)...\nNo database to remove on device")
             exit(0)
         }
     }
     
-    func createDatabaseConnection(_ importSqlFileName: String, _ fileManager: FileManager) -> Connection {
-        let documentsURL: URL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    func createDatabaseConnection(_ importSqlFileName: String) -> Connection {
+        let documentsURL: URL = self.fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         
         do {
             let clientsFileUrl = documentsURL.appendingPathComponent(importSqlFileName)
@@ -66,37 +62,37 @@ class DbConnectionSetup {
         }
     }
         
-    func dropDbResultTable(_ sqliteConnection: Connection) {
+    func dropTable(sqlConn: Connection, tableToDrop: Table) {
         do {
-            try sqliteConnection.run(DbResult.table.drop())
-            print("DB :: Dropped RESULT Table")
+            try sqlConn.run(tableToDrop.drop())
+            print("\tDB :: Dropped a table")
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
         }
     }
         
-    func createResultDbTableIfNotExists(_ sqliteConnection: Connection) {
+    func createResultDbTableIfNotExists(sqlConn: Connection) {
         do {
-            try sqliteConnection.run(DbResult.tableCreationString())
-            print("DB :: Created RESULT Table or it already existed")
+            try sqlConn.run(DbResult.tableCreationString())
+            print("\tDB :: Created RESULT Table or it already existed")
         } catch {
-            print("DB Error :: DID NOT CREATE RESULT TABLE")
+            print("\tDB Error :: DID NOT CREATE RESULT TABLE")
             print("Function: \(#function):\(#line), Error: \(error)")
         }
     }
     
-    fileprivate func copyDatabaseToDevice(_ finalDatabaseURL: URL, _ importSqlFileName: String, _ fileManager: FileManager) {
-        if !((try? finalDatabaseURL.checkResourceIsReachable()) ?? false) {
-            print("DB :: does not exist in documents folder")
+    fileprivate func copyDatabaseToDevice(_ dbUrl: URL, _ importSqlFileName: String) {
+        if !((try? dbUrl.checkResourceIsReachable()) ?? false) {
+            print("\tDB :: does not exist in documents folder")
             let finalDocumentsURL = Bundle.main.resourceURL?.appendingPathComponent(importSqlFileName)
             do {
-                try fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: finalDatabaseURL.path)
-                print("DB :: copied over")
+                try self.fileManager.copyItem(atPath: (finalDocumentsURL?.path)!, toPath: dbUrl.path)
+                print("\tDB :: copied over")
             } catch let error as NSError {
-                print("DB Error :: Couldn't copy file to final location! Error:\(error.description)")
+                print("\tDB Error :: Couldn't copy file to final location! Error:\(error.description)")
             }
         } else {
-            print("DB Error :: Database file found at path: \(finalDatabaseURL.path)")
+            print("\tDB Error :: Database file found at path: \(dbUrl.path)")
         }
     }
 }

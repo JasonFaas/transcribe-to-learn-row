@@ -11,15 +11,26 @@ import Foundation
 import SQLite
 
 class DatabaseManagement {
-    var sqliteConnection: Connection!
+    let dbConn: Connection!
     
     init() {
-        sqliteConnection = DbConnectionSetup().setupConnection()
+        let dbSetup: DbConnectionSetup = DbConnectionSetup()
+        
+        // ENABLE ONLY IF WANTING TO RESET DATABASE
+        // TODO: Regularlly turn this to true to verify it still works
+        let copyNewDb: Bool = false
+        let deleteResultDb: Bool = false
+        
+        self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
+                                                   deleteResultsDb: deleteResultDb)
+        print("Row Count:")
+        print("\t\(self.getRowsInTable(table: DbTranslation.table)) Translations")
+        print("\t\(self.getRowsInTable(table: DbResult.table)) Results")
     }
     
     func printAllResultsTable() {
         do {
-            for result_row in try self.sqliteConnection.prepare(DbResult.table) {
+            for result_row in try self.dbConn.prepare(DbResult.table) {
                 let dbResult = DbResult(dbRow: result_row)
                 dbResult.printInfo()
             }
@@ -33,7 +44,7 @@ class DatabaseManagement {
             .filter(DbResult.due_date < Date())
             .order(DbResult.due_date.asc)
         
-        let resultRow: Row! = try self.sqliteConnection.pluck(selectResult)
+        let resultRow: Row! = try self.dbConn.pluck(selectResult)
         
         if resultRow == nil {
             throw "DbResult row not found in getTranslationForOldestDueByNowResult"
@@ -44,7 +55,7 @@ class DatabaseManagement {
             .table
             .filter(DbTranslation.id == dbResult.getTranslationFk())
         
-        let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
+        let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
             throw "DbTranslation row not found in getTranslationForOldestDueByNowResult"
         }
@@ -73,7 +84,7 @@ class DatabaseManagement {
                 .select(DbResult.translation_fk, DbResult.language_displayed)
 //                .filter(DbResult.last_grade == "A")
             var answered_values:Array<Int> = [rowToNotGet]
-            for result_row in try self.sqliteConnection.prepare(select_fk_keys) {
+            for result_row in try self.dbConn.prepare(select_fk_keys) {
                 answered_values.append(result_row[DbResult.translation_fk])
             }
             
@@ -81,7 +92,7 @@ class DatabaseManagement {
                 .filter(!answered_values.contains(DbTranslation.id))
                 .order(DbTranslation.difficulty.asc)
             
-            for translation in try self.sqliteConnection.prepare(extractedExpr) {
+            for translation in try self.dbConn.prepare(extractedExpr) {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation,
                                                           displayLanguage: "Mandarin-Simplified")
                 try dbTranslation.verifyAll()
@@ -107,11 +118,11 @@ class DatabaseManagement {
             fk_helper = "where fk_parent = \(fk_ref) "
         }
         
-        let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM \(database) \(fk_helper)ORDER BY RANDOM() LIMIT 1;") as! Int64
+        let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM \(database) \(fk_helper)ORDER BY RANDOM() LIMIT 1;") as! Int64
 
         var selectTranslation = Table(database).filter(DbTranslation.id == Int(random_int))
     
-        let translationRow: Row! = try self.sqliteConnection.pluck(selectTranslation)
+        let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
             throw "Unique database \"\(database)\" not found \(random_int) \(fk_ref)"
         }
@@ -121,13 +132,22 @@ class DatabaseManagement {
     
     }
     
+    func getRowsInTable(table: Table) -> Int {
+        do {
+            return try self.dbConn.scalar(table.count)
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+            return -1
+        }
+    }
+    
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
-            let random_int: Int64 = try self.sqliteConnection.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
+            let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
                         
             let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.id == Int(random_int))
             
-            for translation in try self.sqliteConnection.prepare(extractedExpr) {
+            for translation in try self.dbConn.prepare(extractedExpr) {
                 let dbTranslation = SpecificDbTranslation(dbRow: translation,
                                                           displayLanguage: "Mandarin-Simplified")
                 try dbTranslation.verifyAll()
@@ -147,7 +167,7 @@ class DatabaseManagement {
             .filter(DbResult.translation_fk == translationId)
             .filter(DbResult.language_displayed == languageDisplayed)
         
-        let what: Row! = try self.sqliteConnection.pluck(extractedExpr)
+        let what: Row! = try self.dbConn.pluck(extractedExpr)
         if what == nil {
             throw "DbResult row not found"
         }
@@ -181,7 +201,7 @@ class DatabaseManagement {
                                                    letterGrade: letterGrade,
                                                    pronunciationHelp: pronunciationHelp)
             
-            try self.sqliteConnection.run(update)
+            try self.dbConn.run(update)
             
             print("Row Updated")
         } catch {
@@ -205,8 +225,8 @@ class DatabaseManagement {
                                pronunciationHelp: "Off",
                                languagePronounced: languagePronounced)
                 
-                try self.sqliteConnection.run(firstMandarinInsert)
-                try self.sqliteConnection.run(newEnglishInsert)
+                try self.dbConn.run(firstMandarinInsert)
+                try self.dbConn.run(newEnglishInsert)
             
                 print("Now rows created for DbResult Mandarin and English")
             } catch {
