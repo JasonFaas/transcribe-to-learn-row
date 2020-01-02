@@ -105,7 +105,7 @@ class FillInBlanks {
     }
     
     func populateBlanksDictionary() {
-        let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getHanzi())
+        let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getBlanks())
         
         for refString in blankParts {
             let refDict: Dictionary<String, String> = getRefDict(refString)
@@ -133,16 +133,47 @@ class FillInBlanks {
                         print("\t\(refString)")
                         print("\t\(refDict)")
                         print("\t\(refValInt)")
-
+                        
                         let reference:DbTranslation!
                         
-                        if let specificRow: String = refDict["specific"] {
+                        if refType == "eval", let evalLeft = refDict["left"], let evalRight = refDict["right"], let evalSign = refDict["sign"] {
+                            
+                            //TODO: Lots of error checking here
+                            
+                            let leftVal:String = self.blanksDictionary[Int(evalLeft)!]!["hanzi"]!
+                            let rightVal:String = self.blanksDictionary[Int(evalRight)!]!["hanzi"]!
+                            
+//                            let stringWithMathematicalOperation: String = "\(leftVal) \(evalSign) \(rightVal)"
+                            
+                            let result: Bool!
+                            if evalSign == "<" {
+                                result = Int(leftVal)! < Int(rightVal)!
+                            } else if evalSign == ">" {
+                                result = Int(leftVal)! > Int(rightVal)!
+                            } else {
+                                result = false
+                            }
+                            
+//                            print(stringWithMathematicalOperation)
+//                            let exp: NSExpression = NSExpression(format: stringWithMathematicalOperation)
+//                            let result: Bool = exp.expressionValue(with: nil, context: nil) as! Bool
+                            
+                            let resultStr: String! = refDict[String(result)]
+                            
+                            let resultArr = resultStr.components(separatedBy: ".")
+                            
+                            reference = try self.dbm.getSpecificRow(database: resultArr[0], englishVal: resultArr[1])
+                        } else if let specificRow: String = refDict["specific"] {
                             reference = try self.dbm.getSpecificRow(database: refType, englishVal: specificRow)
                         } else if let fk_ref = refDict["fk_ref"] {
                             
                             let whatWhat: Dictionary<String, String>! = self.blanksDictionary[Int(fk_ref)!]
                             let fk_str: String! = whatWhat["db_id"]
                             let fk_val: Int! = Int(fk_str)
+                            
+                            print(whatWhat)
+                            print(fk_str)
+                            print(fk_val)
                             
                             //TODO: Change from Random row to 'due' or 'by level' or something like that
                             reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: fk_val)
@@ -187,7 +218,7 @@ class FillInBlanks {
             if char == "}" || char == ":" || char == "," {
                 refWithQuotes.append("\"")
             }
-
+            
             refWithQuotes.append("\(char)")
             
             if char == "{" || char == ":" || char == "," {

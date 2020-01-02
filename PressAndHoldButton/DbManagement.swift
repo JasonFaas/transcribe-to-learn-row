@@ -131,7 +131,7 @@ class DatabaseManagement {
         if fk_ref >= 1 {
             whereHelper = "where fk_parent = \(fk_ref) "
         } else if excludeEnglishVal != "" {
-            whereHelper = "where english != \(excludeEnglishVal) "
+            whereHelper = "where \(DbTranslation.english.template) != \"\(excludeEnglishVal)\" "
         }
         
         let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM \(database) \(whereHelper)ORDER BY RANDOM() LIMIT 1;") as! Int64
@@ -329,7 +329,7 @@ class DatabaseManagement {
     
     func testBlanksToJsonNumber() {
         let dbTranslation = DbTranslation()
-        dbTranslation.setHanzi("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
+        dbTranslation.setBlanks("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
         let test_fib = FillInBlanks(dbTranslation: dbTranslation,
         dbm: self)
         test_fib.populateBlanksDictionary()
@@ -343,7 +343,7 @@ class DatabaseManagement {
         var trueCount = 0
         for i in 1...100 {
             let dbTranslation = DbTranslation()
-            dbTranslation.setHanzi("{ref:1,type:country_person_name}")
+            dbTranslation.setBlanks("{ref:1,type:country_person_name}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
             dbm: self)
             test_fib.populateBlanksDictionary()
@@ -363,7 +363,7 @@ class DatabaseManagement {
         var fruit_once = false
         for i in 1...10 {
             let dbTranslation = DbTranslation()
-            dbTranslation.setHanzi("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
+            dbTranslation.setBlanks("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
             dbm: self)
             test_fib.populateBlanksDictionary()
@@ -386,9 +386,11 @@ class DatabaseManagement {
         let hanzi = "我今年{ref:1,type:int,min:33,max:33}岁"
         let pinyin = "wǒ jīnnián {ref:1,type:int,min:33,max:33} suì"
         let english = "I am {ref:1,type:int,min:33,max:33} years old"
+        let blanks = "{ref:1,type:int,min:33,max:33}"
         let testTranslation = DbTranslation(hanzi: hanzi,
                                         pinyin: pinyin,
-                                        english: english)
+                                        english: english,
+                                        blanks: blanks)
         let test_fib = FillInBlanks(dbTranslation: testTranslation,
         dbm: self)
         test_fib.processBlanks()
@@ -407,7 +409,8 @@ class DatabaseManagement {
         
         let testTranslantion = DbTranslation(hanzi: "",
                                             pinyin: "",
-                                            english: "")
+                                            english: "",
+                                            blanks: "")
         
         let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
         
@@ -421,13 +424,14 @@ class DatabaseManagement {
     func testSpecificAndCompareCountry() {
         let ref_1 = "{ref:1,type:country_name,specific:Russia}"
         let ref_2 = "{ref:2,type:country_name,ref_not:1}"
-        let ref_3 = "{ref:5,type:int,eval:ref_3<ref_4,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
+        let ref_3 = "{ref:5,type:eval,left:3,right:4,sign:<,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
         let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1,display:empty}"
         let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2,display:empty}"
         
-        let testTranslantion = DbTranslation(hanzi: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ",
+        let testTranslantion = DbTranslation(hanzi: "",
                                             pinyin: "",
-                                            english: "")
+                                            english: "",
+                                            blanks: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ")
         
         let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
         for i in 1...200 {
@@ -445,18 +449,15 @@ class DatabaseManagement {
             assert(blanksDict[5]?["hanzi"] != "smaller")
         }
         
-        
-        assert(1==2)
-        //TODO: Process to verify that everything shows up right, especially display:empty
-        
     }
     
     func testBadRefVal() {
         let ref_1 = "{ref:t,type:what}"
         
-        let testTranslantion = DbTranslation(hanzi: ref_1,
+        let testTranslantion = DbTranslation(hanzi: "",
                                             pinyin: "",
-                                            english: "")
+                                            english: "",
+                                            blanks: ref_1)
         
         let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
         test_fib.populateBlanksDictionary()

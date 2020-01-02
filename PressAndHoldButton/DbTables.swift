@@ -14,6 +14,7 @@ class DbTranslation {
     
     static let table = Table("translations")
     static let id = Expression<Int>("id")
+    static let blanks = Expression<String>("Blanks")
     static let hanzi = Expression<String>("Hanzi")
     static let pinyin = Expression<String>("Pinyin")
     static let english = Expression<String>("English")
@@ -23,14 +24,16 @@ class DbTranslation {
     var tempHanzi:String = "Error Hanzi"
     var tempPinyin:String = "Error Pinyin"
     var tempEnglish:String = "Error English"
+    var tempBlanks:String = "Error Blanks"
     
     init() {
     }
     
-    init(hanzi: String, pinyin: String, english: String) {
+    init(hanzi: String, pinyin: String, english: String, blanks: String) {
         self.tempHanzi = hanzi
         self.tempPinyin = pinyin
         self.tempEnglish = english
+        self.tempBlanks = blanks
     }
     
     func verifyAll() throws {
@@ -49,12 +52,20 @@ class DbTranslation {
         return tempPinyin
     }
     
+    func getBlanks() -> String {
+        return tempBlanks
+    }
+    
     func getEnglish() -> String {
         return tempEnglish
     }
     
     func setHanzi(_ temp: String) {
         self.tempHanzi = temp
+    }
+    
+    func setBlanks(_ temp: String) {
+        self.tempBlanks = temp
     }
     
     func setPinyin(_ temp: String) {
@@ -97,6 +108,7 @@ class SpecificDbTranslation : DbTranslation {
         self.tempHanzi = self.dbRow[SpecificDbTranslation.hanzi]
         self.tempPinyin = self.dbRow[SpecificDbTranslation.pinyin]
         self.tempEnglish = self.dbRow[SpecificDbTranslation.english]
+        self.tempBlanks = self.dbRow[SpecificDbTranslation.blanks]
     }
     
     override func verifyAll() throws {
