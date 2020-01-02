@@ -20,7 +20,7 @@ class FillInBlanks {
     }
     
     func fillBlanks(phrase: String, howTo: String) -> String {
-//        print(phrase)
+        //        print(phrase)
         var newPhrase: Substring = phrase[phrase.startIndex..<phrase.endIndex]
         while newPhrase.contains("{") {
             let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
@@ -37,7 +37,7 @@ class FillInBlanks {
             newPhrase = newPhrase[..<openIndex] + toFillIn + newPhrase[closePlusOne...]
         }
         
-//        print(String(newPhrase))
+        //        print(String(newPhrase))
         return String(newPhrase)
     }
     
@@ -52,12 +52,12 @@ class FillInBlanks {
         
         // TODO: call setPinyin
         blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getPinyin(),
-                                             howTo: "pinyin")
+                                         howTo: "pinyin")
         dbTranslation.setPinyin(blanksFilledIn)
         
         // TODO: call setEnglish
         blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getEnglish(),
-                                             howTo: "english")
+                                         howTo: "english")
         dbTranslation.setEnglish(blanksFilledIn)
     }
     
@@ -68,6 +68,7 @@ class FillInBlanks {
     func getDictionaryParts(_ stringParts: String) -> [String] {
         
         var returnList: [String] = []
+        var returnListEmpty: [String] = []
         
         var newPhrase: Substring = stringParts[stringParts.startIndex..<stringParts.endIndex]
         while newPhrase.contains("{") {
@@ -76,69 +77,99 @@ class FillInBlanks {
             let closePlusOne = newPhrase.index(closeIndex, offsetBy: 1)
             let json: String = String(newPhrase[openIndex...closeIndex])
             returnList.append(json)
+            returnListEmpty.append("")
             
             newPhrase = newPhrase[closePlusOne...]
         }
         
-        return returnList
+        for i in 0..<returnList.count {
+            let refDict: Dictionary<String, String> = self.getRefDict(returnList[i])
+            
+            let refValInt: Int = Int(refDict["ref"] ?? "-1") ?? -1
+            print(refValInt)
+            if refValInt >= 0 {
+                returnListEmpty[refValInt - 1] = returnList[i]
+            }
+        }
+        
+        return returnListEmpty
+    }
+    
+    func getIntResultVal(_ refDict: Dictionary<String, String>) -> Int {
+        let minString: String! = refDict["min"]
+        let minVal: Int! = Int(minString)
+        let maxString: String! = refDict["max"]
+        let maxVal: Int! = Int(maxString)
+        
+        return Int.random(in: minVal...maxVal)
     }
     
     func populateBlanksDictionary() {
         let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getHanzi())
         
-        for what in blankParts {
-//            print(what)
-            let refDict: Dictionary<String, String> = getRefDict(what)
-            let refVal: String! = refDict["ref"]
+        for refString in blankParts {
+            let refDict: Dictionary<String, String> = getRefDict(refString)
             
+            let refValInt: Int = Int(refDict["ref"] ?? "-1") ?? -1
+            if refValInt < 0 {
+                continue
+            }
             
-            let refType: String! = refDict["type"]
-            if refType == "int" {
-                let minString: String! = refDict["min"]
-                let minVal: Int! = Int(minString)
-                let maxString: String! = refDict["max"]
-                let maxVal: Int! = Int(maxString)
-                
-                let resultVal: String = String(Int.random(in: minVal...maxVal))
-                
-                self.blanksDictionary[Int(refVal)!] = [
-                    "hanzi": resultVal,
-                    "pinyin": resultVal,
-                    "english": resultVal,
-                    "tableName": refType,
-                    "db_id":"-1",
-                ]
-            } else {
-                do {
-                    let reference:DbTranslation!
-                    if let fk_ref = refDict["fk_ref"] {
-//                        print("VAL: \(fk_ref)")
-                        
-                        let whatWhat: Dictionary<String, String>! = self.blanksDictionary[Int(fk_ref)!]
-                        let fk_str: String! = whatWhat["db_id"]
-                        let fk_val: Int! = Int(fk_str)
-                        
-                        reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: fk_val)
-                    } else {
-                        reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: -1)
-                    }
+            if let refType: String = refDict["type"] {
+                if refType == "int" {
+                    let resultVal = String(self.getIntResultVal(refDict))
                     
-                    self.blanksDictionary[Int(refVal)!] = [
-                        "hanzi": reference.getHanzi(),
-                        "pinyin": reference.getPinyin(),
-                        "english": reference.getEnglish(),
+                    self.blanksDictionary[refValInt] = [
+                        "hanzi": resultVal,
+                        "pinyin": resultVal,
+                        "english": resultVal,
                         "tableName": refType,
-                        "db_id":String(reference.getId()),
+                        "db_id":"-1",
                     ]
-                } catch {
-                    print("Function: \(#function):\(#line), Error: \(error)")
-                    
-                    let resultVal: String = "Lookup Error"
-                    self.blanksDictionary[Int(refVal)!] = ["hanzi": resultVal,
-                                                           "pinyin": resultVal,
-                                                           "english": resultVal,
-                                                           "tableName": refType,
-                                                           "db_id": refType,]
+                } else {
+                    do {
+                        print("Testing")
+                        print("\t\(blankParts)")
+                        print("\t\(refString)")
+                        print("\t\(refDict)")
+                        print("\t\(refValInt)")
+
+                        let reference:DbTranslation!
+                        
+                        if let specificRow: String = refDict["specific"] {
+                            reference = try self.dbm.getSpecificRow(database: refType, englishVal: specificRow)
+                        } else if let fk_ref = refDict["fk_ref"] {
+                            
+                            let whatWhat: Dictionary<String, String>! = self.blanksDictionary[Int(fk_ref)!]
+                            let fk_str: String! = whatWhat["db_id"]
+                            let fk_val: Int! = Int(fk_str)
+                            
+                            //TODO: Change from Random row to 'due' or 'by level' or something like that
+                            reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: fk_val)
+                        } else if let excludedRef: String = refDict["ref_not"], let exRow = self.blanksDictionary[Int(excludedRef) ?? -1], let exVal = exRow["english"] {
+                            reference = try self.dbm.getRandomRowFromSpecified(database: refType, excludeEnglishVal: exVal)
+                        } else {
+                            //TODO: Change from Random row to 'due' or 'by level' or something like that
+                            reference = try self.dbm.getRandomRowFromSpecified(database: refType)
+                        }
+                        
+                        self.blanksDictionary[refValInt] = [
+                            "hanzi": reference.getHanzi(),
+                            "pinyin": reference.getPinyin(),
+                            "english": reference.getEnglish(),
+                            "tableName": refType,
+                            "db_id":String(reference.getId()),
+                        ]
+                    } catch {
+                        print("Function: \(#function):\(#line), Error: \(error)")
+                        
+                        let resultVal: String = "Lookup Error"
+                        self.blanksDictionary[refValInt] = ["hanzi": resultVal,
+                                                            "pinyin": resultVal,
+                                                            "english": resultVal,
+                                                            "tableName": refType,
+                                                            "db_id": refType,]
+                    }
                 }
             }
         }
@@ -150,7 +181,19 @@ class FillInBlanks {
     
     func getRefDict(_ refDict: String) -> Dictionary<String, String> {
         var refWithCommans = refDict.replacingOccurrences(of: ";", with: ",")
-        var refWithQuotes = refWithCommans.replacingOccurrences(of: "(\\w+)", with: "\"$1\"", options: .regularExpression)
+        
+        var refWithQuotes: String = ""
+        for char in refWithCommans {
+            if char == "}" || char == ":" || char == "," {
+                refWithQuotes.append("\"")
+            }
+
+            refWithQuotes.append("\(char)")
+            
+            if char == "{" || char == ":" || char == "," {
+                refWithQuotes.append("\"")
+            }
+        }
         
         let empty: Dictionary<String, String> = [:]
         

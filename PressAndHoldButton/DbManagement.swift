@@ -112,16 +112,31 @@ class DatabaseManagement {
         what.processBlanks()
     }
     
-    func getRandomRowFromSpecified(database: String, fk_ref: Int) throws -> DbTranslation {
-         
-        var fk_helper: String = ""
-        if fk_ref >= 1 {
-            fk_helper = "where fk_parent = \(fk_ref) "
+    func getSpecificRow(database: String, englishVal: String) throws -> DbTranslation {
+        let selectTranslation = Table(database).filter(DbTranslation.english == englishVal)
+        
+        let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
+        if translationRow == nil {
+            throw "Unique database \"\(database)\" with specific english value not found \(englishVal)"
         }
         
-        let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM \(database) \(fk_helper)ORDER BY RANDOM() LIMIT 1;") as! Int64
+        return SpecificDbTranslation(dbRow: translationRow,
+                                     displayLanguage: "none")
+    }
 
-        var selectTranslation = Table(database).filter(DbTranslation.id == Int(random_int))
+    // TODO: Get rid of the random row usage
+    func getRandomRowFromSpecified(database: String, fk_ref: Int = -1, excludeEnglishVal: String = "") throws -> DbTranslation {
+         
+        var whereHelper: String = ""
+        if fk_ref >= 1 {
+            whereHelper = "where fk_parent = \(fk_ref) "
+        } else if excludeEnglishVal != "" {
+            whereHelper = "where english != \(excludeEnglishVal) "
+        }
+        
+        let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM \(database) \(whereHelper)ORDER BY RANDOM() LIMIT 1;") as! Int64
+
+        let selectTranslation = Table(database).filter(DbTranslation.id == Int(random_int))
     
         let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
@@ -288,6 +303,9 @@ class DatabaseManagement {
     
     func runUnitTests() throws {
         
+        self.testBadRefVal()
+        self.testGetDictionaryPartsReturnedOrdered()
+        
         self.testJsonBlankToDict()
         self.testBlanksToJsonNumber()
         self.testBlanksToJsonInDatabase()
@@ -323,7 +341,7 @@ class DatabaseManagement {
     
     func testBlanksToJsonInDatabase() {
         var trueCount = 0
-        for i in 1...50 {
+        for i in 1...100 {
             let dbTranslation = DbTranslation()
             dbTranslation.setHanzi("{ref:1,type:country_person_name}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
@@ -333,6 +351,9 @@ class DatabaseManagement {
             
             if blanksDict[1]?["hanzi"] == "中国 人" || blanksDict[1]?["english"] == "American" {
                 trueCount += 1
+                if trueCount > 2 {
+                    break
+                }
             }
         }
         assert(trueCount > 1)
@@ -377,15 +398,63 @@ class DatabaseManagement {
         assert(testTranslation.getHanzi() == "我今年33岁")
     }
     
+    func testGetDictionaryPartsReturnedOrdered() {
+        let ref_1 = "{ref:1,type:country_name,specific:Russia}"
+        let ref_2 = "{ref:2,type:country_name,ref_not:1}"
+        let ref_3 = "{ref:5,type:int,eval:ref_3<ref_4,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
+        let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1,display:empty}"
+        let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2,display:empty}"
+        
+        let testTranslantion = DbTranslation(hanzi: "",
+                                            pinyin: "",
+                                            english: "")
+        
+        let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
+        
+        let decodeString = "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) "
+        let blankParts: [String] = test_fib.getDictionaryParts(decodeString)
+        for i in 1...5 {
+            assert(blankParts[i - 1].contains("ref:\(i)"))
+        }
+    }
+    
     func testSpecificAndCompareCountry() {
-        assert(1==2)
-        let ref_1 = "{ref:1;type:country_name;specific:Russia}"
-        let ref_2 = "{ref:2;type:country_name;ref_not:1}"
-        let ref_3 = "{ref:5;type:int;eval:ref_3<ref_4;true:comparison_adjectives.bigger;false:comparison_adjectives.smaller}"
-        let ref_4 = "{ref:3;type:country_land_size;fk_ref:1;display:empty}"
-        let ref_5 = "{ref:4;type:country_land_size;fk_ref:2;display:empty}"
+        let ref_1 = "{ref:1,type:country_name,specific:Russia}"
+        let ref_2 = "{ref:2,type:country_name,ref_not:1}"
+        let ref_3 = "{ref:5,type:int,eval:ref_3<ref_4,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
+        let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1,display:empty}"
+        let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2,display:empty}"
         
         let testTranslantion = DbTranslation(hanzi: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ",
+                                            pinyin: "",
+                                            english: "")
+        
+        let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
+        for i in 1...200 {
+            test_fib.populateBlanksDictionary()
+            let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
+            
+            print(blanksDict)
+            
+            assert(blanksDict[1]?["english"] == "Russia")
+            assert(blanksDict[2]?["english"] != "Russia")
+            assert((blanksDict[2]?["hanzi"]?.count)! > 1)
+            assert(Int((blanksDict[3]?["hanzi"])!) == 17098)
+            assert(Int((blanksDict[4]?["hanzi"])!)! < 17098)
+            assert(Int((blanksDict[4]?["hanzi"])!)! > 2)
+            assert(blanksDict[5]?["hanzi"] != "smaller")
+        }
+        
+        
+        assert(1==2)
+        //TODO: Process to verify that everything shows up right, especially display:empty
+        
+    }
+    
+    func testBadRefVal() {
+        let ref_1 = "{ref:t,type:what}"
+        
+        let testTranslantion = DbTranslation(hanzi: ref_1,
                                             pinyin: "",
                                             english: "")
         
@@ -393,13 +462,7 @@ class DatabaseManagement {
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
-        assert(blanksDict[1]?["hanzi"] == "Russia")
-        assert(blanksDict[2]?["hanzi"] != "Russia")
-        assert((blanksDict[2]?["hanzi"]?.count)! > 1)
-        assert(Int((blanksDict[3]?["hanzi"])!) == 17098)
-        assert(Int((blanksDict[4]?["hanzi"])!)! < 17098)
-        assert(Int((blanksDict[4]?["hanzi"])!)! > 2)
-        assert(blanksDict[5]?["hanzi"] != "smaller")
+        assert(blanksDict.count == 0)
     }
 }
 
