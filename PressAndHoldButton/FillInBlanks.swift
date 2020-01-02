@@ -20,7 +20,6 @@ class FillInBlanks {
     }
     
     func fillBlanks(phrase: String, howTo: String) -> String {
-        //        print(phrase)
         var newPhrase: Substring = phrase[phrase.startIndex..<phrase.endIndex]
         while newPhrase.contains("{") {
             let openIndex: String.Index = newPhrase.firstIndex(of: "{")!
@@ -37,7 +36,6 @@ class FillInBlanks {
             newPhrase = newPhrase[..<openIndex] + toFillIn + newPhrase[closePlusOne...]
         }
         
-        //        print(String(newPhrase))
         return String(newPhrase)
     }
     
@@ -86,7 +84,7 @@ class FillInBlanks {
             let refDict: Dictionary<String, String> = self.getRefDict(returnList[i])
             
             let refValInt: Int = Int(refDict["ref"] ?? "-1") ?? -1
-            print(refValInt)
+            
             if refValInt >= 0 {
                 returnListEmpty[refValInt - 1] = returnList[i]
             }
@@ -128,12 +126,6 @@ class FillInBlanks {
                     ]
                 } else {
                     do {
-                        print("Testing")
-                        print("\t\(blankParts)")
-                        print("\t\(refString)")
-                        print("\t\(refDict)")
-                        print("\t\(refValInt)")
-                        
                         let reference:DbTranslation!
                         
                         if refType == "eval", let evalLeft = refDict["left"], let evalRight = refDict["right"], let evalSign = refDict["sign"] {
@@ -170,10 +162,6 @@ class FillInBlanks {
                             let whatWhat: Dictionary<String, String>! = self.blanksDictionary[Int(fk_ref)!]
                             let fk_str: String! = whatWhat["db_id"]
                             let fk_val: Int! = Int(fk_str)
-                            
-                            print(whatWhat)
-                            print(fk_str)
-                            print(fk_val)
                             
                             //TODO: Change from Random row to 'due' or 'by level' or something like that
                             reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: fk_val)

@@ -361,7 +361,7 @@ class DatabaseManagement {
     
     func testBlanksToJsonInDatabaseFk() {
         var fruit_once = false
-        for i in 1...10 {
+        for i in 1...20 {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
@@ -401,11 +401,11 @@ class DatabaseManagement {
     }
     
     func testGetDictionaryPartsReturnedOrdered() {
-        let ref_1 = "{ref:1,type:country_name,specific:Russia}"
-        let ref_2 = "{ref:2,type:country_name,ref_not:1}"
-        let ref_3 = "{ref:5,type:int,eval:ref_3<ref_4,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
-        let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1,display:empty}"
-        let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2,display:empty}"
+        let ref_1 = "{ref:1}"
+        let ref_2 = "{ref:2}"
+        let ref_3 = "{ref:5}"
+        let ref_4 = "{ref:3}"
+        let ref_5 = "{ref:4}"
         
         let testTranslantion = DbTranslation(hanzi: "",
                                             pinyin: "",
@@ -427,7 +427,7 @@ class DatabaseManagement {
         let ref_3 = "{ref:5,type:eval,left:3,right:4,sign:<,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
         let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1,display:empty}"
         let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2,display:empty}"
-        
+         
         let testTranslantion = DbTranslation(hanzi: "",
                                             pinyin: "",
                                             english: "",
@@ -437,9 +437,7 @@ class DatabaseManagement {
         for i in 1...200 {
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
-            
-            print(blanksDict)
-            
+                        
             assert(blanksDict[1]?["english"] == "Russia")
             assert(blanksDict[2]?["english"] != "Russia")
             assert((blanksDict[2]?["hanzi"]?.count)! > 1)
