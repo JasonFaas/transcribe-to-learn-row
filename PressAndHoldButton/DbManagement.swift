@@ -14,11 +14,12 @@ class DatabaseManagement {
     let dbConn: Connection!
     
     init() {
+        
         let dbSetup: DbConnectionSetup = DbConnectionSetup()
         
         // ENABLE ONLY IF WANTING TO RESET DATABASE
         // TODO: Regularlly turn this to true to verify it still works
-        let copyNewDb: Bool = false
+        let copyNewDb: Bool = true
         let deleteResultDb: Bool = false
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
@@ -283,6 +284,122 @@ class DatabaseManagement {
     func contentInsideBracket(_ input: Substring, _ openIndex: String.Index, _ closeIndex: String.Index) -> Substring{
         let startOffByOne = input.index(openIndex, offsetBy: 1)
         return input[startOffByOne..<closeIndex]
+    }
+    
+    func runUnitTests() throws {
+        
+        self.testJsonBlankToDict()
+        self.testBlanksToJsonNumber()
+        self.testBlanksToJsonInDatabase()
+        self.testBlanksToJsonInDatabaseFk()
+        self.testPopulateBlanksDictNumber()
+        self.testSpecificAndCompareCountry()
+    }
+    
+    
+    func testJsonBlankToDict() {
+        let test_fib = FillInBlanks(dbTranslation: DbTranslation(),
+                                    dbm: self)
+        
+        let individualDict: Dictionary<String, String> = test_fib.getRefDict("{ref:1,type:int,min:21,max:22}")
+        
+        assert(individualDict["ref"] == "1")
+        assert(individualDict["type"] == "int")
+        assert(individualDict["min"] == "21")
+        assert(individualDict["max"] == "22")
+    }
+    
+    func testBlanksToJsonNumber() {
+        let dbTranslation = DbTranslation()
+        dbTranslation.setHanzi("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
+        let test_fib = FillInBlanks(dbTranslation: dbTranslation,
+        dbm: self)
+        test_fib.populateBlanksDictionary()
+        let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
+        
+        assert(blanksDict[1]?["hanzi"] == "21" || blanksDict[1]?["english"] == "22")
+        assert(blanksDict[2]?["pinyin"] == "1950")
+    }
+    
+    func testBlanksToJsonInDatabase() {
+        var trueCount = 0
+        for i in 1...50 {
+            let dbTranslation = DbTranslation()
+            dbTranslation.setHanzi("{ref:1,type:country_person_name}")
+            let test_fib = FillInBlanks(dbTranslation: dbTranslation,
+            dbm: self)
+            test_fib.populateBlanksDictionary()
+            let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
+            
+            if blanksDict[1]?["hanzi"] == "中国 人" || blanksDict[1]?["english"] == "American" {
+                trueCount += 1
+            }
+        }
+        assert(trueCount > 1)
+    }
+    
+    func testBlanksToJsonInDatabaseFk() {
+        var fruit_once = false
+        for i in 1...10 {
+            let dbTranslation = DbTranslation()
+            dbTranslation.setHanzi("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
+            let test_fib = FillInBlanks(dbTranslation: dbTranslation,
+            dbm: self)
+            test_fib.populateBlanksDictionary()
+            let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
+            
+            let current_fruit_list: [String] = ["苹果", "香蕉", "火龙果", "黑莓", "蓝莓", "樱桃", "葡萄", "柠檬", "芒果", "橙子", "桃", "李", "菠萝", "草莓", "西瓜"]
+            
+            let food_type: String? = blanksDict[1]?["hanzi"]
+            let food_specific: String? = blanksDict[2]?["hanzi"]
+            if food_type == "水果" {
+                assert(current_fruit_list.contains(food_specific!), food_specific!)
+                fruit_once = true
+            }
+        }
+        assert(fruit_once)
+        
+    }
+    
+    func testPopulateBlanksDictNumber() {
+        let hanzi = "我今年{ref:1,type:int,min:33,max:33}岁"
+        let pinyin = "wǒ jīnnián {ref:1,type:int,min:33,max:33} suì"
+        let english = "I am {ref:1,type:int,min:33,max:33} years old"
+        let testTranslation = DbTranslation(hanzi: hanzi,
+                                        pinyin: pinyin,
+                                        english: english)
+        let test_fib = FillInBlanks(dbTranslation: testTranslation,
+        dbm: self)
+        test_fib.processBlanks()
+
+        assert(testTranslation.getEnglish() == "I am 33 years old", testTranslation.getEnglish())
+        assert(testTranslation.getPinyin() == "wǒ jīnnián 33 suì")
+        assert(testTranslation.getHanzi() == "我今年33岁")
+    }
+    
+    func testSpecificAndCompareCountry() {
+        assert(1==2)
+        let ref_1 = "{ref:1;type:country_name;specific:Russia}"
+        let ref_2 = "{ref:2;type:country_name;ref_not:1}"
+        let ref_3 = "{ref:5;type:int;eval:ref_3<ref_4;true:comparison_adjectives.bigger;false:comparison_adjectives.smaller}"
+        let ref_4 = "{ref:3;type:country_land_size;fk_ref:1;display:empty}"
+        let ref_5 = "{ref:4;type:country_land_size;fk_ref:2;display:empty}"
+        
+        let testTranslantion = DbTranslation(hanzi: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ",
+                                            pinyin: "",
+                                            english: "")
+        
+        let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
+        test_fib.populateBlanksDictionary()
+        let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
+        
+        assert(blanksDict[1]?["hanzi"] == "Russia")
+        assert(blanksDict[2]?["hanzi"] != "Russia")
+        assert((blanksDict[2]?["hanzi"]?.count)! > 1)
+        assert(Int((blanksDict[3]?["hanzi"])!) == 17098)
+        assert(Int((blanksDict[4]?["hanzi"])!)! < 17098)
+        assert(Int((blanksDict[4]?["hanzi"])!)! > 2)
+        assert(blanksDict[5]?["hanzi"] != "smaller")
     }
 }
 
