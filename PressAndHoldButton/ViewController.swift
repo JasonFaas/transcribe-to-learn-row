@@ -11,6 +11,7 @@ import Speech
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var phrasesDue: UILabel!
     @IBOutlet weak var devQuickSkip: UIButton!
     @IBOutlet weak var toPronounce: UILabel!
     @IBOutlet weak var generalCommentLabel: UILabel!
@@ -61,7 +62,8 @@ class ViewController: UIViewController {
             toPronouncePinyin: self.toPronouncePinyin,
             buttonTextUpdate: self.buttonTextUpdate,
             skipThis: self.skipThis,
-            pinyinToggleButton: self.buttonPinyinToggle
+            pinyinToggleButton: self.buttonPinyinToggle,
+            dueProgress: self.phrasesDue
         )
         
         do {

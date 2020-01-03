@@ -112,6 +112,12 @@ class Transcription {
         self.currentTranslation = self.dbm.getNextPhrase(self.currentTranslation.getId())
                 
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
+        
+        let dueNow: String = "Now\t\(self.dbm.getCountDueTotal())"
+        let dueOneHour: String = "1 hour\t\(self.dbm.getCountDueTotal(hoursFromNow: 1))"
+        let dueOneDay: String = "1 day\t\(self.dbm.getCountDueTotal(hoursFromNow: 24))"
+        print(dueOneHour)
+        self.updateUi.updatePhraseProgress("Due\n\(dueNow)\n\(dueOneHour)\n\(dueOneDay)")
     }
     
     func runUnitTests() throws {

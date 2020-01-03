@@ -81,13 +81,20 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SZG-On-LgC">
-                                <rect key="frame" x="118" y="579" width="87" height="30"/>
+                                <rect key="frame" x="63" y="564" width="87" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Dev &quot;B&quot; Skip"/>
                                 <connections>
                                     <action selector="devQuickSkip:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Jz3-dZ-43j"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Phrases Due" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mCt-Kl-znU">
+                                <rect key="frame" x="183" y="542" width="141" height="94"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -97,6 +104,7 @@
                         <outlet property="buttonTextUpdate" destination="NNC-y7-mfd" id="rr1-j5-r4B"/>
                         <outlet property="devQuickSkip" destination="SZG-On-LgC" id="mY9-dr-avV"/>
                         <outlet property="generalCommentLabel" destination="Uzg-Ld-blB" id="sRP-5K-gbI"/>
+                        <outlet property="phrasesDue" destination="mCt-Kl-znU" id="oE0-Gx-bO1"/>
                         <outlet property="skipThis" destination="UG0-be-ppf" id="sOr-GW-f6Q"/>
                         <outlet property="toPronounce" destination="5ph-Ed-wgR" id="yDR-o8-4wi"/>
                         <outlet property="toPronouncePinyin" destination="9JW-mA-EcF" id="ex1-2j-kVG"/>
@@ -104,7 +112,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="48.75" y="20.070422535211268"/>
+            <point key="canvasLocation" x="47.826086956521742" y="19.419642857142858"/>
         </scene>
     </scenes>
 </document>

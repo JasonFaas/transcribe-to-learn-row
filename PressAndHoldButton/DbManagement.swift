@@ -19,7 +19,7 @@ class DatabaseManagement {
         
         // ENABLE ONLY IF WANTING TO RESET DATABASE
         // TODO: Regularlly turn this to true to verify it still works
-        let copyNewDb: Bool = true
+        let copyNewDb: Bool = false
         let deleteResultDb: Bool = false
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
@@ -41,7 +41,8 @@ class DatabaseManagement {
     }
     
     func getTranslationForOldestDueByNowResult() throws -> DbTranslation {
-        let selectResult = DbResult.table.select(DbResult.translation_fk, DbResult.language_displayed)
+        let selectResult = DbResult.table.select(DbResult.translation_fk,
+                                                 DbResult.language_displayed)
             .filter(DbResult.due_date < Date())
             .order(DbResult.due_date.asc)
         
@@ -78,12 +79,49 @@ class DatabaseManagement {
         
         return dbTranslation
     }
+    
+    func getCountDueTotal(hoursFromNow: Int = 0) -> Int {
+        var returnCount: Int = 0
+        do {
+            returnCount += try self.getDueNowCount(hoursFromNow: hoursFromNow)
+            returnCount += try self.getUnansweredCount() * 2
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+        }
         
+        return returnCount
+    }
+    
+    func getDueNowCount(hoursFromNow: Int = 10) throws -> Int {
+        let futureDate: Date = self.getDateHoursFromNow(minutesAhead: hoursFromNow * 60)
+        
+        let selectResult = DbResult.table.select(DbResult.translation_fk,
+                                             DbResult.language_displayed)
+        .filter(DbResult.due_date < futureDate)
+        
+        return try self.dbConn.scalar(selectResult.count)
+    }
+    
+    func getUnansweredCount() throws -> Int {
+        let select_fk_keys = DbResult.table
+            .select(DbResult.translation_fk, DbResult.language_displayed)
+        //                .filter(DbResult.last_grade == "A")
+        var answered_values:Array<Int> = []
+        for result_row in try self.dbConn.prepare(select_fk_keys) {
+            answered_values.append(result_row[DbResult.translation_fk])
+        }
+        
+        let extractedExpr: Table = DbTranslation.table
+            .filter(!answered_values.contains(DbTranslation.id))
+        
+        return try self.dbConn.scalar(extractedExpr.count)
+    }
+    
     func getEasiestUnansweredRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
             let select_fk_keys = DbResult.table
                 .select(DbResult.translation_fk, DbResult.language_displayed)
-//                .filter(DbResult.last_grade == "A")
+            //                .filter(DbResult.last_grade == "A")
             var answered_values:Array<Int> = [rowToNotGet]
             for result_row in try self.dbConn.prepare(select_fk_keys) {
                 answered_values.append(result_row[DbResult.translation_fk])
@@ -123,10 +161,10 @@ class DatabaseManagement {
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: "none")
     }
-
+    
     // TODO: Get rid of the random row usage
     func getRandomRowFromSpecified(database: String, fk_ref: Int = -1, excludeEnglishVal: String = "") throws -> DbTranslation {
-         
+        
         var whereHelper: String = ""
         if fk_ref >= 1 {
             whereHelper = "where fk_parent = \(fk_ref) "
@@ -135,9 +173,9 @@ class DatabaseManagement {
         }
         
         let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM \(database) \(whereHelper)ORDER BY RANDOM() LIMIT 1;") as! Int64
-
+        
         let selectTranslation = Table(database).filter(DbTranslation.id == Int(random_int))
-    
+        
         let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
             throw "Unique database \"\(database)\" not found \(random_int) \(fk_ref)"
@@ -145,7 +183,7 @@ class DatabaseManagement {
         
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: "none")
-    
+        
     }
     
     func getRowsInTable(table: Table) -> Int {
@@ -160,7 +198,7 @@ class DatabaseManagement {
     func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
         do {
             let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
-                        
+            
             let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.id == Int(random_int))
             
             for translation in try self.dbConn.prepare(extractedExpr) {
@@ -178,7 +216,7 @@ class DatabaseManagement {
     }
     
     func getResultRow(languageDisplayed: String, translationId: Int) throws -> DbResult {
-    
+        
         let extractedExpr: Table = DbResult.table
             .filter(DbResult.translation_fk == translationId)
             .filter(DbResult.language_displayed == languageDisplayed)
@@ -188,7 +226,7 @@ class DatabaseManagement {
             throw "DbResult row not found"
         }
         return DbResult(dbRow: what)
-    
+        
     }
     
     func logResult(letterGrade: String,
@@ -210,13 +248,13 @@ class DatabaseManagement {
             let newDueDate: Date = self.getUpdatedDueDate(newGrade: letterGrade,
                                                           lastGrade: resultRow.getLastGrade(),
                                                           lastDate: resultRow.getLastUpdatedDate())
-
+            
             let update: Update = DbResult.getUpdate(fk: quizInfo.getId(),
-                                                   langDisp: languageDisplayed,
-                                                   newDueDate: newDueDate,
-                                                   letterGrade: letterGrade,
-                                                   pronunciationHelp: pronunciationHelp,
-                                                   difficulty: quizInfo.getDifficulty())
+                                                    langDisp: languageDisplayed,
+                                                    newDueDate: newDueDate,
+                                                    letterGrade: letterGrade,
+                                                    pronunciationHelp: pronunciationHelp,
+                                                    difficulty: quizInfo.getDifficulty())
             
             try self.dbConn.run(update)
             
@@ -244,7 +282,7 @@ class DatabaseManagement {
                 
                 try self.dbConn.run(firstMandarinInsert)
                 try self.dbConn.run(newEnglishInsert)
-            
+                
                 print("Now rows created for DbResult Mandarin and English")
             } catch {
                 print("update failed: \(error)")
@@ -255,7 +293,7 @@ class DatabaseManagement {
     }
     
     func getNewDueDate(grade: String) -> Date {
-
+        
         let generalDateAdding: [String: Int] = [
             "A": 60 * 24,
             "B": 60 * 4,
@@ -263,19 +301,26 @@ class DatabaseManagement {
             "D": 60 / 4,
             "F": 60 / 16,
         ]
+        
+        let minutesAhead: Int = generalDateAdding[grade, default: Int(grade) ?? 1]
+        let dueDate: Date = self.getDateHoursFromNow(minutesAhead: minutesAhead)
+        
+        return dueDate
+    }
+    
+    func getDateHoursFromNow(minutesAhead: Int) -> Date {
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
-        let minutesAhead: Int = generalDateAdding[grade, default: Int(grade) ?? 1]
+        
         let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
         let dueDate: Date = calendar.date(byAdding: interval, to: now)!
-        
         return dueDate
     }
     
     func getUpdatedDueDate(newGrade: String,
                            lastGrade: String,
                            lastDate: Date) -> Date {
-
+        
         let generalDateAdding: [String: Float] = [
             "A": 2.0,
             "B": 1.0,
@@ -331,7 +376,7 @@ class DatabaseManagement {
         let dbTranslation = DbTranslation()
         dbTranslation.setBlanks("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
         let test_fib = FillInBlanks(dbTranslation: dbTranslation,
-        dbm: self)
+                                    dbm: self)
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
@@ -345,7 +390,7 @@ class DatabaseManagement {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:country_person_name}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
-            dbm: self)
+                                        dbm: self)
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             
@@ -365,7 +410,7 @@ class DatabaseManagement {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
-            dbm: self)
+                                        dbm: self)
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             
@@ -388,13 +433,13 @@ class DatabaseManagement {
         let english = "I am {ref:1,type:int,min:33,max:33} years old"
         let blanks = "{ref:1,type:int,min:33,max:33}"
         let testTranslation = DbTranslation(hanzi: hanzi,
-                                        pinyin: pinyin,
-                                        english: english,
-                                        blanks: blanks)
+                                            pinyin: pinyin,
+                                            english: english,
+                                            blanks: blanks)
         let test_fib = FillInBlanks(dbTranslation: testTranslation,
-        dbm: self)
+                                    dbm: self)
         test_fib.processBlanks()
-
+        
         assert(testTranslation.getEnglish() == "I am 33 years old", testTranslation.getEnglish())
         assert(testTranslation.getPinyin() == "wǒ jīnnián 33 suì")
         assert(testTranslation.getHanzi() == "我今年33岁")
@@ -408,9 +453,9 @@ class DatabaseManagement {
         let ref_5 = "{ref:4}"
         
         let testTranslantion = DbTranslation(hanzi: "",
-                                            pinyin: "",
-                                            english: "",
-                                            blanks: "")
+                                             pinyin: "",
+                                             english: "",
+                                             blanks: "")
         
         let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
         
@@ -427,17 +472,17 @@ class DatabaseManagement {
         let ref_3 = "{ref:5,type:eval,left:3,right:4,sign:<,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
         let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1,display:empty}"
         let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2,display:empty}"
-         
+        
         let testTranslantion = DbTranslation(hanzi: "",
-                                            pinyin: "",
-                                            english: "",
-                                            blanks: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ")
+                                             pinyin: "",
+                                             english: "",
+                                             blanks: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ")
         
         let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
         for i in 1...200 {
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
-                        
+            
             assert(blanksDict[1]?["english"] == "Russia")
             assert(blanksDict[2]?["english"] != "Russia")
             assert((blanksDict[2]?["hanzi"]?.count)! > 1)
@@ -453,9 +498,9 @@ class DatabaseManagement {
         let ref_1 = "{ref:t,type:what}"
         
         let testTranslantion = DbTranslation(hanzi: "",
-                                            pinyin: "",
-                                            english: "",
-                                            blanks: ref_1)
+                                             pinyin: "",
+                                             english: "",
+                                             blanks: ref_1)
         
         let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self)
         test_fib.populateBlanksDictionary()

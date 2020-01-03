@@ -21,13 +21,15 @@ class MainManagement {
          toPronouncePinyin: UILabel,
          buttonTextUpdate: UIButton,
          skipThis: UIButton,
-         pinyinToggleButton: UIButton) {
+         pinyinToggleButton: UIButton,
+         dueProgress: UILabel) {
         self.updateUi = UiUpdate(feedbackLabel: feedbackLabel,
                                  toPronounceHanzi: toPronounceHanzi,
                                  toPronouncePinyin: toPronouncePinyin,
                                  buttonTextUpdate: buttonTextUpdate,
                                  skipThis: skipThis,
-                                 pinyinToggleButton: pinyinToggleButton)
+                                 pinyinToggleButton: pinyinToggleButton,
+                                 dueProgress: dueProgress)
         self.transcription = Transcription(updateUi: self.updateUi)
         self.recording = Recording(translation: transcription)
     }

@@ -13,6 +13,7 @@ class UiUpdate {
     
     var feedbackLabel: UILabel
     var toPronounceHanzi: UILabel
+    var dueProgress: UILabel
     var toPronouncePinyin: UILabel
     var buttonTextUpdate: UIButton
     var skipThis: UIButton
@@ -28,13 +29,15 @@ class UiUpdate {
         toPronouncePinyin: UILabel,
         buttonTextUpdate: UIButton,
         skipThis: UIButton,
-        pinyinToggleButton: UIButton) {
+        pinyinToggleButton: UIButton,
+        dueProgress: UILabel) {
         self.feedbackLabel = feedbackLabel
         self.toPronounceHanzi = toPronounceHanzi
         self.toPronouncePinyin = toPronouncePinyin
         self.buttonTextUpdate = buttonTextUpdate
         self.skipThis = skipThis
         self.pinyinToggleButton = pinyinToggleButton
+        self.dueProgress = dueProgress
     }
     
     func getPinyinOn() -> Bool {
@@ -79,6 +82,10 @@ class UiUpdate {
     
     func updateFeedbackText(_ feedback: String) {
         self.feedbackLabel.text = feedback
+    }
+    
+    func updatePhraseProgress(_ phraseProgress: String) {
+        self.dueProgress.text = phraseProgress
     }
     
     func addToFeedbackText(_ feedback: String) {
