@@ -164,21 +164,20 @@ class DatabaseManagement {
     
     // TODO: Get rid of the random row usage
     func getRandomRowFromSpecified(database: String, fk_ref: Int = -1, excludeEnglishVal: String = "") throws -> DbTranslation {
+        var selectTranslation = Table(database)
         
-        var whereHelper: String = ""
         if fk_ref >= 1 {
-            whereHelper = "where fk_parent = \(fk_ref) "
+            selectTranslation = selectTranslation.filter(DbTranslation.fk_parent == fk_ref)
         } else if excludeEnglishVal != "" {
-            whereHelper = "where \(DbTranslation.english.template) != \"\(excludeEnglishVal)\" "
+            selectTranslation = selectTranslation.filter(DbTranslation.english != excludeEnglishVal)
         }
         
-        let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM \(database) \(whereHelper)ORDER BY RANDOM() LIMIT 1;") as! Int64
-        
-        let selectTranslation = Table(database).filter(DbTranslation.id == Int(random_int))
+        selectTranslation = selectTranslation.order(Expression<Int>.random())
+//        selectTranslation = selectTranslation.order(DbTranslation.fk_parent.desc)
         
         let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
-            throw "Unique database \"\(database)\" not found \(random_int) \(fk_ref)"
+            throw "Unique database \"\(database)\" not found with exclude englishVal :\(excludeEnglishVal): and fk :\(fk_ref):"
         }
         
         return SpecificDbTranslation(dbRow: translationRow,
@@ -233,7 +232,6 @@ class DatabaseManagement {
                    quizInfo: DbTranslation,
                    pinyinOn: Bool,
                    attempts: Int) {
-        print("Logging:")
         
         let languageDisplayed = quizInfo.getLanguageToDisplay() // or english
         let languagePronounced = "Mandarin" // always
@@ -282,14 +280,13 @@ class DatabaseManagement {
                 
                 try self.dbConn.run(firstMandarinInsert)
                 try self.dbConn.run(newEnglishInsert)
-                
-                print("Now rows created for DbResult Mandarin and English")
             } catch {
                 print("update failed: \(error)")
             }
         }
         
-        self.printAllResultsTable()
+        // TODO: Delete this
+//        self.printAllResultsTable()
     }
     
     func getNewDueDate(grade: String) -> Date {
@@ -402,10 +399,12 @@ class DatabaseManagement {
             }
         }
         assert(trueCount > 1)
+        assert(trueCount < 90)
     }
     
     func testBlanksToJsonInDatabaseFk() {
         var fruit_once = false
+        var not_fruit_once = false
         for i in 1...20 {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
@@ -421,9 +420,12 @@ class DatabaseManagement {
             if food_type == "水果" {
                 assert(current_fruit_list.contains(food_specific!), food_specific!)
                 fruit_once = true
+            } else {
+                not_fruit_once = true
             }
         }
         assert(fruit_once)
+        assert(not_fruit_once)
         
     }
     

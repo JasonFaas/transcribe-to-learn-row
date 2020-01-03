@@ -106,6 +106,7 @@ class FillInBlanks {
         let blankParts: [String] = self.getDictionaryParts(self.dbTranslation.getBlanks())
         
         for refString in blankParts {
+            print("Filling in \(refString)")
             let refDict: Dictionary<String, String> = getRefDict(refString)
             
             let refValInt: Int = Int(refDict["ref"] ?? "-1") ?? -1
@@ -114,6 +115,7 @@ class FillInBlanks {
             }
             
             if let refType: String = refDict["type"] {
+                print(refType)
                 if refType == "int" {
                     let resultVal = String(self.getIntResultVal(refDict))
                     
@@ -134,9 +136,7 @@ class FillInBlanks {
                             
                             let leftVal:String = self.blanksDictionary[Int(evalLeft)!]!["hanzi"]!
                             let rightVal:String = self.blanksDictionary[Int(evalRight)!]!["hanzi"]!
-                            
-//                            let stringWithMathematicalOperation: String = "\(leftVal) \(evalSign) \(rightVal)"
-                            
+                                                        
                             let result: Bool!
                             if evalSign == "<" {
                                 result = Int(leftVal)! < Int(rightVal)!
@@ -145,10 +145,6 @@ class FillInBlanks {
                             } else {
                                 result = false
                             }
-                            
-//                            print(stringWithMathematicalOperation)
-//                            let exp: NSExpression = NSExpression(format: stringWithMathematicalOperation)
-//                            let result: Bool = exp.expressionValue(with: nil, context: nil) as! Bool
                             
                             let resultStr: String! = refDict[String(result)]
                             
@@ -164,9 +160,11 @@ class FillInBlanks {
                             let fk_val: Int! = Int(fk_str)
                             
                             //TODO: Change from Random row to 'due' or 'by level' or something like that
-                            reference = try self.dbm.getRandomRowFromSpecified(database: refType, fk_ref: fk_val)
+                            reference = try self.dbm.getRandomRowFromSpecified(database: refType,
+                                                                               fk_ref: fk_val)
                         } else if let excludedRef: String = refDict["ref_not"], let exRow = self.blanksDictionary[Int(excludedRef) ?? -1], let exVal = exRow["english"] {
-                            reference = try self.dbm.getRandomRowFromSpecified(database: refType, excludeEnglishVal: exVal)
+                            reference = try self.dbm.getRandomRowFromSpecified(database: refType,
+                                                                               excludeEnglishVal: exVal)
                         } else {
                             //TODO: Change from Random row to 'due' or 'by level' or something like that
                             reference = try self.dbm.getRandomRowFromSpecified(database: refType)
