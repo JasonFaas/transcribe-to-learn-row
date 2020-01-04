@@ -163,7 +163,7 @@ class DatabaseManagement {
     }
     
     // TODO: Get rid of the random row usage
-    func getRandomRowFromSpecified(database: String, fk_ref: Int = -1, excludeEnglishVal: String = "") throws -> DbTranslation {
+    func getRandomRowFromSpecified(database: String, fk_ref: Int, excludeEnglishVal: String) throws -> DbTranslation {
         var selectTranslation = Table(database)
         
         if fk_ref >= 1 {
@@ -403,9 +403,11 @@ class DatabaseManagement {
     }
     
     func testBlanksToJsonInDatabaseFk() {
-        var fruit_once = false
+        var complex_fruit_once = false
+        var simple_fruit_once = false
         var not_fruit_once = false
-        for i in 1...20 {
+        let simple_fruit_list: [String] = ["苹果", "香蕉", "火龙果", "黑莓"]
+        for i in 1...200 {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
@@ -413,18 +415,23 @@ class DatabaseManagement {
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             
-            let current_fruit_list: [String] = ["苹果", "香蕉", "火龙果", "黑莓", "蓝莓", "樱桃", "葡萄", "柠檬", "芒果", "橙子", "桃", "李", "菠萝", "草莓", "西瓜"]
+            
             
             let food_type: String? = blanksDict[1]?["hanzi"]
             let food_specific: String? = blanksDict[2]?["hanzi"]
             if food_type == "水果" {
-                assert(current_fruit_list.contains(food_specific!), food_specific!)
-                fruit_once = true
+                if simple_fruit_list.contains(food_specific!) {
+                    simple_fruit_once = true
+                } else {
+                    complex_fruit_once = true
+                }
+                
             } else {
                 not_fruit_once = true
             }
         }
-        assert(fruit_once)
+        assert(complex_fruit_once)
+        assert(simple_fruit_once)
         assert(not_fruit_once)
         
     }

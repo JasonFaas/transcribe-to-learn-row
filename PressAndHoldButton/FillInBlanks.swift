@@ -115,7 +115,6 @@ class FillInBlanks {
             }
             
             if let refType: String = refDict["type"] {
-                print(refType)
                 if refType == "int" {
                     let resultVal = String(self.getIntResultVal(refDict))
                     
@@ -153,21 +152,20 @@ class FillInBlanks {
                             reference = try self.dbm.getSpecificRow(database: resultArr[0], englishVal: resultArr[1])
                         } else if let specificRow: String = refDict["specific"] {
                             reference = try self.dbm.getSpecificRow(database: refType, englishVal: specificRow)
-                        } else if let fk_ref = refDict["fk_ref"] {
-                            
-                            let whatWhat: Dictionary<String, String>! = self.blanksDictionary[Int(fk_ref)!]
-                            let fk_str: String! = whatWhat["db_id"]
-                            let fk_val: Int! = Int(fk_str)
-                            
-                            //TODO: Change from Random row to 'due' or 'by level' or something like that
-                            reference = try self.dbm.getRandomRowFromSpecified(database: refType,
-                                                                               fk_ref: fk_val)
-                        } else if let excludedRef: String = refDict["ref_not"], let exRow = self.blanksDictionary[Int(excludedRef) ?? -1], let exVal = exRow["english"] {
-                            reference = try self.dbm.getRandomRowFromSpecified(database: refType,
-                                                                               excludeEnglishVal: exVal)
                         } else {
+                            let fk_blank: String = refDict["fk_ref", default: "-1"]
+                            let whatWhat: Dictionary<String, String> = self.blanksDictionary[Int(fk_blank) ?? -1, default: [:]]
+                            let fk_str: String! = whatWhat["db_id", default: "-1"]
+                            let fk_val = Int(fk_str) ?? -1
+                            
+                            let excludedRef: String = refDict["ref_not", default: "-1"]
+                            let exRow = self.blanksDictionary[Int(excludedRef) ?? -1, default: [:]]
+                            let excludedEnglishVal: String = exRow["english", default: ""]
+                            
                             //TODO: Change from Random row to 'due' or 'by level' or something like that
-                            reference = try self.dbm.getRandomRowFromSpecified(database: refType)
+                            reference = try self.dbm.getRandomRowFromSpecified(database: refType,
+                                                                               fk_ref: fk_val,
+                                                                               excludeEnglishVal: excludedEnglishVal)
                         }
                         
                         self.blanksDictionary[refValInt] = [
@@ -178,7 +176,7 @@ class FillInBlanks {
                             "db_id":String(reference.getId()),
                         ]
                     } catch {
-                        print("Function: \(#function):\(#line), Error: \(error)")
+                        print("Function: \(#function):\(#line), Error: \(error) :: \(blanksDictionary)")
                         
                         let resultVal: String = "Lookup Error"
                         self.blanksDictionary[refValInt] = ["hanzi": resultVal,
