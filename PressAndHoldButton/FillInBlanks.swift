@@ -28,12 +28,17 @@ class FillInBlanks {
             let json: String = String(newPhrase[openIndex...closeIndex])
             
             let refDict: Dictionary<String, String> = getRefDict(json)
-            let refStr: String! = refDict["ref"]
+            let refStr: String = refDict["ref", default: "-1"]
             
-            let what = blanksDictionary[Int(refStr)!]
-            let toFillIn: String! = what![howTo]
+            let what: Dictionary<String, String> = blanksDictionary[Int(refStr) ?? -1, default: [:]]
+
+            if let toFillIn: String = what[howTo] {
+                newPhrase = newPhrase[..<openIndex] + toFillIn + newPhrase[closePlusOne...]
+            } else {
+                print("Bad error during \(json)")
+                break
+            }
             
-            newPhrase = newPhrase[..<openIndex] + toFillIn + newPhrase[closePlusOne...]
         }
         
         return String(newPhrase)
@@ -42,6 +47,8 @@ class FillInBlanks {
     func processBlanks() {
         // TODO: Identify blanks
         self.populateBlanksDictionary()
+        
+        print("processing: \(blanksDictionary)")
         
         // TODO: call setHanzi
         var blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getHanzi(),

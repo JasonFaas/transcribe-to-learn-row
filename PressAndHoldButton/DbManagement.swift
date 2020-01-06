@@ -19,7 +19,7 @@ class DatabaseManagement {
         
         // ENABLE ONLY IF WANTING TO RESET DATABASE
         // TODO: Regularlly turn this to true to verify it still works
-        let copyNewDb: Bool = false
+        let copyNewDb: Bool = true
         let deleteResultDb: Bool = false
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
@@ -84,7 +84,11 @@ class DatabaseManagement {
         var returnCount: Int = 0
         do {
             returnCount += try self.getDueNowCount(hoursFromNow: hoursFromNow)
-            returnCount += try self.getUnansweredCount() * 2
+            if hoursFromNow == 0 {
+                returnCount += try self.getUnansweredCount()
+            } else {
+                returnCount += try self.getUnansweredCount() * 2
+            }
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
         }
@@ -256,7 +260,6 @@ class DatabaseManagement {
             
             try self.dbConn.run(update)
             
-            print("Row Updated")
         } catch {
             do {
                 
@@ -437,9 +440,9 @@ class DatabaseManagement {
     }
     
     func testPopulateBlanksDictNumber() {
-        let hanzi = "我今年{ref:1,type:int,min:33,max:33}岁"
-        let pinyin = "wǒ jīnnián {ref:1,type:int,min:33,max:33} suì"
-        let english = "I am {ref:1,type:int,min:33,max:33} years old"
+        let hanzi = "我今年{ref:1}岁"
+        let pinyin = "wǒ jīnnián {ref:1} suì"
+        let english = "I am {ref:1} years old"
         let blanks = "{ref:1,type:int,min:33,max:33}"
         let testTranslation = DbTranslation(hanzi: hanzi,
                                             pinyin: pinyin,
