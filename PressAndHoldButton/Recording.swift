@@ -13,7 +13,7 @@ import Speech
 class Recording {
     
     /// The speech recogniser used by the controller to record the user's speech.
-    private let speechRecogniser = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN"))!
+    private let speechRecogniser = SFSpeechRecognizer(locale: Locale(identifier: "zh_Hans_CN@collation=pinyin"))!
 
     /// The current speech recognition request. Created when the user wants to begin speech recognition.
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
@@ -73,8 +73,19 @@ class Recording {
         
         recognitionTask = speechRecogniser.recognitionTask(with: recognitionRequest) { [unowned self] result, error in
             if let result = result {
+                
                 let transcribed = result.bestTranscription.formattedString
                 print(transcribed)
+                for what in result.transcriptions {
+                    print("\t\(what.formattedString)")
+                    for stuff in what.segments {
+                        print("\t\t\(stuff.substring)")
+                        for tooMuch in stuff.alternativeSubstrings {
+                            print("\t\t\t\(tooMuch)")
+                        }
+                    }
+                }
+                
                 self.translation.mostRecentTranscription(transcribed)
             }
             

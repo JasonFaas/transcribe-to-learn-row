@@ -19,7 +19,7 @@ class DatabaseManagement {
         
         // ENABLE ONLY IF WANTING TO RESET DATABASE
         // TODO: Regularlly turn this to true to verify it still works
-        let copyNewDb: Bool = true
+        let copyNewDb: Bool = false
         let deleteResultDb: Bool = false
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
@@ -346,6 +346,12 @@ class DatabaseManagement {
         return input[startOffByOne..<closeIndex]
     }
     
+    func charactersPrimaryPinyinSame(_ transcription: String,
+                                     _ expected: String) -> Bool {
+        
+        return false
+    }
+    
     func runUnitTests() throws {
         
         self.testBadRefVal()
@@ -524,4 +530,28 @@ class DatabaseManagement {
 
 extension String: LocalizedError {
     public var errorDescription: String? { return self }
+
+    var length: Int {
+      return count
+    }
+
+    subscript (i: Int) -> String {
+      return self[i ..< i + 1]
+    }
+
+    func substring(fromIndex: Int) -> String {
+      return self[min(fromIndex, length) ..< length]
+    }
+
+    func substring(toIndex: Int) -> String {
+      return self[0 ..< max(0, toIndex)]
+    }
+
+    subscript (r: Range<Int>) -> String {
+      let range = Range(uncheckedBounds: (lower: max(0, min(length, r.lowerBound)),
+                                          upper: min(length, max(0, r.upperBound))))
+      let start = index(startIndex, offsetBy: range.lowerBound)
+      let end = index(start, offsetBy: range.upperBound - range.lowerBound)
+      return String(self[start ..< end])
+    }
 }

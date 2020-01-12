@@ -66,6 +66,14 @@ class MainManagement {
         self.updateUi.enableRecording()
     }
     
+    func getCurrentTranslation() -> DbTranslation {
+        return transcription.getCurrentTranslation()
+    }
+    
+    func getCurrentTranscription() -> String {
+        return transcription.getCurrentTranscription()
+    }
+    
     func runUnitTests() throws {
         try self.transcription.runUnitTests()
     }

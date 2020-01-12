@@ -53,11 +53,32 @@ class Transcription {
     func gradeTranscription() {
         self.attempts += 1
         
-        if self.lastTranscription == self.cleanUpTranscribed(self.currentTranslation.getHanzi()) {
+        if self.isTranscriptionCorrect(self.lastTranscription, self.currentTranslation.getHanzi()) {
             self.correctPronunciation()
         } else {
             self.updateUi.enableSkip()
         }
+    }
+    
+    func isTranscriptionCorrect(_ transcription: String, _ expected: String) -> Bool {
+        let expectedClean: String = self.cleanUpTranscribed(expected)
+        
+        if expectedClean.count != transcription.count {
+            return false
+        } else if transcription == expectedClean {
+            return true
+        }
+        
+        for i in 0 ..< transcription.count {
+            print("\(transcription[i]) \(expectedClean[i])")
+            if transcription[i] != expectedClean[i]
+                && !self.dbm.charactersPrimaryPinyinSame(transcription[i],
+                                                         expectedClean[i]) {
+                    return false
+            }
+        }
+        
+        return transcription == expectedClean
     }
     
     func correctPronunciation() {
@@ -119,7 +140,19 @@ class Transcription {
         self.updateUi.updatePhraseProgress("Due\n\(dueNow)\n\(dueOneHour)\n\(dueOneDay)")
     }
     
+    func getCurrentTranslation() -> DbTranslation {
+        return currentTranslation
+    }
+    
+    func getCurrentTranscription() -> String {
+        return lastTranscription
+    }
+    
     func runUnitTests() throws {
         try self.dbm.runUnitTests()
+        
+        assert(!self.isTranscriptionCorrect("他受什么", "她说什么"))
+        assert(self.isTranscriptionCorrect("他说什么", "她说什么"))
+        assert(self.isTranscriptionCorrect("她们对于过敏", "他们对鱼过敏"))
     }
 }

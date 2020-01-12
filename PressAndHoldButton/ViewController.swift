@@ -9,7 +9,9 @@
 import UIKit
 import Speech
 
-class ViewController: UIViewController {
+import MessageUI
+
+class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
 
     @IBOutlet weak var phrasesDue: UILabel!
     @IBOutlet weak var devQuickSkip: UIButton!
@@ -101,36 +103,51 @@ class ViewController: UIViewController {
         self.translation.fullStartRecording()
     }
     
-//    func getToPronounce() -> (String, String) {
-//
-//        let nextParagraph = self.fullTranslations[self.translationValue % self.fullTranslations.count].simplifiedChar
-//
-//        let pinyinStr = self.fullTranslations[self.translationValue % self.fullTranslations.count].pinyinChar
-//        if !nextParagraph.contains("。") {
-//            self.toPronounceCharacters = nextParagraph
-//            return (nextParagraph, pinyinStr)
-//        } else {
-//            var sentences:[Substring] = nextParagraph.split(separator: "。")
-//            var pinyinSentences:[Substring] = pinyinStr.split(separator: ".")
-//            let sentence = removeExtraFromString(String(sentences[self.paragraphValue]))
-//            let pinyin = removeExtraFromString(String(pinyinSentences[self.paragraphValue]))
-//
-//            self.toPronounceCharacters = sentence
-//            return (sentence, pinyin)
-//        }
-//    }
     
-//    func removeExtraNewlineForComparrison(_ str: String) -> String {
-//        let retStr = str.replacingOccurrences(of: "\n", with: "")
-//        return retStr
-//    }
-//        func removeExtraFromString(_ str: String) -> String {
-//            var retStr = str.replacingOccurrences(of: ".", with: "\n")
-//        retStr = retStr.replacingOccurrences(of: "。", with: "\n")
-//        retStr = retStr.replacingOccurrences(of: ",", with: "\n")
-//        retStr = retStr.replacingOccurrences(of: "，", with: "\n")
-//
-//        return retStr
-//    }
+    @IBAction func reportError(_ sender: Any) {
+        self.sendErrorReport()
+    }
+    
+    
+    
+    func sendErrorReport() {
+        print("Try to send error report")
+        
+        if MFMailComposeViewController.canSendMail() {
+            let composeVC = MFMailComposeViewController()
+            composeVC.mailComposeDelegate = self as! MFMailComposeViewControllerDelegate
+             
+            // Configure the fields of the interface.
+            composeVC.setToRecipients(["jasonf752@gmail.com"])
+            composeVC.setSubject("Thanks for sending an Error Report!")
+            
+            let currentTranslation: DbTranslation = self.translation.getCurrentTranslation()
+            let currentTranscription: String = self.translation.getCurrentTranscription()
+            
+            var messageBody: String = "Report of current info:\n"
+            messageBody += "\(currentTranslation.getHanzi())"
+            messageBody += "\n"
+            messageBody += "\(currentTranslation.getEnglish())"
+            messageBody += "\n"
+            messageBody += "\(currentTranslation.getPinyin())"
+            messageBody += "\n\n"
+            messageBody += "\(currentTranscription)"
+            
+            composeVC.setMessageBody(messageBody, isHTML: false)
+            
+
+            self.present(composeVC, animated: true, completion: nil)
+            print("Sent error report")
+        } else {
+            print("UNABLE TO SEND Error Report")
+            // show failure alert
+        }
+        
+        
+    }
+
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true)
+    }
     
 }
