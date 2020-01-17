@@ -63,22 +63,62 @@ class Transcription {
     func isTranscriptionCorrect(_ transcription: String, _ expected: String) -> Bool {
         let expectedClean: String = self.cleanUpTranscribed(expected)
         
-        if expectedClean.count != transcription.count {
+        let areLengthsDifferent: Bool = expectedClean.count != transcription.count
+        if areLengthsDifferent {
             return false
-        } else if transcription == expectedClean {
+        }
+        let areStringsSame: Bool = transcription == expectedClean
+        if areStringsSame {
             return true
         }
         
         for i in 0 ..< transcription.count {
             print("\(transcription[i]) \(expectedClean[i])")
-            if transcription[i] != expectedClean[i]
-                && !self.dbm.charactersPrimaryPinyinSame(transcription[i],
-                                                         expectedClean[i]) {
-                    return false
+            if transcription[i] == expectedClean[i] {
+                continue
+            } else if !self.dbm.arePinyinSame(transcription[i],
+                                              expectedClean[i]) {
+                var charsAreSame: Bool = false
+                var advanceCount = 0
+                for length in 2...2 {
+                    for mod in (-1 * length + 1)...0 {
+                        if i+mod < 0 || i+mod+length > transcription.count {
+                            continue
+                        }
+                        let extraRange: Range<Int> = i+mod..<i+mod+length
+                        let transcriptionPinyins: [String] = self.dbm.getHskPinyins(transcription[extraRange])
+                        
+                        var expectedPinyins: [String] = self.dbm.getHskPinyins(expectedClean[extraRange])
+                        
+                        var moreExpectedPinyins: [[String]] = []
+                        for i in 0..<length {
+                            moreExpectedPinyins.append(self.dbm.getHskPinyins(expectedClean[extraRange][i]))
+                        }
+                        print(moreExpectedPinyins)
+                        expectedPinyins += self.putTogetherNestedPinyins(moreExpectedPinyins)
+                        
+                        
+
+                        let uniqueSet = Set(transcriptionPinyins + expectedPinyins)
+                        if uniqueSet.count < transcriptionPinyins.count + expectedPinyins.count {
+                            charsAreSame = true
+                            break
+                        }
+//                        expectedClean[extraRange]
+                    }
+                    if charsAreSame {
+                        break
+                    }
+                }
+                if charsAreSame {
+                    continue
+                }
+                
+                return false
             }
         }
         
-        return transcription == expectedClean
+        return true
     }
     
     func correctPronunciation() {
@@ -148,9 +188,29 @@ class Transcription {
         return lastTranscription
     }
     
+    func putTogetherNestedPinyins(_ nesting: [[String]], _ startPoint: Int = 0) -> [String] {
+        if startPoint + 1 == nesting.count {
+            return nesting[startPoint]
+        }
+            
+        var returnList: [String] = []
+        for what in nesting[startPoint] {
+            let furtherNest:[String] = putTogetherNestedPinyins(nesting, startPoint + 1)
+            for how in furtherNest {
+                returnList.append(what + how)
+            }
+        }
+
+        return returnList
+    }
+    
     func runUnitTests() throws {
         try self.dbm.runUnitTests()
         
+        assert(self.putTogetherNestedPinyins([["a","b"],["c"],["d"]]) == ["acd", "bcd"])
+        assert(self.putTogetherNestedPinyins([["a","b"],[],["d"]]) == [])
+        
+        assert(self.isTranscriptionCorrect("什么", "什么"))
         assert(!self.isTranscriptionCorrect("他受什么", "她说什么"))
         assert(self.isTranscriptionCorrect("他说什么", "她说什么"))
         assert(self.isTranscriptionCorrect("她们对于过敏", "他们对鱼过敏"))

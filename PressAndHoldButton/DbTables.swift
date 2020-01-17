@@ -17,6 +17,7 @@ class DbTranslation {
     static let blanks = Expression<String>("Blanks")
     static let hanzi = Expression<String>("Hanzi")
     static let pinyin = Expression<String>("Pinyin")
+    static let pinyin2nd = Expression<String>("2nd_Pinyin")
     static let english = Expression<String>("English")
     static let difficulty = Expression<Int>("Auto_Level")
     static let fk_parent = Expression<Int>("fk_parent")
@@ -49,6 +50,10 @@ class DbTranslation {
     }
     
     func getPinyin() -> String {
+        return tempPinyin
+    }
+    
+    func get2ndPinyin() -> String {
         return tempPinyin
     }
     
@@ -130,6 +135,10 @@ class SpecificDbTranslation : DbTranslation {
     
     override func getDifficulty() -> Int {
         self.dbRow[SpecificDbTranslation.difficulty]
+    }
+    
+    override func get2ndPinyin() -> String {
+        self.dbRow[SpecificDbTranslation.pinyin2nd]
     }
     
     override func getLanguageToDisplay() -> String { // TODO Enum

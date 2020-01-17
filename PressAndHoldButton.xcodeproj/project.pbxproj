@@ -20,6 +20,7 @@
 		8E9D4A47238F4DAF00ECF4FB /* Recording.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A46238F4DAF00ECF4FB /* Recording.swift */; };
 		8E9D4A49238F4F2400ECF4FB /* Transcription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A48238F4F2400ECF4FB /* Transcription.swift */; };
 		8E9D4A4B238F587500ECF4FB /* DbConnectionSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A4A238F587500ECF4FB /* DbConnectionSetup.swift */; };
+		8EB4A58E23D16E3800CE2F9A /* StringHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A58D23D16E3800CE2F9A /* StringHelper.swift */; };
 		8EBB02D923412EBB00079D8C /* first.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 8EBB02D823412EBB00079D8C /* first.sqlite3 */; };
 		8EEA1CDA23B08B97005D8093 /* FillInBlanks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEA1CD923B08B97005D8093 /* FillInBlanks.swift */; };
 		8EEA1CDC23B08F87005D8093 /* DbTables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEA1CDB23B08F87005D8093 /* DbTables.swift */; };
@@ -113,6 +114,7 @@
 		8E9D4A46238F4DAF00ECF4FB /* Recording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording.swift; sourceTree = "<group>"; };
 		8E9D4A48238F4F2400ECF4FB /* Transcription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transcription.swift; sourceTree = "<group>"; };
 		8E9D4A4A238F587500ECF4FB /* DbConnectionSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbConnectionSetup.swift; sourceTree = "<group>"; };
+		8EB4A58D23D16E3800CE2F9A /* StringHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringHelper.swift; sourceTree = "<group>"; };
 		8EBB02D823412EBB00079D8C /* first.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = text; name = first.sqlite3; path = "../../mandarin-translations-sql-creation/sql/first.sqlite3"; sourceTree = "<group>"; };
 		8EEA1CD923B08B97005D8093 /* FillInBlanks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillInBlanks.swift; sourceTree = "<group>"; };
 		8EEA1CDB23B08F87005D8093 /* DbTables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbTables.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				8EEA1CDB23B08F87005D8093 /* DbTables.swift */,
 				8E40486F232472EE004B01BD /* MainManagement.swift */,
 				8E9D4A46238F4DAF00ECF4FB /* Recording.swift */,
+				8EB4A58D23D16E3800CE2F9A /* StringHelper.swift */,
 				8E9D4A48238F4F2400ECF4FB /* Transcription.swift */,
 				8E9D4A3E238F468900ECF4FB /* UiUpdate.swift */,
 				8E89520A22FF494C001B3B04 /* ViewController.swift */,
@@ -322,6 +325,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8EB4A58E23D16E3800CE2F9A /* StringHelper.swift in Sources */,
 				8E9D4A3F238F468900ECF4FB /* UiUpdate.swift in Sources */,
 				8E017FC623013D5500230A7E /* CustomErrors.swift in Sources */,
 				8E89520B22FF494C001B3B04 /* ViewController.swift in Sources */,

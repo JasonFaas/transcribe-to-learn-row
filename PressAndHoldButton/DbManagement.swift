@@ -346,10 +346,80 @@ class DatabaseManagement {
         return input[startOffByOne..<closeIndex]
     }
     
-    func charactersPrimaryPinyinSame(_ transcription: String,
-                                     _ expected: String) -> Bool {
+    func getHskPinyins(_ transcription: String) -> [String] {
+        let transcriptionQuery = Table("hsk").filter(DbTranslation.hanzi == transcription)
+        let transcriptionRow: Row!
+        do {
+            transcriptionRow = try self.dbConn.pluck(transcriptionQuery)
+            if transcriptionRow == nil {
+                print("HSK not found for \(transcription)")
+                return []
+            }
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error) :: HSK error for \(transcription)")
+            return []
+        }
         
-        return false
+        let transcriptionTranslation = SpecificDbTranslation(dbRow: transcriptionRow,
+                                                             displayLanguage: "")
+        
+        var transcriptionPinyins = [transcriptionTranslation.getPinyin(),]
+        if transcriptionTranslation.get2ndPinyin().count > 0 {
+            transcriptionPinyins.append(transcriptionTranslation.get2ndPinyin())
+        }
+        return transcriptionPinyins
+    }
+    
+    func arePinyinSame(_ transcription: String,
+                       _ expected: String) -> Bool {
+        let transcriptionPinyins = getHskPinyins(transcription)
+        let expectedPinyins = getHskPinyins(expected)
+//
+//        // Print each pinyin primary and secondary IF in HSK
+//        let transcriptionQuery = Table("hsk").filter(DbTranslation.hanzi == transcription)
+//        let expectedQuery = Table("hsk").filter(DbTranslation.hanzi == expected)
+//
+//        let transcriptionRow: Row!
+//        let expectedRow: Row!
+//        do {
+//            transcriptionRow = try self.dbConn.pluck(transcriptionQuery)
+//            if transcriptionRow == nil {
+//                print("HSK not found for \(transcription)")
+//                return false
+//            }
+//
+//            expectedRow = try self.dbConn.pluck(expectedQuery)
+//            if expectedRow == nil {
+//                print("HSK not found for \(expected)")
+//                return false
+//            }
+//        } catch {
+//            print("Function: \(#function):\(#line), Error: \(error) :: HSK error for \(expected) or \(transcription)")
+//            return false
+//        }
+//
+//        let transcriptionTranslation = SpecificDbTranslation(dbRow: transcriptionRow,
+//                                                             displayLanguage: "")
+//        let expectedTranslation = SpecificDbTranslation(dbRow: expectedRow,
+//                                                        displayLanguage: "")
+        
+//        let transcriptionPinyins = [transcriptionTranslation.getPinyin(),
+//                                    transcriptionTranslation.get2ndPinyin()]
+//        let expectedPinyins = [expectedTranslation.getPinyin(),
+//                               expectedTranslation.get2ndPinyin()]
+        
+        
+        let mySet = Set(transcriptionPinyins + expectedPinyins)
+        return mySet.count < transcriptionPinyins.count + expectedPinyins.count
+//        for first in transcriptionPinyins {
+//            for second in expectedPinyins {
+//                if first.count > 0 && first == second {
+//                    return true
+//                }
+//            }
+//        }
+//
+//        return false
     }
     
     func runUnitTests() throws {
@@ -525,33 +595,5 @@ class DatabaseManagement {
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
         assert(blanksDict.count == 0)
-    }
-}
-
-extension String: LocalizedError {
-    public var errorDescription: String? { return self }
-
-    var length: Int {
-      return count
-    }
-
-    subscript (i: Int) -> String {
-      return self[i ..< i + 1]
-    }
-
-    func substring(fromIndex: Int) -> String {
-      return self[min(fromIndex, length) ..< length]
-    }
-
-    func substring(toIndex: Int) -> String {
-      return self[0 ..< max(0, toIndex)]
-    }
-
-    subscript (r: Range<Int>) -> String {
-      let range = Range(uncheckedBounds: (lower: max(0, min(length, r.lowerBound)),
-                                          upper: min(length, max(0, r.upperBound))))
-      let start = index(startIndex, offsetBy: range.lowerBound)
-      let end = index(start, offsetBy: range.upperBound - range.lowerBound)
-      return String(self[start ..< end])
     }
 }
