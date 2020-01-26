@@ -28,7 +28,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
     var toPronounceCharacters = ""
     var pronouncedSoFar = ""
     
-    var translation: MainManagement!
+    var mainManagement: MainManagement!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +58,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
             print("Go to Settings->General->Keyboard and \"Enable Dictation\". Then select \"Dictation Languages\" and select \"Mandarin\"")
         }
         
-        self.translation = MainManagement(
+        self.mainManagement = MainManagement(
             feedbackLabel: self.generalCommentLabel,
             toPronounceHanzi: self.toPronounce,
             toPronouncePinyin: self.toPronouncePinyin,
@@ -69,7 +69,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         )
         
         do {
-            try translation.runUnitTests()
+            try mainManagement.runUnitTests()
         } catch {
             print("Function: \(#file):\(#line), Error: \(error)")
             exit(1)
@@ -77,11 +77,11 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
     }
     
     @IBAction func pinyinToggle(_ sender: Any) {
-        self.translation.pinyinToggle()
+        self.mainManagement.pinyinToggle()
     }
     
     @IBAction func skipThisPress(_ sender: Any) {
-        self.translation.skipThisPress(grade: "F")
+        self.mainManagement.skipThisPress(grade: "F")
     }
     
     @IBAction func releaseOutside(_ sender: Any) {
@@ -92,15 +92,15 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         released()
     }
     @IBAction func devQuickSkip(_ sender: Any) {
-        self.translation.skipThisPress(grade: "B")
+        self.mainManagement.skipThisPress(grade: "B")
     }
     
     func released() {
-        self.translation.fullFinishRecording()
+        self.mainManagement.fullFinishRecording()
     }
     
     @IBAction func release(_ sender: Any) {
-        self.translation.fullStartRecording()
+        self.mainManagement.fullStartRecording()
     }
     
     
@@ -121,8 +121,8 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
             composeVC.setToRecipients(["jasonf752@gmail.com"])
             composeVC.setSubject("Thanks for sending an Error Report!")
             
-            let currentTranslation: DbTranslation = self.translation.getCurrentTranslation()
-            let currentTranscription: String = self.translation.getCurrentTranscription()
+            let currentTranslation: DbTranslation = self.mainManagement.getCurrentTranslation()
+            let currentTranscription: String = self.mainManagement.getCurrentTranscription()
             
             var messageBody: String = "Report of current info:\n"
             messageBody += "\(currentTranslation.getHanzi())"

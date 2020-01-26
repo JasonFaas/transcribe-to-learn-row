@@ -73,13 +73,12 @@ class Transcription {
         }
         
         for i in 0 ..< transcription.count {
-            print("\(transcription[i]) \(expectedClean[i])")
             if transcription[i] == expectedClean[i] {
                 continue
             } else if !self.dbm.arePinyinSame(transcription[i],
                                               expectedClean[i]) {
                 var charsAreSame: Bool = false
-                var advanceCount = 0
+                
                 for length in 2...2 {
                     for mod in (-1 * length + 1)...0 {
                         if i+mod < 0 || i+mod+length > transcription.count {
@@ -94,7 +93,6 @@ class Transcription {
                         for i in 0..<length {
                             moreExpectedPinyins.append(self.dbm.getHskPinyins(expectedClean[extraRange][i]))
                         }
-                        print(moreExpectedPinyins)
                         expectedPinyins += self.putTogetherNestedPinyins(moreExpectedPinyins)
                         
                         
@@ -104,7 +102,6 @@ class Transcription {
                             charsAreSame = true
                             break
                         }
-//                        expectedClean[extraRange]
                     }
                     if charsAreSame {
                         break
@@ -205,14 +202,7 @@ class Transcription {
     }
     
     func runUnitTests() throws {
-        try self.dbm.runUnitTests()
-        
-        assert(self.putTogetherNestedPinyins([["a","b"],["c"],["d"]]) == ["acd", "bcd"])
-        assert(self.putTogetherNestedPinyins([["a","b"],[],["d"]]) == [])
-        
-        assert(self.isTranscriptionCorrect("什么", "什么"))
-        assert(!self.isTranscriptionCorrect("他受什么", "她说什么"))
-        assert(self.isTranscriptionCorrect("他说什么", "她说什么"))
-        assert(self.isTranscriptionCorrect("她们对于过敏", "他们对鱼过敏"))
+        try TestDbManagement(dbm).runUnitTests()
+        try TestTranscription(self).runUnitTests()
     }
 }
