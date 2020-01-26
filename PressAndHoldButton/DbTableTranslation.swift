@@ -12,7 +12,7 @@ import SQLite
 
 class DbTranslation {
     
-    static let table = Table("translations")
+    static let tableName: String = "translations"
     static let id = Expression<Int>("id")
     static let blanks = Expression<String>("Blanks")
     static let hanzi = Expression<String>("Hanzi")

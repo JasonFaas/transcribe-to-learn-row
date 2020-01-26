@@ -57,7 +57,7 @@ class TestDbManagement {
     
     func testBlanksToJsonInDatabase() {
         var trueCount = 0
-        for i in 1...100 {
+        for _ in 1...100 {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:country_person_name}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
@@ -81,7 +81,7 @@ class TestDbManagement {
         var simple_fruit_once = false
         var not_fruit_once = false
         let simple_fruit_list: [String] = ["苹果", "香蕉", "火龙果", "黑莓"]
-        for i in 1...200 {
+        for _ in 1...200 {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
@@ -153,8 +153,8 @@ class TestDbManagement {
         let ref_1 = "{ref:1,type:country_name,specific:Russia}"
         let ref_2 = "{ref:2,type:country_name,ref_not:1}"
         let ref_3 = "{ref:5,type:eval,left:3,right:4,sign:<,true:comparison_adjectives.bigger,false:comparison_adjectives.smaller}"
-        let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1,display:empty}"
-        let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2,display:empty}"
+        let ref_4 = "{ref:3,type:country_size_km2,fk_ref:1}"
+        let ref_5 = "{ref:4,type:country_size_km2,fk_ref:2}"
         
         let testTranslantion = DbTranslation(hanzi: "",
                                              pinyin: "",
@@ -162,7 +162,7 @@ class TestDbManagement {
                                              blanks: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ")
         
         let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self.dbm)
-        for i in 1...200 {
+        for _ in 1...200 {
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             

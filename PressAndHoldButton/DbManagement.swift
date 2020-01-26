@@ -25,13 +25,13 @@ class DatabaseManagement {
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
                                               deleteResultsDb: deleteResultDb)
         print("Row Count:")
-        print("\t\(self.getRowsInTable(table: DbTranslation.table)) Translations")
-        print("\t\(self.getRowsInTable(table: DbResult.table)) Results")
+        print("\t\(self.getRowsInTable(table: Table(DbTranslation.tableName))) Translations")
+        print("\t\(self.getRowsInTable(table: Table(DbTranslation.tableName + DbResult.nameSuffix))) Results")
     }
     
-    func printAllResultsTable() {
+    func printAllResultsTable(rTableName: String = DbTranslation.tableName + DbResult.nameSuffix) {
         do {
-            for result_row in try self.dbConn.prepare(DbResult.table) {
+            for result_row in try self.dbConn.prepare(Table(rTableName)) {
                 let dbResult = DbResult(dbRow: result_row)
                 dbResult.printInfo()
             }
@@ -40,8 +40,8 @@ class DatabaseManagement {
         }
     }
     
-    func getTranslationForOldestDueByNowResult() throws -> DbTranslation {
-        let selectResult = DbResult.table.select(DbResult.translation_fk,
+    func getTranslationForOldestDueByNowResult(tTableName: String) throws -> DbTranslation {
+        let selectResult = Table(tTableName + "Result").select(DbResult.translation_fk,
                                                  DbResult.language_displayed)
             .filter(DbResult.due_date < Date())
             .order(DbResult.due_date.asc)
@@ -53,9 +53,7 @@ class DatabaseManagement {
         }
         let dbResult = DbResult(dbRow: resultRow)
         
-        let selectTranslation = DbTranslation
-            .table
-            .filter(DbTranslation.id == dbResult.getTranslationFk())
+        let selectTranslation = Table(tTableName).filter(DbTranslation.id == dbResult.getTranslationFk())
         
         let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
@@ -66,13 +64,13 @@ class DatabaseManagement {
                                      displayLanguage: dbResult.getLanguageDisplayed())
     }
     
-    func getNextPhrase(_ rowToNotGet: Int) -> DbTranslation {
+    func getNextPhrase(tTableName: String, idExclude: Int = -1) -> DbTranslation {
         var dbTranslation: DbTranslation!
         
         do {
-            dbTranslation = try self.getTranslationForOldestDueByNowResult()
+            dbTranslation = try self.getTranslationForOldestDueByNowResult(tTableName: tTableName)
         } catch {
-            dbTranslation = self.getEasiestUnansweredRowFromTranslations(rowToNotGet)
+            dbTranslation = self.getEasiestUnansweredTranslation(tTableName: tTableName, idExclude: idExclude)
         }
         
         self.updateBlanks(dbTranslation)
@@ -80,14 +78,15 @@ class DatabaseManagement {
         return dbTranslation
     }
     
-    func getCountDueTotal(hoursFromNow: Int = 0) -> Int {
+    func getCountDueTotal(tTableName: String, hoursFromNow: Int = 0) -> Int {
         var returnCount: Int = 0
         do {
-            returnCount += try self.getDueNowCount(hoursFromNow: hoursFromNow)
+            returnCount += try self.getDueNowCount(rTableName: tTableName + DbResult.nameSuffix,
+                                                   hoursFromNow: hoursFromNow)
             if hoursFromNow == 0 {
-                returnCount += try self.getUnansweredCount()
+                returnCount += try self.getUnansweredCount(tTableName: tTableName)
             } else {
-                returnCount += try self.getUnansweredCount() * 2
+                returnCount += try self.getUnansweredCount(tTableName: tTableName) * 2
             }
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
@@ -96,42 +95,42 @@ class DatabaseManagement {
         return returnCount
     }
     
-    func getDueNowCount(hoursFromNow: Int = 10) throws -> Int {
+    func getDueNowCount(rTableName: String, hoursFromNow: Int = 10) throws -> Int {
         let futureDate: Date = self.getDateHoursFromNow(minutesAhead: hoursFromNow * 60)
         
-        let selectResult = DbResult.table.select(DbResult.translation_fk,
+        let selectResult = Table(rTableName).select(DbResult.translation_fk,
                                              DbResult.language_displayed)
         .filter(DbResult.due_date < futureDate)
         
         return try self.dbConn.scalar(selectResult.count)
     }
     
-    func getUnansweredCount() throws -> Int {
-        let select_fk_keys = DbResult.table
+    func getUnansweredCount(tTableName: String) throws -> Int {
+        let select_fk_keys = Table(tTableName + DbResult.nameSuffix)
             .select(DbResult.translation_fk, DbResult.language_displayed)
-        //                .filter(DbResult.last_grade == "A")
+        
         var answered_values:Array<Int> = []
         for result_row in try self.dbConn.prepare(select_fk_keys) {
             answered_values.append(result_row[DbResult.translation_fk])
         }
         
-        let extractedExpr: Table = DbTranslation.table
+        let extractedExpr: Table = Table(tTableName)
             .filter(!answered_values.contains(DbTranslation.id))
         
         return try self.dbConn.scalar(extractedExpr.count)
     }
     
-    func getEasiestUnansweredRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
+    func getEasiestUnansweredTranslation(tTableName: String, idExclude: Int) -> DbTranslation {
         do {
-            let select_fk_keys = DbResult.table
+            let select_fk_keys = Table(tTableName + DbResult.nameSuffix)
                 .select(DbResult.translation_fk, DbResult.language_displayed)
             //                .filter(DbResult.last_grade == "A")
-            var answered_values:Array<Int> = [rowToNotGet]
+            var answered_values:Array<Int> = [idExclude]
             for result_row in try self.dbConn.prepare(select_fk_keys) {
                 answered_values.append(result_row[DbResult.translation_fk])
             }
             
-            let extractedExpr: Table = DbTranslation.table
+            let extractedExpr: Table = Table(tTableName)
                 .filter(!answered_values.contains(DbTranslation.id))
                 .order(DbTranslation.difficulty.asc)
             
@@ -191,6 +190,7 @@ class DatabaseManagement {
     
     func getRowsInTable(table: Table) -> Int {
         do {
+            //TODO: May need to create table here
             return try self.dbConn.scalar(table.count)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
@@ -198,29 +198,8 @@ class DatabaseManagement {
         }
     }
     
-    func getRandomRowFromTranslations(_ rowToNotGet: Int) -> DbTranslation {
-        do {
-            let random_int: Int64 = try self.dbConn.scalar("SELECT * FROM Translations where id != \(rowToNotGet) ORDER BY RANDOM() LIMIT 1;") as! Int64
-            
-            let extractedExpr: Table = DbTranslation.table.filter(DbTranslation.id == Int(random_int))
-            
-            for translation in try self.dbConn.prepare(extractedExpr) {
-                let dbTranslation = SpecificDbTranslation(dbRow: translation,
-                                                          displayLanguage: "Mandarin-Simplified")
-                try dbTranslation.verifyAll()
-                
-                return dbTranslation
-            }
-        } catch {
-            print("Function: \(#function):\(#line), Error: \(error)")
-        }
-        
-        return DbTranslation()
-    }
-    
-    func getResultRow(languageDisplayed: String, translationId: Int) throws -> DbResult {
-        
-        let extractedExpr: Table = DbResult.table
+    func getResultRow(resultTableName: String, languageDisplayed: String, translationId: Int) throws -> DbResult {
+        let extractedExpr: Table = Table(resultTableName)
             .filter(DbResult.translation_fk == translationId)
             .filter(DbResult.language_displayed == languageDisplayed)
         
@@ -228,30 +207,31 @@ class DatabaseManagement {
         if what == nil {
             throw "DbResult row not found"
         }
-        return DbResult(dbRow: what)
         
+        return DbResult(dbRow: what)
     }
     
     func logResult(letterGrade: String,
                    quizInfo: DbTranslation,
                    pinyinOn: Bool,
                    attempts: Int) {
-        
         let languageDisplayed = quizInfo.getLanguageToDisplay() // or english
         let languagePronounced = "Mandarin" // always
         var pronunciationHelp = "Off"
         if pinyinOn {
             pronunciationHelp = "On"
         }
-        
+
+        let resultTableName = DbTranslation.tableName + DbResult.nameSuffix
         do {
-            let resultRow: DbResult = try self.getResultRow(languageDisplayed: languageDisplayed,
+            let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
+                                                            languageDisplayed: languageDisplayed,
                                                             translationId: quizInfo.getId())
             let newDueDate: Date = self.getUpdatedDueDate(newGrade: letterGrade,
                                                           lastGrade: resultRow.getLastGrade(),
                                                           lastDate: resultRow.getLastUpdatedDate())
-            
-            let update: Update = DbResult.getUpdate(fk: quizInfo.getId(),
+            let update: Update = DbResult.getUpdate(tableName: resultTableName,
+                                                    fk: quizInfo.getId(),
                                                     langDisp: languageDisplayed,
                                                     newDueDate: newDueDate,
                                                     letterGrade: letterGrade,
@@ -264,7 +244,8 @@ class DatabaseManagement {
             do {
                 
                 let firstMandarinInsert: Insert = DbResult
-                    .getInsert(fk: quizInfo.getId(),
+                    .getInsert(tableName: resultTableName,
+                               fk: quizInfo.getId(),
                                difficulty: quizInfo.getDifficulty(),
                                due_date: self.getNewDueDate(grade: letterGrade),
                                letterGrade: letterGrade,
@@ -273,7 +254,8 @@ class DatabaseManagement {
                                languagePronounced: languagePronounced)
                 
                 let newEnglishInsert: Insert = DbResult
-                    .getInsert(fk: quizInfo.getId(),
+                    .getInsert(tableName: resultTableName,
+                               fk: quizInfo.getId(),
                                difficulty: quizInfo.getDifficulty(),
                                due_date: self.getNewDueDate(grade: "5"),
                                letterGrade: "C",

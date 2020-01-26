@@ -200,7 +200,7 @@ class FillInBlanks {
     }
     
     func getRefDict(_ refDict: String) -> Dictionary<String, String> {
-        var refWithCommans = refDict.replacingOccurrences(of: ";", with: ",")
+        let refWithCommans = refDict.replacingOccurrences(of: ";", with: ",")
         
         var refWithQuotes: String = ""
         for char in refWithCommans {

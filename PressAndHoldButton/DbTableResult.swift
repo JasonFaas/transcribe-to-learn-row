@@ -13,7 +13,8 @@ import SQLite
 class DbResult {
     
     //TODO: Duplicate removal
-    static let table: Table = Table("Results")
+    
+    static let nameSuffix = "Results"
     
     static let id = Expression<Int>("id")
     static let translation_fk = Expression<Int>("translation") // TODO Change this to translation_fk
@@ -78,8 +79,8 @@ class DbResult {
         
     }
     
-    static func tableCreationString() -> String {
-        return DbResult.table.create(ifNotExists: true) { t in
+    static func tableCreationString(tTableName: String) -> String {
+        return Table(tTableName + DbResult.nameSuffix).create(ifNotExists: true) { t in
             t.column(DbResult.id, primaryKey: true)
             t.column(DbResult.translation_fk)
             t.column(DbResult.difficulty)
@@ -91,17 +92,18 @@ class DbResult {
             t.column(DbResult.pronunciation_help)
             t.column(DbResult.like)
             
-            t.foreignKey(DbResult.translation_fk, references: DbTranslation.table, DbTranslation.id)
+            t.foreignKey(DbResult.translation_fk, references: Table(tTableName), DbTranslation.id)
         }
     }
     
-    static func getUpdate(fk: Int,
+    static func getUpdate(tableName: String,
+                          fk: Int,
                           langDisp: String,
                           newDueDate: Date,
                           letterGrade: String,
                           pronunciationHelp: String,
                           difficulty: Int) -> Update {
-        let quizSpecific = DbResult.table
+        let quizSpecific = Table(tableName)
             .filter(DbResult.translation_fk == fk)
             .filter(DbResult.language_displayed == langDisp)
         let whatwhat: Update = quizSpecific.update(DbResult.due_date <- newDueDate,
@@ -112,7 +114,8 @@ class DbResult {
         return whatwhat
     }
     
-    static func getInsert(fk: Int,
+    static func getInsert(tableName: String,
+                          fk: Int,
                           difficulty: Int,
                           due_date: Date,
                           letterGrade: String,
@@ -120,7 +123,7 @@ class DbResult {
                           pronunciationHelp: String,
                           languagePronounced: String) -> Insert {
 
-        return DbResult.table.insert(
+        return Table(tableName).insert(
             DbResult.translation_fk <- fk,
             DbResult.difficulty <- difficulty,
             DbResult.due_date <- due_date,

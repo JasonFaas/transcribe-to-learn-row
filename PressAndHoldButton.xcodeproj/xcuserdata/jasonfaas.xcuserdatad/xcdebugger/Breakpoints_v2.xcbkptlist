@@ -14,8 +14,8 @@
             filePath = "PressAndHoldButton/DbManagement.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
+            startingLineNumber = "170"
+            endingLineNumber = "170"
             landmarkName = "getRandomRowFromSpecified(database:fk_ref:excludeEnglishVal:)"
             landmarkType = "7">
          </BreakpointContent>

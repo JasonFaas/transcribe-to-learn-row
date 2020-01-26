@@ -30,7 +30,7 @@ class Transcription {
         self.updateUi = updateUi
         
         self.dbm = DatabaseManagement()
-        self.currentTranslation = self.dbm.getNextPhrase(-1)
+        self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName)
         self.updateUi.updateUiWithTranslation(currentTranslation)
     }
     
@@ -167,13 +167,16 @@ class Transcription {
         self.updateUi.pinyinOff()
         self.lastTranscription = ""
         
-        self.currentTranslation = self.dbm.getNextPhrase(self.currentTranslation.getId())
+        let tTableName = DbTranslation.tableName
+        
+        self.currentTranslation = self.dbm.getNextPhrase(tTableName: tTableName,
+                                                         idExclude: self.currentTranslation.getId())
                 
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
         
-        let dueNow: String = "Now\t\(self.dbm.getCountDueTotal())"
-        let dueOneHour: String = "1 hour\t\(self.dbm.getCountDueTotal(hoursFromNow: 1))"
-        let dueOneDay: String = "1 day\t\(self.dbm.getCountDueTotal(hoursFromNow: 24))"
+        let dueNow: String = "Now\t\(self.dbm.getCountDueTotal(tTableName: tTableName))"
+        let dueOneHour: String = "1 hour\t\(self.dbm.getCountDueTotal(tTableName: tTableName, hoursFromNow: 1))"
+        let dueOneDay: String = "1 day\t\(self.dbm.getCountDueTotal(tTableName: tTableName, hoursFromNow: 24))"
         self.updateUi.updatePhraseProgress("Due\n\(dueNow)\n\(dueOneHour)\n\(dueOneDay)")
     }
     
