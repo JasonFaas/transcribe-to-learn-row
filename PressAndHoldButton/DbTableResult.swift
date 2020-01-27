@@ -12,7 +12,7 @@ import SQLite
 
 class DbResult {
     
-    static let nameSuffix = "Results"
+    static let nameSuffix = "_results"
     
     static let id = Expression<Int>("id")
     static let translation_fk = Expression<Int>("translation") // TODO Change this to translation_fk

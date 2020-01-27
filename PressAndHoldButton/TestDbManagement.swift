@@ -8,6 +8,8 @@
 
 import Foundation
 
+import SQLite
+
 class TestDbManagement {
     
     let dbm: DatabaseManagement!
@@ -28,8 +30,48 @@ class TestDbManagement {
         self.testBlanksToJsonInDatabaseFk()
         self.testPopulateBlanksDictNumber()
         self.testSpecificAndCompareCountry()
+        
+        try self.testGetResultNoDueDate()
+        try self.testGetEasiest()
     }
     
+    func testGetResultNoDueDate() throws {
+        // Add Jason Faas to Results database with due date of 5 minutes in past
+        let commonTableName = "common_name"
+        let jasonFaasTranslation: DbTranslation = try self.dbm.getSpecificRow(tTableName: commonTableName,
+                                                                              englishVal: "Jason Faas")
+        self.dbm.createResultDbTableIfNotExists(tTableName: commonTableName)
+
+        let newEnglishInsert: Insert = DbResult
+            .getInsert(tableName: commonTableName + DbResult.nameSuffix,
+                       fk: jasonFaasTranslation.getId(),
+                       due_date: self.dbm.getDateHoursFromNow(minutesAhead: -120),
+                       letterGrade: "C",
+                       languageDisplayed: "English",
+                       pronunciationHelp: "Off",
+                       languagePronounced: "Mandarin-Simplified")
+        
+        try self.dbm.dbConn.run(newEnglishInsert)
+        // Look up by due date
+        
+        
+        // Add Jason Faas to Results database with due date of 10 years into future
+        // Look up by any time
+        
+        let actual = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: Date())
+        assert(actual.getEnglish() == "Jason Faas")
+        assert(actual.getEnglish() == jasonFaasTranslation.getEnglish())
+    }
+    
+    func testGetEasiest() throws {
+        do {
+            let expected = try self.dbm.getEasiestUnansweredTranslation(tTableName: "city_name")
+            assert(expected.getEnglish() == "Beijing" || expected.getEnglish() == "Xi'an")
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+            assert(5 == 4)
+        }
+    }
     
     func testJsonBlankToDict() {
         let test_fib = FillInBlanks(dbTranslation: DbTranslation(),
