@@ -39,19 +39,19 @@ class DatabaseManagement {
         }
     }
     
-    func getNextPhrase(tTableName: String, idExclude: Int = -1, fk_ref: Int = -1, excludeEnglishVal: String = "") -> DbTranslation {
+    func getNextPhrase(tTableName: String, idExclude: Int = -1, fk_ref: Int = -1, excludeEnglishVal: String = "", dispLang: String) -> DbTranslation {
         var dbTranslation: DbTranslation!
         
         do {
-            dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: Date())
+            dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: Date(), dispLang: dispLang)
             print("Srsly - good DueDate Return")
             self.printAllResultsTable()
         } catch {
             do {
-                dbTranslation = try self.getEasiestUnansweredTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal)
+                dbTranslation = try self.getEasiestUnansweredTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dispLang: dispLang)
             } catch {
                 do {
-                    dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: nil)
+                    dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: nil, dispLang: dispLang)
                 } catch {
                     return DbTranslation()
                 }
@@ -68,18 +68,20 @@ class DatabaseManagement {
                                        tIdExclude: Int = -1,
                                        t_to_t_fkRef: Int = -1,
                                        excludeEnglishVal: String = "",
-                                       dueDateDelimiter: Date!) throws -> DbTranslation {
+                                       dueDateDelimiter: Date!,
+                                       dispLang: String) throws -> DbTranslation {
         let tTable: Table = Table(tTableName)
         let rTable = Table(tTableName + DbResult.nameSuffix)
         
-        var standardSelect = DbTranslation.getStandardSelect(table: tTable)
-        standardSelect.append(rTable[DbResult.language_displayed])
+        var allSelect = DbTranslation.getStandardSelect(table: tTable)
+        allSelect.append(rTable[DbResult.language_displayed])
         
         var newSelectResult = tTable
             .filter(tTable[DbTranslation.id] != tIdExclude)
             .filter(tTable[DbTranslation.english] != excludeEnglishVal)
             .join(rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
-            .select(standardSelect)
+            .select(allSelect)
+            .filter(rTable[DbResult.language_displayed] == dispLang)
 //        .select(tTable[DbTranslation.id], tTable[DbTranslation.blanks])
             
         if dueDateDelimiter != nil {
@@ -160,7 +162,8 @@ class DatabaseManagement {
     func getEasiestUnansweredTranslation(tTableName: String,
                                          tIdExclude: Int = -1,
                                          t_to_t_fkRef: Int = -1,
-                                         excludeEnglishVal: String = "") throws -> DbTranslation {
+                                         excludeEnglishVal: String = "",
+                                         dispLang: String) throws -> DbTranslation {
         print("Hmmmmmm - \(tTableName) \(tIdExclude) \(t_to_t_fkRef) \(excludeEnglishVal)")
         do {
             self.createResultDbTableIfNotExists(tTableName: tTableName)
@@ -172,7 +175,7 @@ class DatabaseManagement {
                 .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
                 .filter(tTable[DbTranslation.english] != excludeEnglishVal)
                 .filter(rTable[DbResult.translation_fk] == nil)
-            //TODO: Seriously fix this line
+            
             
             if t_to_t_fkRef != -1 {
                 selectTranslation = selectTranslation.filter(tTable[DbTranslation.fk_parent] == t_to_t_fkRef)
@@ -189,7 +192,7 @@ class DatabaseManagement {
             
             // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
             return SpecificDbTranslation(dbRow: translationRow,
-                                         displayLanguage: LanguageDisplayed.MandarinSimplified.rawValue)
+                                         displayLanguage: dispLang)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error) - \(tTableName) \(tIdExclude) \(t_to_t_fkRef) \(excludeEnglishVal)")
             throw error
@@ -294,8 +297,10 @@ class DatabaseManagement {
             
         } catch {
             do {
+                let newOtherLanguage = languageDisplayed == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
                 
-                let firstMandarinInsert: Insert = DbResult
+                
+                let answeredInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: quizInfo.getId(),
                                due_date: self.getNewDueDate(grade: letterGrade),
@@ -304,17 +309,17 @@ class DatabaseManagement {
                                pronunciationHelp: pronunciationHelp,
                                languagePronounced: languagePronounced)
                 
-                let newEnglishInsert: Insert = DbResult
+                let otherLangInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: quizInfo.getId(),
                                due_date: self.getNewDueDate(grade: "5"),
                                letterGrade: "C",
-                               languageDisplayed: LanguageDisplayed.English.rawValue,
+                               languageDisplayed: newOtherLanguage,
                                pronunciationHelp: "Off",
                                languagePronounced: languagePronounced)
                 
-                try self.dbConn.run(firstMandarinInsert)
-                try self.dbConn.run(newEnglishInsert)
+                try self.dbConn.run(answeredInsert)
+                try self.dbConn.run(otherLangInsert)
             } catch {
                 print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
             }

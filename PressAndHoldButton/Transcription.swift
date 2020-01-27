@@ -30,7 +30,8 @@ class Transcription {
         self.updateUi = updateUi
         
         self.dbm = DatabaseManagement()
-        self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName)
+        self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName,
+                                                         dispLang: LanguageDisplayed.MandarinSimplified.rawValue)
         self.updateUi.updateUiWithTranslation(currentTranslation)
     }
     
@@ -170,7 +171,8 @@ class Transcription {
         let tTableName = DbTranslation.tableName
         
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: tTableName,
-                                                         idExclude: self.currentTranslation.getId())
+                                                         idExclude: self.currentTranslation.getId(),
+                                                         dispLang: currentTranslation.getLanguageToDisplay() == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue)
                 
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
         

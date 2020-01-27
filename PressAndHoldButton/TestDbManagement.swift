@@ -46,20 +46,21 @@ class TestDbManagement {
         let jasonFaasTranslation: DbTranslation = try self.dbm.getSpecificRow(tTableName: commonTableName,
                                                                               englishVal: "Jason Faas")
         self.dbm.createResultDbTableIfNotExists(tTableName: commonTableName)
-
+        
+        let dispLang = LanguageDisplayed.English.rawValue
         let newEnglishInsert: Insert = DbResult
             .getInsert(tableName: commonTableName + DbResult.nameSuffix,
                        fk: jasonFaasTranslation.getId(),
                        due_date: self.dbm.getDateHoursFromNow(minutesAhead: -60 * 2),
                        letterGrade: "C",
-                       languageDisplayed: LanguageDisplayed.English.rawValue,
+                       languageDisplayed: dispLang,
                        pronunciationHelp: "Off",
                        languagePronounced: "Mandarin")
         
         try self.dbm.dbConn.run(newEnglishInsert)
         // Look up by due date
         
-        let actual_v1 = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: Date())
+        let actual_v1 = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: Date(), dispLang: dispLang)
         assert(actual_v1.getEnglish() == "Jason Faas")
         assert(actual_v1.getEnglish() == jasonFaasTranslation.getEnglish())
         
@@ -75,13 +76,13 @@ class TestDbManagement {
         try self.dbm.dbConn.run(englishUpdate)
         // Look up by any time
         
-        let actual_v2 = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: nil)
+        let actual_v2 = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: nil, dispLang: dispLang)
         assert(actual_v2.getEnglish() == jasonFaasTranslation.getEnglish())
     }
     
     func testGetEasiest() throws {
         do {
-            let expected = try self.dbm.getEasiestUnansweredTranslation(tTableName: "city_name")
+            let expected = try self.dbm.getEasiestUnansweredTranslation(tTableName: "city_name", dispLang: LanguageDisplayed.English.rawValue)
             assert(expected.getEnglish() == "Beijing" || expected.getEnglish() == "Xi'an")
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
