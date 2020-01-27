@@ -28,7 +28,6 @@ class DatabaseManagement {
         print("\t\(self.getRowsInTable(table: Table(DbTranslation.tableName + DbResult.nameSuffix))) Results")
     }
     
-    // TODO: Verify if no DB
     func printAllResultsTable(rTableName: String = DbTranslation.tableName + DbResult.nameSuffix) {
         do {
             for result_row in try self.dbConn.prepare(Table(rTableName)) {
@@ -40,12 +39,48 @@ class DatabaseManagement {
         }
     }
     
+    func getNextPhrase(tTableName: String, idExclude: Int = -1, fk_ref: Int = -1, excludeEnglishVal: String = "") -> DbTranslation {
+        var dbTranslation: DbTranslation!
+        
+        do {
+            dbTranslation = try self.getOldestDueNowTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal)
+        } catch {
+            do {
+                dbTranslation = self.getEasiestUnansweredTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal)
+            } catch {
+                dbTranslation = self.getDueSoonestTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal)
+            }
+        }
+        
+        self.updateBlanks(dbTranslation)
+        
+        return dbTranslation
+    }
+    
     // TODO: Verify if no DB
-    func getTranslationForOldestDueByNowResult(tTableName: String) throws -> DbTranslation {
-        let selectResult = Table(tTableName + "Result").select(DbResult.translation_fk,
-                                                 DbResult.language_displayed)
+    func getOldestDueNowTranslation(tTableName: String,
+                                    tIdExclude: Int = -1,
+                                    t_to_t_fkRef: Int = -1,
+                                    excludeEnglishVal: String = "") throws -> DbTranslation {
+        let tTable: Table = Table(tTableName)
+        let rTable = Table(tTableName + "Result")
+        var selectResult = rTable
+            .select(DbResult.translation_fk, DbResult.language_displayed)
             .filter(DbResult.due_date < Date())
-            .order(DbResult.due_date.asc)
+            .filter(DbResult.translation_fk != tIdExclude)
+            
+        if t_to_t_fkRef != -1 || excludeEnglishVal != "" {
+            selectResult = selectResult.join(tTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
+            
+            if t_to_t_fkRef != -1 {
+                selectResult = selectResult.filter(tTable[DbTranslation.fk_parent] == t_to_t_fkRef)
+            }
+            if excludeEnglishVal != "" {
+                selectResult = selectResult.filter(tTable[DbTranslation.english] != excludeEnglishVal)
+            }
+        }
+        
+        selectResult = selectResult.order(DbResult.due_date.asc)
         
         let resultRow: Row! = try self.dbConn.pluck(selectResult)
         
@@ -63,21 +98,6 @@ class DatabaseManagement {
         
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: dbResult.getLanguageDisplayed())
-    }
-    
-    // TODO: Verify if no DB
-    func getNextPhrase(tTableName: String, idExclude: Int = -1) -> DbTranslation {
-        var dbTranslation: DbTranslation!
-        
-        do {
-            dbTranslation = try self.getTranslationForOldestDueByNowResult(tTableName: tTableName)
-        } catch {
-            dbTranslation = self.getEasiestUnansweredTranslation(tTableName: tTableName, idExclude: idExclude)
-        }
-        
-        self.updateBlanks(dbTranslation)
-        
-        return dbTranslation
     }
     
     // TODO: Verify if no DB
@@ -135,33 +155,33 @@ class DatabaseManagement {
         }
     }
     
-    func getEasiestUnansweredTranslation(tTableName: String, idExclude: Int) -> DbTranslation {
+    func getEasiestUnansweredTranslation(tTableName: String,
+                                         tIdExclude: Int = -1,
+                                         t_to_t_fkRef: Int = -1,
+                                         excludeEnglishVal: String = "") -> DbTranslation {
         do {
-            let select_fk_keys = Table(tTableName + DbResult.nameSuffix)
-                .select(DbResult.translation_fk,
-                        DbResult.language_displayed)
+            self.createResultDbTableIfNotExists(tTableName: tTableName)
+            let tTable: Table = Table(tTableName)
+            let rTable = Table(tTableName + "Result")
             
-            var answered_values:Array<Int> = [idExclude]
-            do {
-                for result_row in try self.dbConn.prepare(select_fk_keys) {
-                    answered_values.append(result_row[DbResult.translation_fk])
-                }
-            } catch {
-                print("Function: \(#function):\(#line), Error: \(error) - \(tTableName)")
-                self.createResultDbTableIfNotExists(tTableName: tTableName)
+            var selectTranslation = tTable.filter(DbTranslation.id != tIdExclude)
+                .filter(DbTranslation.english != excludeEnglishVal)
+                .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
+            
+            if t_to_t_fkRef != -1 {
+                selectTranslation = selectTranslation.filter(DbTranslation.fk_parent == t_to_t_fkRef)
             }
             
-            let extractedExpr: Table = Table(tTableName)
-                .filter(!answered_values.contains(DbTranslation.id))
-                .order(DbTranslation.difficulty.asc)
+            selectTranslation = selectTranslation.order(DbTranslation.difficulty.asc)
             
-            for translation in try self.dbConn.prepare(extractedExpr) {
-                let dbTranslation = SpecificDbTranslation(dbRow: translation,
-                                                          displayLanguage: "Mandarin-Simplified")
-                try dbTranslation.verifyAll()
-                
-                return dbTranslation
+            let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
+            if translationRow == nil {
+                throw "Function: \(#function):\(#line) :: Unique database \"\(tTableName)\" not found with lots of variables"
             }
+            
+            // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
+            return SpecificDbTranslation(dbRow: translationRow,
+                                         displayLanguage: "Mandarin-Simplified")
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
         }
@@ -176,12 +196,12 @@ class DatabaseManagement {
     }
     
     // TODO: Verify if no DB
-    func getSpecificRow(database: String, englishVal: String) throws -> DbTranslation {
-        let selectTranslation = Table(database).filter(DbTranslation.english == englishVal)
+    func getSpecificRow(tTableName: String, englishVal: String) throws -> DbTranslation {
+        let selectTranslation = Table(tTableName).filter(DbTranslation.english == englishVal)
         
         let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
-            throw "Unique database \"\(database)\" with specific english value not found \(englishVal)"
+            throw "Unique database \"\(tTableName)\" with specific english value not found \(englishVal)"
         }
         
         return SpecificDbTranslation(dbRow: translationRow,
@@ -190,8 +210,8 @@ class DatabaseManagement {
     
     // TODO: Verify if no DB
     // TODO: Get rid of the random row usage
-    func getRandomRowFromSpecified(database: String, fk_ref: Int, excludeEnglishVal: String) throws -> DbTranslation {
-        var selectTranslation = Table(database)
+    func getRandomRowFromSpecified(tTableName: String, fk_ref: Int, excludeEnglishVal: String) throws -> DbTranslation {
+        var selectTranslation = Table(tTableName)
         
         if fk_ref >= 1 {
             selectTranslation = selectTranslation.filter(DbTranslation.fk_parent == fk_ref)
@@ -204,7 +224,7 @@ class DatabaseManagement {
         
         let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
-            throw "Unique database \"\(database)\" not found with exclude englishVal :\(excludeEnglishVal): and fk :\(fk_ref):"
+            throw "Unique database \"\(tTableName)\" not found with exclude englishVal :\(excludeEnglishVal): and fk :\(fk_ref):"
         }
         
         return SpecificDbTranslation(dbRow: translationRow,
@@ -261,8 +281,7 @@ class DatabaseManagement {
                                                     langDisp: languageDisplayed,
                                                     newDueDate: newDueDate,
                                                     letterGrade: letterGrade,
-                                                    pronunciationHelp: pronunciationHelp,
-                                                    difficulty: quizInfo.getDifficulty())
+                                                    pronunciationHelp: pronunciationHelp)
             
             try self.dbConn.run(update)
             
@@ -272,7 +291,6 @@ class DatabaseManagement {
                 let firstMandarinInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: quizInfo.getId(),
-                               difficulty: quizInfo.getDifficulty(),
                                due_date: self.getNewDueDate(grade: letterGrade),
                                letterGrade: letterGrade,
                                languageDisplayed: languageDisplayed,
@@ -282,7 +300,6 @@ class DatabaseManagement {
                 let newEnglishInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: quizInfo.getId(),
-                               difficulty: quizInfo.getDifficulty(),
                                due_date: self.getNewDueDate(grade: "5"),
                                letterGrade: "C",
                                languageDisplayed: "English",

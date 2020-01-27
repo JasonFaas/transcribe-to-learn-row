@@ -16,7 +16,6 @@ class DbResult {
     
     static let id = Expression<Int>("id")
     static let translation_fk = Expression<Int>("translation") // TODO Change this to translation_fk
-    static let difficulty = Expression<Int>("difficulty")
     static let due_date = Expression<Date>("due_date")
     static let last_updated_date = Expression<Date>("last_updated_date")
     static let last_grade: Expression<String> = Expression<String>("last_grade")
@@ -63,7 +62,6 @@ class DbResult {
     func printInfo() {
         print(dbRow[DbResult.id])
         print("\tFK:       \(dbRow[DbResult.translation_fk])")
-        print("\tDiff:     \(dbRow[DbResult.difficulty])")
         print("\tDue:      \(dbRow[DbResult.due_date])")
         print("\tUpdated:  \(dbRow[DbResult.last_updated_date])")
         print("\tGrade:    \(dbRow[DbResult.last_grade])")
@@ -81,7 +79,6 @@ class DbResult {
         return Table(tTableName + DbResult.nameSuffix).create(ifNotExists: true) { t in
             t.column(DbResult.id, primaryKey: true)
             t.column(DbResult.translation_fk)
-            t.column(DbResult.difficulty)
             t.column(DbResult.due_date)
             t.column(DbResult.last_updated_date)
             t.column(DbResult.last_grade)
@@ -99,22 +96,19 @@ class DbResult {
                           langDisp: String,
                           newDueDate: Date,
                           letterGrade: String,
-                          pronunciationHelp: String,
-                          difficulty: Int) -> Update {
+                          pronunciationHelp: String) -> Update {
         let quizSpecific = Table(tableName)
             .filter(DbResult.translation_fk == fk)
             .filter(DbResult.language_displayed == langDisp)
         let whatwhat: Update = quizSpecific.update(DbResult.due_date <- newDueDate,
                                                     DbResult.last_grade <- letterGrade,
                                                     DbResult.pronunciation_help <- pronunciationHelp,
-                                                    DbResult.last_updated_date <- Date(),
-                                                    DbResult.difficulty <- difficulty)
+                                                    DbResult.last_updated_date <- Date())
         return whatwhat
     }
     
     static func getInsert(tableName: String,
                           fk: Int,
-                          difficulty: Int,
                           due_date: Date,
                           letterGrade: String,
                           languageDisplayed: String,
@@ -123,7 +117,6 @@ class DbResult {
 
         return Table(tableName).insert(
             DbResult.translation_fk <- fk,
-            DbResult.difficulty <- difficulty,
             DbResult.due_date <- due_date,
             DbResult.last_grade <- letterGrade,
             DbResult.language_displayed <- languageDisplayed, // TODO: use enum

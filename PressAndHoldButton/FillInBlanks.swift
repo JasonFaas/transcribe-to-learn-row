@@ -150,9 +150,9 @@ class FillInBlanks {
                             
                             let resultArr = resultStr.components(separatedBy: ".")
                             
-                            reference = try self.dbm.getSpecificRow(database: resultArr[0], englishVal: resultArr[1])
+                            reference = try self.dbm.getSpecificRow(tTableName: resultArr[0], englishVal: resultArr[1])
                         } else if let specificRow: String = refDict["specific"] {
-                            reference = try self.dbm.getSpecificRow(database: refType, englishVal: specificRow)
+                            reference = try self.dbm.getSpecificRow(tTableName: refType, englishVal: specificRow)
                         } else {
                             let fk_blank: String = refDict["fk_ref", default: "-1"]
                             let whatWhat: Dictionary<String, String> = self.blanksDictionary[Int(fk_blank) ?? -1, default: [:]]
@@ -164,7 +164,7 @@ class FillInBlanks {
                             let excludedEnglishVal: String = exRow["english", default: ""]
                             
                             //TODO: Change from Random row to 'due' or 'by level' or something like that
-                            reference = try self.dbm.getRandomRowFromSpecified(database: refType,
+                            reference = try self.dbm.getRandomRowFromSpecified(tTableName: refType,
                                                                                fk_ref: fk_val,
                                                                                excludeEnglishVal: excludedEnglishVal)
                         }
