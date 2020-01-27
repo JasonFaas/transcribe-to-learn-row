@@ -164,7 +164,7 @@ class DatabaseManagement {
                                          t_to_t_fkRef: Int = -1,
                                          excludeEnglishVal: String = "",
                                          dispLang: String) throws -> DbTranslation {
-        print("Hmmmmmm - \(tTableName) \(tIdExclude) \(t_to_t_fkRef) \(excludeEnglishVal)")
+        
         do {
             self.createResultDbTableIfNotExists(tTableName: tTableName)
             let tTable: Table = Table(tTableName)
@@ -187,8 +187,6 @@ class DatabaseManagement {
             if translationRow == nil {
                 throw "Function: \(#function):\(#line) :: Unique database \"\(tTableName)\" not found with lots of variables"
             }
-            
-            print("Testing JAF - \(translationRow[DbTranslation.hanzi])")
             
             // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
             return SpecificDbTranslation(dbRow: translationRow,
