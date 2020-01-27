@@ -36,8 +36,6 @@ class DbConnectionSetup {
         if deleteResultsDb {
             self.dropTable(sqlConn: connection, tableToDrop: Table(DbTranslation.tableName + DbResult.nameSuffix))
         }
-        // TODO: Move to another location
-//        self.createResultDbTableIfNotExists(sqlConn: connection)
         
         return connection
     }
@@ -68,16 +66,6 @@ class DbConnectionSetup {
             try sqlConn.run(tableToDrop.drop())
             print("\tDB :: Dropped a table")
         } catch {
-            print("Function: \(#function):\(#line), Error: \(error)")
-        }
-    }
-        
-    func createResultDbTableIfNotExists(sqlConn: Connection, tTableName: String) {
-        do {
-            try sqlConn.run(DbResult.tableCreationString(tTableName: tTableName))
-            print("\tDB :: Created RESULT Table or it already existed")
-        } catch {
-            print("\tDB Error :: DID NOT CREATE RESULT TABLE")
             print("Function: \(#function):\(#line), Error: \(error)")
         }
     }

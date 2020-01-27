@@ -12,8 +12,6 @@ import SQLite
 
 class DbResult {
     
-    //TODO: Duplicate removal
-    
     static let nameSuffix = "Results"
     
     static let id = Expression<Int>("id")

@@ -46,20 +46,16 @@ class FillInBlanks {
     }
     
     func processBlanks() {
-        // TODO: Identify blanks
         self.populateBlanksDictionary()
         
-        // TODO: call setHanzi
         var blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getHanzi(),
                                              howTo: "hanzi")
         dbTranslation.setHanzi(blanksFilledIn)
         
-        // TODO: call setPinyin
         blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getPinyin(),
                                          howTo: "pinyin")
         dbTranslation.setPinyin(blanksFilledIn)
         
-        // TODO: call setEnglish
         blanksFilledIn = self.fillBlanks(phrase: dbTranslation.getEnglish(),
                                          howTo: "english")
         dbTranslation.setEnglish(blanksFilledIn)

@@ -14,7 +14,6 @@ class DatabaseManagement {
     let dbConn: Connection!
     
     init() {
-        
         let dbSetup: DbConnectionSetup = DbConnectionSetup()
         
         // ENABLE ONLY IF WANTING TO RESET DATABASE
@@ -29,6 +28,7 @@ class DatabaseManagement {
         print("\t\(self.getRowsInTable(table: Table(DbTranslation.tableName + DbResult.nameSuffix))) Results")
     }
     
+    // TODO: Verify if no DB
     func printAllResultsTable(rTableName: String = DbTranslation.tableName + DbResult.nameSuffix) {
         do {
             for result_row in try self.dbConn.prepare(Table(rTableName)) {
@@ -40,6 +40,7 @@ class DatabaseManagement {
         }
     }
     
+    // TODO: Verify if no DB
     func getTranslationForOldestDueByNowResult(tTableName: String) throws -> DbTranslation {
         let selectResult = Table(tTableName + "Result").select(DbResult.translation_fk,
                                                  DbResult.language_displayed)
@@ -64,6 +65,7 @@ class DatabaseManagement {
                                      displayLanguage: dbResult.getLanguageDisplayed())
     }
     
+    // TODO: Verify if no DB
     func getNextPhrase(tTableName: String, idExclude: Int = -1) -> DbTranslation {
         var dbTranslation: DbTranslation!
         
@@ -78,6 +80,7 @@ class DatabaseManagement {
         return dbTranslation
     }
     
+    // TODO: Verify if no DB
     func getCountDueTotal(tTableName: String, hoursFromNow: Int = 0) -> Int {
         var returnCount: Int = 0
         do {
@@ -95,6 +98,7 @@ class DatabaseManagement {
         return returnCount
     }
     
+    // TODO: Verify if no DB
     func getDueNowCount(rTableName: String, hoursFromNow: Int = 10) throws -> Int {
         let futureDate: Date = self.getDateHoursFromNow(minutesAhead: hoursFromNow * 60)
         
@@ -105,6 +109,7 @@ class DatabaseManagement {
         return try self.dbConn.scalar(selectResult.count)
     }
     
+    // TODO: Verify if no DB
     func getUnansweredCount(tTableName: String) throws -> Int {
         let select_fk_keys = Table(tTableName + DbResult.nameSuffix)
             .select(DbResult.translation_fk, DbResult.language_displayed)
@@ -119,15 +124,31 @@ class DatabaseManagement {
         
         return try self.dbConn.scalar(extractedExpr.count)
     }
+        
+    func createResultDbTableIfNotExists(tTableName: String) {
+        do {
+            try self.dbConn.run(DbResult.tableCreationString(tTableName: tTableName))
+            print("\tDB :: Created \(tTableName)\(DbResult.nameSuffix) Table or it already existed")
+        } catch {
+            print("\tDB Error :: DID NOT CREATE RESULT TABLE")
+            print("Function: \(#function):\(#line), Error: \(error)")
+        }
+    }
     
     func getEasiestUnansweredTranslation(tTableName: String, idExclude: Int) -> DbTranslation {
         do {
             let select_fk_keys = Table(tTableName + DbResult.nameSuffix)
-                .select(DbResult.translation_fk, DbResult.language_displayed)
-            //                .filter(DbResult.last_grade == "A")
+                .select(DbResult.translation_fk,
+                        DbResult.language_displayed)
+            
             var answered_values:Array<Int> = [idExclude]
-            for result_row in try self.dbConn.prepare(select_fk_keys) {
-                answered_values.append(result_row[DbResult.translation_fk])
+            do {
+                for result_row in try self.dbConn.prepare(select_fk_keys) {
+                    answered_values.append(result_row[DbResult.translation_fk])
+                }
+            } catch {
+                print("Function: \(#function):\(#line), Error: \(error) - \(tTableName)")
+                self.createResultDbTableIfNotExists(tTableName: tTableName)
             }
             
             let extractedExpr: Table = Table(tTableName)
@@ -148,11 +169,13 @@ class DatabaseManagement {
         return DbTranslation()
     }
     
+    // TODO: Verify if no DB
     func updateBlanks(_ dbTranslation: DbTranslation) {
         let what = FillInBlanks(dbTranslation: dbTranslation, dbm: self)
         what.processBlanks()
     }
     
+    // TODO: Verify if no DB
     func getSpecificRow(database: String, englishVal: String) throws -> DbTranslation {
         let selectTranslation = Table(database).filter(DbTranslation.english == englishVal)
         
@@ -165,6 +188,7 @@ class DatabaseManagement {
                                      displayLanguage: "none")
     }
     
+    // TODO: Verify if no DB
     // TODO: Get rid of the random row usage
     func getRandomRowFromSpecified(database: String, fk_ref: Int, excludeEnglishVal: String) throws -> DbTranslation {
         var selectTranslation = Table(database)
@@ -188,16 +212,17 @@ class DatabaseManagement {
         
     }
     
+    // TODO: Verify if no DB
     func getRowsInTable(table: Table) -> Int {
         do {
-            //TODO: May need to create table here
             return try self.dbConn.scalar(table.count)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
-            return -1
+            return 0
         }
     }
     
+    // TODO: Verify if no DB
     func getResultRow(resultTableName: String, languageDisplayed: String, translationId: Int) throws -> DbResult {
         let extractedExpr: Table = Table(resultTableName)
             .filter(DbResult.translation_fk == translationId)
@@ -211,6 +236,7 @@ class DatabaseManagement {
         return DbResult(dbRow: what)
     }
     
+    // TODO: Verify if no DB
     func logResult(letterGrade: String,
                    quizInfo: DbTranslation,
                    pinyinOn: Bool,
@@ -266,11 +292,12 @@ class DatabaseManagement {
                 try self.dbConn.run(firstMandarinInsert)
                 try self.dbConn.run(newEnglishInsert)
             } catch {
-                print("update failed: \(error)")
+                print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
             }
         }
     }
     
+    // TODO: Verify if no DB
     func getNewDueDate(grade: String) -> Date {
         
         let generalDateAdding: [String: Int] = [
@@ -287,6 +314,7 @@ class DatabaseManagement {
         return dueDate
     }
     
+    // TODO: Verify if no DB
     func getDateHoursFromNow(minutesAhead: Int) -> Date {
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
@@ -296,6 +324,7 @@ class DatabaseManagement {
         return dueDate
     }
     
+    // TODO: Verify if no DB
     func getUpdatedDueDate(newGrade: String,
                            lastGrade: String,
                            lastDate: Date) -> Date {
@@ -320,11 +349,13 @@ class DatabaseManagement {
         return dueDate
     }
     
+    // TODO: Verify if no DB
     func contentInsideBracket(_ input: Substring, _ openIndex: String.Index, _ closeIndex: String.Index) -> Substring{
         let startOffByOne = input.index(openIndex, offsetBy: 1)
         return input[startOffByOne..<closeIndex]
     }
     
+    // TODO: Verify if no DB
     func getHskPinyins(_ transcription: String) -> [String] {
         let transcriptionQuery = Table("hsk").filter(DbTranslation.hanzi == transcription)
         let transcriptionRow: Row!
@@ -348,6 +379,7 @@ class DatabaseManagement {
         return transcriptionPinyins
     }
     
+    // TODO: Verify if no DB
     func arePinyinSame(_ transcription: String,
                        _ expected: String) -> Bool {
         let transcriptionPinyins = getHskPinyins(transcription)
