@@ -89,6 +89,21 @@ class DbTranslation {
         return "Mandarin"
     }
     
+    static func getStandardSelect(table: Table) -> [SQLite.Expressible] {
+        var returnList: [SQLite.Expressible] = []
+        
+        returnList.append(table[id])
+        returnList.append(blanks)
+        returnList.append(hanzi)
+        returnList.append(pinyin)
+        returnList.append(pinyin2nd)
+        returnList.append(english)
+        returnList.append(difficulty)
+        returnList.append(fk_parent)
+        
+        return returnList
+    }
+    
 }
 
 class SpecificDbTranslation : DbTranslation {

@@ -31,8 +31,13 @@ class TestDbManagement {
         self.testPopulateBlanksDictNumber()
         self.testSpecificAndCompareCountry()
         
+        print("Testing testGetResultNoDueDate")
         try self.testGetResultNoDueDate()
+        
+        print("Testing testGetEasiest")
         try self.testGetEasiest()
+        
+        print("All DbManagement Tests PASSED")
     }
     
     func testGetResultNoDueDate() throws {
@@ -45,7 +50,7 @@ class TestDbManagement {
         let newEnglishInsert: Insert = DbResult
             .getInsert(tableName: commonTableName + DbResult.nameSuffix,
                        fk: jasonFaasTranslation.getId(),
-                       due_date: self.dbm.getDateHoursFromNow(minutesAhead: -120),
+                       due_date: self.dbm.getDateHoursFromNow(minutesAhead: -60 * 2),
                        letterGrade: "C",
                        languageDisplayed: "English",
                        pronunciationHelp: "Off",
@@ -54,13 +59,24 @@ class TestDbManagement {
         try self.dbm.dbConn.run(newEnglishInsert)
         // Look up by due date
         
+        let actual_v1 = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: Date())
+        assert(actual_v1.getEnglish() == "Jason Faas")
+        assert(actual_v1.getEnglish() == jasonFaasTranslation.getEnglish())
+        
         
         // Add Jason Faas to Results database with due date of 10 years into future
+        let englishUpdate = DbResult.getUpdate(tableName: commonTableName + DbResult.nameSuffix,
+        fk: jasonFaasTranslation.getId(),
+        langDisp: "English",
+        newDueDate: self.dbm.getDateHoursFromNow(minutesAhead: 60*24*365*10),
+        letterGrade: "C",
+        pronunciationHelp: "Off")
+        
+        try self.dbm.dbConn.run(englishUpdate)
         // Look up by any time
         
-        let actual = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: Date())
-        assert(actual.getEnglish() == "Jason Faas")
-        assert(actual.getEnglish() == jasonFaasTranslation.getEnglish())
+        let actual_v2 = try self.dbm.getTranslationByResultDueDate(tTableName: commonTableName, dueDateDelimiter: nil)
+        assert(actual_v2.getEnglish() == jasonFaasTranslation.getEnglish())
     }
     
     func testGetEasiest() throws {

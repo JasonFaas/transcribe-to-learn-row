@@ -44,6 +44,7 @@ class DatabaseManagement {
         
         do {
             dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: Date())
+            print("Srsly - good DueDate Return")
         } catch {
             do {
                 dbTranslation = try self.getEasiestUnansweredTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal)
@@ -70,10 +71,15 @@ class DatabaseManagement {
         let tTable: Table = Table(tTableName)
         let rTable = Table(tTableName + DbResult.nameSuffix)
         
+        var standardSelect = DbTranslation.getStandardSelect(table: tTable)
+        standardSelect.append(rTable[DbResult.language_displayed])
+        
         var newSelectResult = tTable
             .filter(tTable[DbTranslation.id] != tIdExclude)
             .filter(tTable[DbTranslation.english] != excludeEnglishVal)
             .join(rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
+            .select(standardSelect)
+//        .select(tTable[DbTranslation.id], tTable[DbTranslation.blanks])
             
         if dueDateDelimiter != nil {
             newSelectResult = newSelectResult.filter(rTable[DbResult.due_date] < dueDateDelimiter)
@@ -85,15 +91,12 @@ class DatabaseManagement {
         
         newSelectResult = newSelectResult.order(rTable[DbResult.due_date].asc)
         
-        print("Everything is good A")
         let translationRow: Row! = try self.dbConn.pluck(newSelectResult)
         
-        print("Everything is good B")
         if translationRow == nil {
-            print("Function: \(#function):\(#line), Error: stuff not found...print more vars")
+//            print("Function: \(#function):\(#line), Error: stuff not found...print more vars")
             throw "DbTranslation row not found in getTranslationForOldestDueByNowResult"
         }
-        print("Everything is good C")
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: translationRow[DbResult.language_displayed])
     }
@@ -146,7 +149,7 @@ class DatabaseManagement {
     func createResultDbTableIfNotExists(tTableName: String) {
         do {
             try self.dbConn.run(DbResult.tableCreationString(tTableName: tTableName))
-            print("DB :: Created \(tTableName)\(DbResult.nameSuffix) Table or it already existed")
+//            print("DB :: Created \(tTableName)\(DbResult.nameSuffix) Table or it already existed")
         } catch {
             print("DB Error :: DID NOT CREATE RESULT TABLE")
             print("Function: \(#function):\(#line), Error: \(error)")
@@ -157,12 +160,14 @@ class DatabaseManagement {
                                          tIdExclude: Int = -1,
                                          t_to_t_fkRef: Int = -1,
                                          excludeEnglishVal: String = "") throws -> DbTranslation {
+        print("Hmmmmmm - \(tTableName) \(tIdExclude) \(t_to_t_fkRef) \(excludeEnglishVal)")
         do {
             self.createResultDbTableIfNotExists(tTableName: tTableName)
             let tTable: Table = Table(tTableName)
             let rTable = Table(tTableName + DbResult.nameSuffix)
             
-            var selectTranslation = tTable.filter(tTable[DbTranslation.id] != tIdExclude)
+            var selectTranslation = tTable.select(DbTranslation.getStandardSelect(table: tTable))
+                .filter(tTable[DbTranslation.id] != tIdExclude)
                 .filter(tTable[DbTranslation.english] != excludeEnglishVal)
                 .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
             
