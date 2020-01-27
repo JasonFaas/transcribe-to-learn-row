@@ -71,7 +71,7 @@ class UiUpdate {
     }
     
     func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
-        if quizInfo.getLanguageToDisplay() == "Mandarin-Simplified" {
+        if quizInfo.getLanguageToDisplay() == LanguageDisplayed.MandarinSimplified.rawValue {
             self.toPronounceHanzi.text = quizInfo.getHanzi()
             self.toPronouncePinyin.text = quizInfo.getPinyin()
         } else {

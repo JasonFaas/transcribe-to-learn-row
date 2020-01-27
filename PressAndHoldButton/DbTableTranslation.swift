@@ -86,7 +86,7 @@ class DbTranslation {
     }
     
     func getLanguageToDisplay() -> String { // TODO Enum
-        return "Mandarin"
+        return LanguageDisplayed.MandarinSimplified.rawValue
     }
     
     static func getStandardSelect(table: Table) -> [SQLite.Expressible] {

@@ -189,7 +189,7 @@ class DatabaseManagement {
             
             // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
             return SpecificDbTranslation(dbRow: translationRow,
-                                         displayLanguage: "Mandarin-Simplified")
+                                         displayLanguage: LanguageDisplayed.MandarinSimplified.rawValue)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error) - \(tTableName) \(tIdExclude) \(t_to_t_fkRef) \(excludeEnglishVal)")
             throw error
@@ -309,7 +309,7 @@ class DatabaseManagement {
                                fk: quizInfo.getId(),
                                due_date: self.getNewDueDate(grade: "5"),
                                letterGrade: "C",
-                               languageDisplayed: "English",
+                               languageDisplayed: LanguageDisplayed.English.rawValue,
                                pronunciationHelp: "Off",
                                languagePronounced: languagePronounced)
                 

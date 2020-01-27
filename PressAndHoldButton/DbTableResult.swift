@@ -127,3 +127,8 @@ class DbResult {
         )
     }
 }
+
+enum LanguageDisplayed: String {
+    case English="English"
+    case MandarinSimplified="Mandarin-Simplified"
+}

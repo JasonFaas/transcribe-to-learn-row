@@ -52,9 +52,9 @@ class TestDbManagement {
                        fk: jasonFaasTranslation.getId(),
                        due_date: self.dbm.getDateHoursFromNow(minutesAhead: -60 * 2),
                        letterGrade: "C",
-                       languageDisplayed: "English",
+                       languageDisplayed: LanguageDisplayed.English.rawValue,
                        pronunciationHelp: "Off",
-                       languagePronounced: "Mandarin-Simplified")
+                       languagePronounced: "Mandarin")
         
         try self.dbm.dbConn.run(newEnglishInsert)
         // Look up by due date
@@ -67,7 +67,7 @@ class TestDbManagement {
         // Add Jason Faas to Results database with due date of 10 years into future
         let englishUpdate = DbResult.getUpdate(tableName: commonTableName + DbResult.nameSuffix,
         fk: jasonFaasTranslation.getId(),
-        langDisp: "English",
+        langDisp: LanguageDisplayed.English.rawValue,
         newDueDate: self.dbm.getDateHoursFromNow(minutesAhead: 60*24*365*10),
         letterGrade: "C",
         pronunciationHelp: "Off")
