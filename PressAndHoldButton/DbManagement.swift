@@ -45,6 +45,7 @@ class DatabaseManagement {
         do {
             dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: Date())
             print("Srsly - good DueDate Return")
+            self.printAllResultsTable()
         } catch {
             do {
                 dbTranslation = try self.getEasiestUnansweredTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal)
@@ -168,8 +169,10 @@ class DatabaseManagement {
             
             var selectTranslation = tTable.select(DbTranslation.getStandardSelect(table: tTable))
                 .filter(tTable[DbTranslation.id] != tIdExclude)
-                .filter(tTable[DbTranslation.english] != excludeEnglishVal)
                 .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
+                .filter(tTable[DbTranslation.english] != excludeEnglishVal)
+                .filter(rTable[DbResult.translation_fk] == -1)
+            //TODO: Seriously fix this line
             
             if t_to_t_fkRef != -1 {
                 selectTranslation = selectTranslation.filter(tTable[DbTranslation.fk_parent] == t_to_t_fkRef)
@@ -181,6 +184,8 @@ class DatabaseManagement {
             if translationRow == nil {
                 throw "Function: \(#function):\(#line) :: Unique database \"\(tTableName)\" not found with lots of variables"
             }
+            
+            print("Testing JAF - \(translationRow[DbTranslation.hanzi])")
             
             // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
             return SpecificDbTranslation(dbRow: translationRow,
