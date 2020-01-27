@@ -162,15 +162,15 @@ class DatabaseManagement {
             let tTable: Table = Table(tTableName)
             let rTable = Table(tTableName + DbResult.nameSuffix)
             
-            var selectTranslation = tTable.filter(DbTranslation.id != tIdExclude)
-                .filter(DbTranslation.english != excludeEnglishVal)
+            var selectTranslation = tTable.filter(tTable[DbTranslation.id] != tIdExclude)
+                .filter(tTable[DbTranslation.english] != excludeEnglishVal)
                 .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
             
             if t_to_t_fkRef != -1 {
-                selectTranslation = selectTranslation.filter(DbTranslation.fk_parent == t_to_t_fkRef)
+                selectTranslation = selectTranslation.filter(tTable[DbTranslation.fk_parent] == t_to_t_fkRef)
             }
             
-            selectTranslation = selectTranslation.order(DbTranslation.difficulty.asc)
+            selectTranslation = selectTranslation.order(tTable[DbTranslation.difficulty].asc)
             
             let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
             if translationRow == nil {
