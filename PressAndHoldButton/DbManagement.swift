@@ -138,7 +138,7 @@ class DatabaseManagement {
         
         var answered_values:Array<Int> = []
         for result_row in try self.dbConn.prepare(select_fk_keys) {
-            answered_values.append(result_row[DbResult.translation_fk])
+            answered_values.append(result_row[DbResult.translation_fk] ?? -1)
         }
         
         let extractedExpr: Table = Table(tTableName)
@@ -171,7 +171,7 @@ class DatabaseManagement {
                 .filter(tTable[DbTranslation.id] != tIdExclude)
                 .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
                 .filter(tTable[DbTranslation.english] != excludeEnglishVal)
-                .filter(rTable[DbResult.translation_fk] == -1)
+                .filter(rTable[DbResult.translation_fk] == nil)
             //TODO: Seriously fix this line
             
             if t_to_t_fkRef != -1 {

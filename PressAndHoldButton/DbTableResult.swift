@@ -15,7 +15,7 @@ class DbResult {
     static let nameSuffix = "_results"
     
     static let id = Expression<Int>("id")
-    static let translation_fk = Expression<Int>("translation") // TODO Change this to translation_fk
+    static let translation_fk = Expression<Int?>("translation") // TODO Change this to translation_fk
     static let due_date = Expression<Date>("due_date")
     static let last_updated_date = Expression<Date>("last_updated_date")
     static let last_grade: Expression<String> = Expression<String>("last_grade")
@@ -40,7 +40,7 @@ class DbResult {
     }
     
     func getTranslationFk() -> Int {
-        self.dbRow[DbResult.translation_fk]
+        self.dbRow[DbResult.translation_fk] ?? -1
     }
     
     func getDueDate() -> Date {
