@@ -12,11 +12,13 @@ class FillInBlanks {
     
     let dbTranslation: DbTranslation!
     let dbm: DatabaseManagement!
+    let testRandomMode: Bool!
     var blanksDictionary: Dictionary<Int, Dictionary<String, String>> = [:]
     
-    init(dbTranslation: DbTranslation, dbm: DatabaseManagement) {
+    init(dbTranslation: DbTranslation, dbm: DatabaseManagement, testRandomMode: Bool = false) {
         self.dbTranslation = dbTranslation
         self.dbm = dbm
+        self.testRandomMode = testRandomMode
     }
     
     func fillBlanks(phrase: String, howTo: String) -> String {
@@ -164,9 +166,9 @@ class FillInBlanks {
                             let excludedEnglishVal: String = exRow["english", default: ""]
                             
                             //TODO: Change from Random row to 'due' or 'by level' or something like that
-                            reference = try self.dbm.getRandomRowFromSpecified(tTableName: refType,
-                                                                               fk_ref: fk_val,
-                                                                               excludeEnglishVal: excludedEnglishVal)
+                            reference = try self.getTranslationForBlank(tTableName: refType,
+                                                                    fk_ref: fk_val,
+                                                                    excludeEnglishVal: excludedEnglishVal)
                         }
                         
                         self.blanksDictionary[refValInt] = [
@@ -189,6 +191,23 @@ class FillInBlanks {
                 }
             }
         }
+    }
+    
+    func getTranslationForBlank(tTableName: String,
+        fk_ref: Int,
+        excludeEnglishVal: String) throws -> DbTranslation {
+        if self.testRandomMode {
+            return try self.dbm.getRandomRowFromSpecified(tTableName: tTableName,
+                                                          fk_ref: fk_ref,
+                                                          excludeEnglishVal: excludeEnglishVal)
+        } else {
+            return try self.dbm.getNextPhrase(tTableName: tTableName,
+                                              idExclude: -1,
+                                              fk_ref: fk_ref,
+                                              excludeEnglishVal: excludeEnglishVal,
+                                              dispLang: self.dbTranslation.getLanguageToDisplay())
+        }
+        
     }
     
     func getBlanksDictionary() -> Dictionary<Int, Dictionary<String, String>> {

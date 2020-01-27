@@ -92,7 +92,8 @@ class TestDbManagement {
     
     func testJsonBlankToDict() {
         let test_fib = FillInBlanks(dbTranslation: DbTranslation(),
-                                    dbm: self.dbm)
+                                    dbm: self.dbm,
+                                    testRandomMode: true)
         
         let individualDict: Dictionary<String, String> = test_fib.getRefDict("{ref:1,type:int,min:21,max:22}")
         
@@ -106,7 +107,8 @@ class TestDbManagement {
         let dbTranslation = DbTranslation()
         dbTranslation.setBlanks("我今年{ref:1,type:int,min:21,max:22}岁{ref:2,type:int,min:1950,max:1950}WHAT")
         let test_fib = FillInBlanks(dbTranslation: dbTranslation,
-                                    dbm: self.dbm)
+                                    dbm: self.dbm,
+                                    testRandomMode: true)
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         
@@ -120,7 +122,8 @@ class TestDbManagement {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:country_person_name}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
-                                        dbm: self.dbm)
+                                        dbm: self.dbm,
+                                        testRandomMode: true)
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             
@@ -144,7 +147,8 @@ class TestDbManagement {
             let dbTranslation = DbTranslation()
             dbTranslation.setBlanks("{ref:1,type:food_type}{ref:2,type:food,fk_ref:1}")
             let test_fib = FillInBlanks(dbTranslation: dbTranslation,
-                                        dbm: self.dbm)
+                                        dbm: self.dbm,
+                                        testRandomMode: true)
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
             
@@ -179,7 +183,8 @@ class TestDbManagement {
                                             english: english,
                                             blanks: blanks)
         let test_fib = FillInBlanks(dbTranslation: testTranslation,
-                                    dbm: self.dbm)
+                                    dbm: self.dbm,
+                                    testRandomMode: true)
         test_fib.processBlanks()
         
         assert(testTranslation.getEnglish() == "I am 33 years old", testTranslation.getEnglish())
@@ -199,7 +204,9 @@ class TestDbManagement {
                                              english: "",
                                              blanks: "")
         
-        let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self.dbm)
+        let test_fib = FillInBlanks(dbTranslation: testTranslantion,
+                                    dbm: self.dbm,
+                                    testRandomMode: true)
         
         let decodeString = "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) "
         let blankParts: [String] = test_fib.getDictionaryParts(decodeString)
@@ -220,7 +227,9 @@ class TestDbManagement {
                                              english: "",
                                              blanks: "\(ref_1) \(ref_2) \(ref_3) \(ref_4) \(ref_5) ")
         
-        let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self.dbm)
+        let test_fib = FillInBlanks(dbTranslation: testTranslantion,
+                                    dbm: self.dbm,
+                                    testRandomMode: true)
         for _ in 1...200 {
             test_fib.populateBlanksDictionary()
             let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
@@ -244,7 +253,9 @@ class TestDbManagement {
                                              english: "",
                                              blanks: ref_1)
         
-        let test_fib = FillInBlanks(dbTranslation: testTranslantion, dbm: self.dbm)
+        let test_fib = FillInBlanks(dbTranslation: testTranslantion,
+                                    dbm: self.dbm,
+                                    testRandomMode: true)
         test_fib.populateBlanksDictionary()
         let blanksDict: Dictionary<Int, Dictionary<String, String>> = test_fib.getBlanksDictionary()
         

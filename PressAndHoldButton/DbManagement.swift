@@ -299,7 +299,6 @@ class DatabaseManagement {
             do {
                 let newOtherLanguage = languageDisplayed == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
                 
-                
                 let answeredInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: quizInfo.getId(),
