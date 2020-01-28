@@ -22,7 +22,8 @@ class MainManagement {
          buttonTextUpdate: UIButton,
          skipThis: UIButton,
          pinyinToggleButton: UIButton,
-         dueProgress: UILabel) {
+         dueProgress: UILabel,
+         quickStartDbmHold: DatabaseManagement!) {
         self.updateUi = UiUpdate(feedbackLabel: feedbackLabel,
                                  toPronounceHanzi: toPronounceHanzi,
                                  toPronouncePinyin: toPronouncePinyin,
@@ -30,7 +31,8 @@ class MainManagement {
                                  skipThis: skipThis,
                                  pinyinToggleButton: pinyinToggleButton,
                                  dueProgress: dueProgress)
-        self.transcription = Transcription(updateUi: self.updateUi)
+        self.transcription = Transcription(updateUi: self.updateUi,
+                                           quickStartDbmHold: quickStartDbmHold)
         self.recording = Recording(translation: transcription)
     }
     

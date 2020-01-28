@@ -26,10 +26,15 @@ class Transcription {
         -3: "D",
     ]
     
-    init(updateUi: UiUpdate) {
+    init(updateUi: UiUpdate,
+         quickStartDbmHold: DatabaseManagement!) {
         self.updateUi = updateUi
         
-        self.dbm = DatabaseManagement()
+        if quickStartDbmHold == nil {
+            self.dbm = DatabaseManagement()
+        } else {
+            self.dbm = quickStartDbmHold
+        }
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName,
                                                          dispLang: LanguageDisplayed.MandarinSimplified.rawValue)
         self.updateUi.updateUiWithTranslation(currentTranslation)

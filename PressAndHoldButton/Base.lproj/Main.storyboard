@@ -93,9 +93,13 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e0f-UG-6CE">
-                                <rect key="frame" x="20" y="38" width="91" height="49"/>
+                                <rect key="frame" x="20" y="37" width="91" height="49"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Main Menu"/>
+                                <connections>
+                                    <action selector="goToMainMenu:" destination="BYZ-38-t0r" eventType="touchUpInside" id="llH-LP-UMR"/>
+                                    <segue destination="8QL-dL-8QK" kind="presentation" identifier="sequeQuickStartToMainMenuV2" modalPresentationStyle="fullScreen" id="lrN-7u-jgo"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NNC-y7-mfd">
                                 <rect key="frame" x="123" y="466" width="168" height="61"/>
@@ -119,6 +123,7 @@
                         <outlet property="buttonTextUpdate" destination="NNC-y7-mfd" id="rr1-j5-r4B"/>
                         <outlet property="devQuickSkip" destination="SZG-On-LgC" id="mY9-dr-avV"/>
                         <outlet property="generalCommentLabel" destination="Uzg-Ld-blB" id="sRP-5K-gbI"/>
+                        <outlet property="mainMenuButton" destination="e0f-UG-6CE" id="p1G-dN-WGg"/>
                         <outlet property="phrasesDue" destination="mCt-Kl-znU" id="oE0-Gx-bO1"/>
                         <outlet property="skipThis" destination="UG0-be-ppf" id="sOr-GW-f6Q"/>
                         <outlet property="toPronounce" destination="5ph-Ed-wgR" id="yDR-o8-4wi"/>
@@ -136,13 +141,68 @@
                     <view key="view" contentMode="scaleToFill" id="fan-rZ-8nx">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ybW-wP-R93">
+                                <rect key="frame" x="140" y="133" width="134" height="56"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Quick Start"/>
+                                <connections>
+                                    <segue destination="BYZ-38-t0r" kind="presentation" identifier="sequeMainMenuToQuickStart" modalPresentationStyle="fullScreen" id="NDA-l4-L4s"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xDm-nd-Grt">
+                                <rect key="frame" x="140" y="205" width="134" height="53"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Study Focus"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="895-SQ-zCp">
+                                <rect key="frame" x="140" y="467" width="134" height="53"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Progress"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c1Q-ZA-JxD">
+                                <rect key="frame" x="140" y="328" width="134" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="-About You"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bYT-xk-Hp4">
+                                <rect key="frame" x="140" y="371" width="134" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="-Phrases"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LUb-rW-sKe">
+                                <rect key="frame" x="140" y="414" width="134" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="-Words"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Add Content:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dtW-Yn-SQL">
+                                <rect key="frame" x="149" y="288" width="116" height="46"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GLK-Nv-28N">
+                                <rect key="frame" x="140" y="539" width="134" height="53"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Settings"/>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="nTw-39-UpJ"/>
                     </view>
+                    <navigationItem key="navigationItem" id="fgP-h0-9E8"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zxt-gR-wyO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="752" y="20"/>
+            <point key="canvasLocation" x="750.72463768115949" y="19.419642857142858"/>
         </scene>
     </scenes>
 </document>

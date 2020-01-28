@@ -21,6 +21,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
     @IBOutlet weak var skipThis: UIButton!
     @IBOutlet weak var buttonPinyinToggle: UIButton!
     @IBOutlet weak var toPronouncePinyin: UILabel!
+    @IBOutlet weak var mainMenuButton: UIButton!
     
     //TODO review all these variables to see if they are actually needed
     var translationValue = 0
@@ -29,6 +30,9 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
     var pronouncedSoFar = ""
     
     var mainManagement: MainManagement!
+    
+    var runUnitTests: Bool = true // Will be set to false by ViewMainMenuController
+    var quickStartDbmHold: DatabaseManagement! = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,11 +69,16 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
             buttonTextUpdate: self.buttonTextUpdate,
             skipThis: self.skipThis,
             pinyinToggleButton: self.buttonPinyinToggle,
-            dueProgress: self.phrasesDue
+            dueProgress: self.phrasesDue,
+            quickStartDbmHold: quickStartDbmHold
         )
         
         do {
-            try mainManagement.runUnitTests()
+            if runUnitTests {
+                try mainManagement.runUnitTests()
+            } else {
+                print("Skipped MainManagement Unit Tests")
+            }
         } catch {
             print("Function: \(#file):\(#line), Error: \(error)")
             exit(1)
@@ -145,7 +154,18 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         
         
     }
-
+    
+    @IBAction func goToMainMenu(_ sender: Any) {
+        performSegue(withIdentifier: "sequeQuickStartToMainMenuV2",
+        
+                     sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        var viewMainMenuController = segue.destination as! ViewMainController
+        viewMainMenuController.quickStartDbmHold = self.mainManagement.transcription.dbm
+    }
+    
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true)
     }
