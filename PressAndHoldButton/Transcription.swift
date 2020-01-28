@@ -27,7 +27,8 @@ class Transcription {
     ]
     
     init(updateUi: UiUpdate,
-         quickStartDbmHold: DatabaseManagement!) {
+         quickStartDbmHold: DatabaseManagement!,
+         quickStartNextLangDispHold: String!) {
         self.updateUi = updateUi
         
         if quickStartDbmHold == nil {
@@ -35,9 +36,17 @@ class Transcription {
         } else {
             self.dbm = quickStartDbmHold
         }
+        
+        let firstLangDisp: String!
+        if quickStartNextLangDispHold == nil {
+            firstLangDisp = LanguageDisplayed.MandarinSimplified.rawValue
+        } else {
+            firstLangDisp = quickStartNextLangDispHold
+        }
+        
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName,
-                                                         dispLang: LanguageDisplayed.MandarinSimplified.rawValue)
-        self.updateUi.updateUiWithTranslation(currentTranslation)
+                                                         dispLang: firstLangDisp)
+        self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: currentTranslation)
     }
     
     func mostRecentTranscription(_ transcribed: String) {

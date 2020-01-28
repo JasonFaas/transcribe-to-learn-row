@@ -23,7 +23,8 @@ class MainManagement {
          skipThis: UIButton,
          pinyinToggleButton: UIButton,
          dueProgress: UILabel,
-         quickStartDbmHold: DatabaseManagement!) {
+         quickStartDbmHold: DatabaseManagement!,
+         quickStartNextLangDispHold: String!) {
         self.updateUi = UiUpdate(feedbackLabel: feedbackLabel,
                                  toPronounceHanzi: toPronounceHanzi,
                                  toPronouncePinyin: toPronouncePinyin,
@@ -32,7 +33,8 @@ class MainManagement {
                                  pinyinToggleButton: pinyinToggleButton,
                                  dueProgress: dueProgress)
         self.transcription = Transcription(updateUi: self.updateUi,
-                                           quickStartDbmHold: quickStartDbmHold)
+                                           quickStartDbmHold: quickStartDbmHold,
+                                           quickStartNextLangDispHold: quickStartNextLangDispHold)
         self.recording = Recording(translation: transcription)
     }
     

@@ -55,11 +55,6 @@ class UiUpdate {
         self.pinyinToggleButton.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)
         self.toPronouncePinyin.isHidden = !self.pinyinOn
     }
-
-    func updateUiWithTranslation(_ dbTranslation: DbTranslation) {
-        self._setHanziField(dbTranslation.getHanzi())
-        self._setPinyinField(dbTranslation.getPinyin())
-    }
     
     func _setHanziField(_ hanzi: String) {
         self.toPronounceHanzi.text = hanzi
@@ -71,12 +66,12 @@ class UiUpdate {
     }
     
     func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
+        _setPinyinField(quizInfo.getPinyin())
+        
         if quizInfo.getLanguageToDisplay() == LanguageDisplayed.MandarinSimplified.rawValue {
-            self.toPronounceHanzi.text = quizInfo.getHanzi()
-            self.toPronouncePinyin.text = quizInfo.getPinyin()
+            _setHanziField(quizInfo.getHanzi())
         } else {
-            self.toPronounceHanzi.text = quizInfo.getEnglish()
-            self.toPronouncePinyin.text = quizInfo.getPinyin()
+            _setHanziField(quizInfo.getEnglish())
         }
     }
     

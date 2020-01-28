@@ -11,6 +11,7 @@ import UIKit
 class ViewMainController: UIViewController {
     
     var quickStartDbmHold: DatabaseManagement!
+    var quickStartNextLangDispHold: String!
     
 //    init() {
 //        qu
@@ -33,6 +34,7 @@ class ViewMainController: UIViewController {
        
         viewQuickStartController.runUnitTests = false
         viewQuickStartController.quickStartDbmHold = self.quickStartDbmHold
+        viewQuickStartController.quickStartNextLangDispHold = self.quickStartNextLangDispHold
     }
 
 }

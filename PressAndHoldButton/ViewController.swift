@@ -32,7 +32,8 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
     var mainManagement: MainManagement!
     
     var runUnitTests: Bool = true // Will be set to false by ViewMainMenuController
-    var quickStartDbmHold: DatabaseManagement! = nil
+    var quickStartDbmHold: DatabaseManagement!
+    var quickStartNextLangDispHold: String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,7 +71,8 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
             skipThis: self.skipThis,
             pinyinToggleButton: self.buttonPinyinToggle,
             dueProgress: self.phrasesDue,
-            quickStartDbmHold: quickStartDbmHold
+            quickStartDbmHold: quickStartDbmHold,
+            quickStartNextLangDispHold: quickStartNextLangDispHold
         )
         
         do {
@@ -164,6 +166,9 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         var viewMainMenuController = segue.destination as! ViewMainController
         viewMainMenuController.quickStartDbmHold = self.mainManagement.transcription.dbm
+        viewMainMenuController.quickStartNextLangDispHold = self.mainManagement.transcription.currentTranslation.getLanguageToDisplay()
+        
+        print("JAF\nJAF\n\(self.mainManagement.transcription.currentTranslation.getLanguageToDisplay())")
     }
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
