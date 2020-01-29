@@ -25,10 +25,16 @@ class TestTranscription {
                                                               "bcd"])
         assert(self.cut.putTogetherNestedPinyins([["a","b"],[],["d"]]) == [])
         
-        assert(self.cut.isTranscriptionCorrect("什么", "什么"))
-        assert(!self.cut.isTranscriptionCorrect("他受什么", "她说什么"))
-        assert(self.cut.isTranscriptionCorrect("他说什么", "她说什么"))
-        assert(self.cut.isTranscriptionCorrect("她们对于过敏", "他们对鱼过敏"))
+        assert(self.cut.isTranscriptionCorrect(transcription: "什么",
+                                               expected: "什么"))
+        assert(!self.cut.isTranscriptionCorrect(transcription: "他受什么",
+                                                expected: "她说什么"))
+        assert(self.cut.isTranscriptionCorrect(transcription: "他说什么",
+                                               expected: "她说什么"))
+        assert(self.cut.isTranscriptionCorrect(transcription: "她们对于过敏",
+                                               expected: "他们对鱼过敏"))
+        assert(self.cut.isTranscriptionCorrect(transcription: "我有10,502个苹果",
+                                               expected: "我有10502个苹果"))
     }
     
 }

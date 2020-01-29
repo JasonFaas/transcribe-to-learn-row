@@ -68,14 +68,18 @@ class Transcription {
     func gradeTranscription() {
         self.attempts += 1
         
-        if self.isTranscriptionCorrect(self.lastTranscription, self.currentTranslation.getHanzi()) {
+        if self.isTranscriptionCorrect(
+            transcription: self.lastTranscription,
+            expected: self.currentTranslation.getHanzi()) {
             self.correctPronunciation()
         } else {
             self.updateUi.enableSkip()
         }
     }
     
-    func isTranscriptionCorrect(_ transcription: String, _ expected: String) -> Bool {
+    func isTranscriptionCorrect(transcription: String, expected: String) -> Bool {
+        print(transcription)
+        print(expected)
         let expectedClean: String = self.cleanUpTranscribed(expected)
         
         let areLengthsDifferent: Bool = expectedClean.count != transcription.count
