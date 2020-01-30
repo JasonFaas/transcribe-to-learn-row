@@ -50,13 +50,16 @@ class Transcription {
     }
     
     func mostRecentTranscription(_ transcribed: String) {
-        self.lastTranscription = self.cleanUpTranscribed(transcribed)
+        //TODO: Delete legacy if new lastTranscription paradigm working
+//        self.lastTranscription = self.cleanUpTranscribed(transcribed)
+        
+        self.lastTranscription = transcribed
         self.updateUi.updateFeedbackText("Listening... \n\(self.lastTranscription)")
     }
     
     func cleanUpTranscribed(_ transcribed: String) -> String {
         var returnMe = transcribed
-        let charsToRemove = ["。", "！", "？", " ", "，"]
+        let charsToRemove = [",", "。", "！", "？", " ", "，"]
         
         for charToRemove in charsToRemove {
             returnMe = returnMe.replacingOccurrences(of: charToRemove, with: "")
@@ -81,30 +84,31 @@ class Transcription {
         print(transcription)
         print(expected)
         let expectedClean: String = self.cleanUpTranscribed(expected)
+        let transcriptionClean: String = self.cleanUpTranscribed(transcription)
         
-        let areLengthsDifferent: Bool = expectedClean.count != transcription.count
+        let areLengthsDifferent: Bool = expectedClean.count != transcriptionClean.count
         if areLengthsDifferent {
             return false
         }
-        let areStringsSame: Bool = transcription == expectedClean
+        let areStringsSame: Bool = transcriptionClean == expectedClean
         if areStringsSame {
             return true
         }
         
-        for i in 0 ..< transcription.count {
-            if transcription[i] == expectedClean[i] {
+        for i in 0 ..< transcriptionClean.count {
+            if transcriptionClean[i] == expectedClean[i] {
                 continue
-            } else if !self.dbm.arePinyinSame(transcription[i],
+            } else if !self.dbm.arePinyinSame(transcriptionClean[i],
                                               expectedClean[i]) {
                 var charsAreSame: Bool = false
                 
                 for length in 2...2 {
                     for mod in (-1 * length + 1)...0 {
-                        if i+mod < 0 || i+mod+length > transcription.count {
+                        if i+mod < 0 || i+mod+length > transcriptionClean.count {
                             continue
                         }
                         let extraRange: Range<Int> = i+mod..<i+mod+length
-                        let transcriptionPinyins: [String] = self.dbm.getHskPinyins(transcription[extraRange])
+                        let transcriptionPinyins: [String] = self.dbm.getHskPinyins(transcriptionClean[extraRange])
                         
                         var expectedPinyins: [String] = self.dbm.getHskPinyins(expectedClean[extraRange])
                         

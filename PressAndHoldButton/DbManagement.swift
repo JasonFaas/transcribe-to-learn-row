@@ -24,8 +24,30 @@ class DatabaseManagement {
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
                                               deleteResultsDb: deleteResultDb)
         print("Row Count:")
-        print("\t\(self.getRowsInTable(table: Table(DbTranslation.tableName))) Translations")
+        let translationCount = self.getRowsInTable(table: Table(DbTranslation.tableName))
+        if translationCount <= 0 {
+            print("\n\nWOW BIG ERROR, NO DB PROBABLY\n\n")
+        }
+        print("\t\(translationCount) Translations")
         print("\t\(self.getRowsInTable(table: Table(DbTranslation.tableName + DbResult.nameSuffix))) Results")
+    }
+    
+    func printYourStatement(_ sqlStmt: String) {
+        do {
+        let count = try dbConn.scalar("SELECT count(*) FROM hsk") as! Int64
+        print("JAF \(count)")
+        
+        let stmt = try dbConn.prepare("SELECT id, Hanzi FROM hsk")
+        for row in stmt {
+            for (index, name) in stmt.columnNames.enumerated() {
+                print("JAF_2 \(name):\(row[index]!)")
+                // id: Optional(1), email: Optional("alice@mac.com")
+            }
+        }
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+        }
+        
     }
     
     func printAllResultsTable(rTableName: String = DbTranslation.tableName + DbResult.nameSuffix) {
