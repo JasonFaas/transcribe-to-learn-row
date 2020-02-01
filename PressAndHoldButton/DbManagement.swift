@@ -67,7 +67,6 @@ class DatabaseManagement {
         do {
             dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: Date(), dispLang: dispLang)
             print("Srsly - good DueDate Return")
-            self.printAllResultsTable()
         } catch {
             do {
                 dbTranslation = try self.getEasiestUnansweredTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dispLang: dispLang)
@@ -293,11 +292,28 @@ class DatabaseManagement {
                    attempts: Int) {
         let languageDisplayed = quizInfo.getLanguageToDisplay() // or english
         let languagePronounced = "Mandarin" // always
-        var pronunciationHelp = "Off"
-        if pinyinOn {
-            pronunciationHelp = "On"
-        }
+        let pronunciationHelp = pinyinOn ? "On" : "Off"
 
+        // Logging words that were spoken
+        if letterGrade == "B" || letterGrade == "A" {
+            print("\nJAF Wanting to log \(quizInfo.getHanzi())")
+            
+            // TODO: hanzi.split(" ")
+            
+            // TODO: log to new database with columns "id", "hsk_fk", "date_last", "date_first", "total_count"
+            
+            // If group does not have single hsk entry, look up each character individually, if ALL have an hsk reference, then they all get in, otherwise the group is added as not have hsk_fkx
+            
+            let words: [String] = quizInfo.getHanzi().components(separatedBy: " ")
+            for word in words {
+                print("\t\(word)")
+                for idx in 0..<word.count {
+                    print("\t\t\(word[idx])")
+                }
+            }
+        }
+        
+        // Logging Result Rows
         let resultTableName = DbTranslation.tableName + DbResult.nameSuffix
         do {
             let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,

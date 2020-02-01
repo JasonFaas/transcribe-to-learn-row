@@ -81,8 +81,6 @@ class Transcription {
     }
     
     func isTranscriptionCorrect(transcription: String, expected: String) -> Bool {
-        print(transcription)
-        print(expected)
         let expectedClean: String = self.cleanUpTranscribed(expected)
         let transcriptionClean: String = self.cleanUpTranscribed(transcription)
         
