@@ -33,7 +33,7 @@ class DbLogWords {
             t.column(DbLogWords.date_created, defaultValue: Date()) // TODO: Verify new date in all of them
 
             t.foreignKey(DbLogWords.hsk_fk,
-                         references: Table(DbTranslation.hskTableName), DbTranslation.id)
+                         references: DbTranslation.hskTable, DbTranslation.id)
         }
     }
     

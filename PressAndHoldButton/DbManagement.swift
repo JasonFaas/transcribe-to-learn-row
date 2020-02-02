@@ -61,6 +61,23 @@ class DatabaseManagement {
         }
     }
     
+    func printAllLogWordsTable() {
+        do {
+            let count = try dbConn.scalar("SELECT count(*) FROM Log_Words") as! Int64
+            print("JAF Log_Words \(count)")
+            
+            for logResultsRow in try self.dbConn.prepare(DbLogWords.table) {
+                print("\(logResultsRow[DbLogWords.id])")
+                print("\t\(logResultsRow[DbLogWords.hsk_fk] ?? -1)")
+                print("\t\(logResultsRow[DbLogWords.count])")
+                print("\t\(logResultsRow[DbLogWords.date_updated])")
+                print("\t\(logResultsRow[DbLogWords.date_created])")
+            }
+        } catch {
+            print("Why is there nothing to print???")
+        }
+    }
+    
     func getNextPhrase(tTableName: String, idExclude: Int = -1, fk_ref: Int = -1, excludeEnglishVal: String = "", dispLang: String) -> DbTranslation {
         var dbTranslation: DbTranslation!
         
@@ -285,6 +302,60 @@ class DatabaseManagement {
         return DbResult(dbRow: what)
     }
     
+    func getHskIdFromHanzi(_ hanzi: String) throws -> Int {
+        let hskRow: Row! = try self.dbConn.pluck(DbTranslation.hskTable.select(DbTranslation.id).filter(DbTranslation.hanzi == hanzi))
+        if hskRow == nil {
+            throw "Hanzi does not exist \(hanzi)"
+        } else {
+            let hskId = hskRow[DbTranslation.id]
+            return hskId
+        }
+    }
+    
+    func logSpokenProgress(_ quizInfo: DbTranslation) {
+        print("\nJAF Wanting to log \(quizInfo.getHanzi())")
+        
+        let hanziWords: [String] = quizInfo.getHanzi().components(separatedBy: " ")
+        let pinyinWords: [String] = quizInfo.getPinyin().components(separatedBy: " ")
+        for idx in 0..<hanziWords.count {
+            let hanziWord = hanziWords[idx]
+            do {
+//                    print("\t\(word)")
+                // IF     Words has HSK entry then log
+                let hskId = try self.getHskIdFromHanzi(hanziWord)
+                self.logWordsSpoken(hskWordId: hskId)
+            } catch {
+                do {
+                    // TODO: ELIF   ALL chars have an hsk reference, then they all get in individually
+                    var hskIds: [Int] = []
+                    for idx in 0..<hanziWord.count {
+                        let hanziChar = hanziWord[idx]
+//                            print("\t\t\(word[idx])")
+                        hskIds.append(try self.getHskIdFromHanzi(hanziChar))
+                    }
+                 
+                    for hskId in hskIds {
+                        self.logWordsSpoken(hskWordId: hskId)
+                    }
+                } catch {
+                    // ELSE   Create new HSK_8 reference and log group
+                    do {
+                        let hskInsert = DbTranslation.hskTable.insert(DbTranslation.hanzi <- hanziWord,
+                                                                      DbTranslation.pinyin <- pinyinWords[idx],
+                                                                      DbTranslation.difficulty <- 8)
+                        try self.dbConn.run(hskInsert)
+                        print("HSK not found for \(hanziWord)")
+                    } catch {
+                        print("Function: \(#function):\(#line), Error: \(error) - HSK_8 failed \(hanziWord)")
+                    }
+                    
+                }
+            }
+        }
+        
+        self.printAllLogWordsTable()
+    }
+    
     // TODO: Verify if no DB
     func logResult(letterGrade: String,
                    quizInfo: DbTranslation,
@@ -296,28 +367,7 @@ class DatabaseManagement {
 
         // Logging words that were spoken
         if letterGrade == "B" || letterGrade == "A" {
-            print("\nJAF Wanting to log \(quizInfo.getHanzi())")
-            
-            // TODO: hanzi.split(" ")
-            
-            // TODO: log to new database with columns "id", "hsk_fk", "date_last", "date_first", "total_count"
-            
-            // TODO: IF     Words has HSK entry log
-            // TODO: ELIF   ALL chars have an hsk reference, then they all get in individually
-            // TODO: ELSE   Create new HSK reference and log group
-            
-            
-            
-            let words: [String] = quizInfo.getHanzi().components(separatedBy: " ")
-            for word in words {
-                do {
-                    print("\t\(word)")
-                } catch {
-                    for idx in 0..<word.count {
-                        print("\t\t\(word[idx])")
-                    }
-                }
-            }
+            logSpokenProgress(quizInfo)
         }
         
         // Logging Result Rows
@@ -428,7 +478,7 @@ class DatabaseManagement {
     
     // TODO: Verify if no DB
     func getHskPinyins(_ transcription: String) -> [String] {
-        let transcriptionQuery = Table(DbTranslation.hskTableName).filter(DbTranslation.hanzi == transcription)
+        let transcriptionQuery = DbTranslation.hskTable.filter(DbTranslation.hanzi == transcription)
         let transcriptionRow: Row!
         do {
             transcriptionRow = try self.dbConn.pluck(transcriptionQuery)
@@ -450,18 +500,38 @@ class DatabaseManagement {
         return transcriptionPinyins
     }
     
-    func logWordsSpoken(hskWordId: Int) throws {
-        try self.dbConn.run(DbLogWords.tableCreationString())
-        
+    func logWordsSpoken(hskWordId: Int) {
         do {
-            let update = DbLogWords.table.filter(DbLogWords.hsk_fk == hskWordId)
-                                          .update(DbLogWords.count += 1,
-                                                  DbLogWords.date_updated <- Date())
-            try self.dbConn.run(update)
+            print("A")
+            try self.dbConn.run(DbLogWords.tableCreationString())
+            
+            print("B")
+            do {
+                let update = DbLogWords.table.filter(DbLogWords.hsk_fk == hskWordId)
+                                              .update(DbLogWords.count += 1,
+                                                      DbLogWords.date_updated <- Date())
+
+                print("C")
+                try self.dbConn.run(update)
+
+                print("D")
+            } catch {
+                do {
+
+                    print("E")
+                    let insert = DbLogWords.table.insert(DbLogWords.hsk_fk <- hskWordId,
+                                                         DbLogWords.date_updated <- Date())
+                    
+                    try self.dbConn.run(insert)
+
+                    print("F")
+                } catch {
+                    print("Function: \(#function):\(#line), Error: \(error) \(hskWordId)")
+                    print("\n\nLogWordsSpoken should NEVER fail\n\n")
+                }
+            }
         } catch {
-            let insert = DbLogWords.table.insert(DbLogWords.hsk_fk <- hskWordId,
-                                                 DbLogWords.date_updated <- Date())
-            try self.dbConn.run(insert)
+            print("Function: \(#function):\(#line), Error: \(error)")
         }
         
     }
