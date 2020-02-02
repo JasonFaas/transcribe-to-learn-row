@@ -13,6 +13,8 @@ import SQLite
 class DbTranslation {
     
     static let tableName: String = "translations"
+    static let hskTableName: String = "hsk"
+    
     static let id = Expression<Int>("id")
     static let blanks = Expression<String>("Blanks")
     static let hanzi = Expression<String>("Hanzi")

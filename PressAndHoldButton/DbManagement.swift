@@ -302,13 +302,20 @@ class DatabaseManagement {
             
             // TODO: log to new database with columns "id", "hsk_fk", "date_last", "date_first", "total_count"
             
-            // If group does not have single hsk entry, look up each character individually, if ALL have an hsk reference, then they all get in, otherwise the group is added as not have hsk_fkx
+            // TODO: IF     Words has HSK entry log
+            // TODO: ELIF   ALL chars have an hsk reference, then they all get in individually
+            // TODO: ELSE   Create new HSK reference and log group
+            
+            
             
             let words: [String] = quizInfo.getHanzi().components(separatedBy: " ")
             for word in words {
-                print("\t\(word)")
-                for idx in 0..<word.count {
-                    print("\t\t\(word[idx])")
+                do {
+                    print("\t\(word)")
+                } catch {
+                    for idx in 0..<word.count {
+                        print("\t\t\(word[idx])")
+                    }
                 }
             }
         }
@@ -421,7 +428,7 @@ class DatabaseManagement {
     
     // TODO: Verify if no DB
     func getHskPinyins(_ transcription: String) -> [String] {
-        let transcriptionQuery = Table("hsk").filter(DbTranslation.hanzi == transcription)
+        let transcriptionQuery = Table(DbTranslation.hskTableName).filter(DbTranslation.hanzi == transcription)
         let transcriptionRow: Row!
         do {
             transcriptionRow = try self.dbConn.pluck(transcriptionQuery)
@@ -441,6 +448,22 @@ class DatabaseManagement {
             transcriptionPinyins.append(transcriptionTranslation.get2ndPinyin())
         }
         return transcriptionPinyins
+    }
+    
+    func logWordsSpoken(hskWordId: Int) throws {
+        try self.dbConn.run(DbLogWords.tableCreationString())
+        
+        do {
+            let update = DbLogWords.table.filter(DbLogWords.hsk_fk == hskWordId)
+                                          .update(DbLogWords.count += 1,
+                                                  DbLogWords.date_updated <- Date())
+            try self.dbConn.run(update)
+        } catch {
+            let insert = DbLogWords.table.insert(DbLogWords.hsk_fk <- hskWordId,
+                                                 DbLogWords.date_updated <- Date())
+            try self.dbConn.run(insert)
+        }
+        
     }
     
     // TODO: Verify if no DB
