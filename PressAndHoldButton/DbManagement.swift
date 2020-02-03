@@ -408,7 +408,7 @@ class DatabaseManagement {
 
         // Logging words that were spoken
         if letterGrade == "B" || letterGrade == "A" {
-            logSpokenProgress(quizInfo)
+            logSpokenProgressWhole(quizInfo)
         }
         
         // Logging Result Rows
