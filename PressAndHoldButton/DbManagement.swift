@@ -504,26 +504,13 @@ class DatabaseManagement {
         do {
             print("A")
             try self.dbConn.run(DbLogWords.tableCreationString())
-            
             print("B")
             do {
-                let update = DbLogWords.table.filter(DbLogWords.hsk_fk == hskWordId)
-                                              .update(DbLogWords.count += 1,
-                                                      DbLogWords.date_updated <- Date())
-
-                print("C")
-                try self.dbConn.run(update)
-
+                try self.dbConn.run(DbLogWords.getInsert(hskWordId: hskWordId))
                 print("D")
             } catch {
                 do {
-
-                    print("E")
-                    let insert = DbLogWords.table.insert(DbLogWords.hsk_fk <- hskWordId,
-                                                         DbLogWords.date_updated <- Date())
-                    
-                    try self.dbConn.run(insert)
-
+                    try self.dbConn.run(DbLogWords.getUpdate(hskWordId: hskWordId))
                     print("F")
                 } catch {
                     print("Function: \(#function):\(#line), Error: \(error) \(hskWordId)")
@@ -533,7 +520,6 @@ class DatabaseManagement {
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
         }
-        
     }
     
     // TODO: Verify if no DB

@@ -8,10 +8,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--View Quick Start Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="PressAndHoldButton" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewQuickStartController" customModule="PressAndHoldButton" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -132,7 +132,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="47.826086956521742" y="19.419642857142858"/>
+            <point key="canvasLocation" x="-514" y="-709"/>
         </scene>
         <!--View Main Controller-->
         <scene sceneID="KbM-oW-YN2">
@@ -162,6 +162,10 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Progress"/>
+                                <connections>
+                                    <action selector="goToProgress:" destination="8QL-dL-8QK" eventType="touchUpInside" id="V7H-Pf-2fE"/>
+                                    <segue destination="aWV-xN-f4E" kind="presentation" identifier="segueMainMenuToProgress" modalPresentationStyle="fullScreen" id="ynL-aV-Ffb"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c1Q-ZA-JxD">
                                 <rect key="frame" x="140" y="328" width="134" height="35"/>
@@ -199,10 +203,44 @@
                         <viewLayoutGuide key="safeArea" id="nTw-39-UpJ"/>
                     </view>
                     <navigationItem key="navigationItem" id="fgP-h0-9E8"/>
+                    <connections>
+                        <outlet property="progressBtn" destination="895-SQ-zCp" id="lAb-eJ-Btq"/>
+                        <outlet property="qsButton" destination="ybW-wP-R93" id="v21-5F-3st"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zxt-gR-wyO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="750.72463768115949" y="19.419642857142858"/>
+            <point key="canvasLocation" x="543" y="-709"/>
+        </scene>
+        <!--View Progress Controller-->
+        <scene sceneID="f8T-Df-DYv">
+            <objects>
+                <viewController id="aWV-xN-f4E" customClass="ViewProgressController" customModule="PressAndHoldButton" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ud3-2r-rbQ">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gwj-eX-B3B">
+                                <rect key="frame" x="20" y="47" width="125" height="70"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Main Menu"/>
+                                <connections>
+                                    <action selector="goToMainMenu:" destination="aWV-xN-f4E" eventType="touchUpInside" id="Me5-jX-nhH"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="g0D-xM-rl9"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="vgZ-0O-8CQ"/>
+                    <connections>
+                        <outlet property="goToMainMenu" destination="Gwj-eX-B3B" id="v4w-Og-hYC"/>
+                        <outlet property="mainMenuBtn" destination="Gwj-eX-B3B" id="YrR-65-cgo"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uwi-CO-JHz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1696" y="-709"/>
         </scene>
     </scenes>
 </document>

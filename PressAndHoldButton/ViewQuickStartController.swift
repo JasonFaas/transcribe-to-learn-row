@@ -11,7 +11,7 @@ import Speech
 
 import MessageUI
 
-class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
+class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDelegate {
 
     @IBOutlet weak var phrasesDue: UILabel!
     @IBOutlet weak var devQuickSkip: UIButton!

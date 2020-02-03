@@ -27,14 +27,29 @@ class DbLogWords {
         
         return table.create(ifNotExists: true) { t in
             t.column(DbLogWords.id, primaryKey: true)
-            t.column(DbLogWords.hsk_fk)
+            t.column(DbLogWords.hsk_fk, unique: true)
             t.column(DbLogWords.count, defaultValue: 1)
-            t.column(DbLogWords.date_updated, defaultValue: Date()) // TODO: Verify new date in all of them
-            t.column(DbLogWords.date_created, defaultValue: Date()) // TODO: Verify new date in all of them
+            t.column(DbLogWords.date_updated) // TODO: Verify new date in all of them
+            t.column(DbLogWords.date_created) // TODO: Verify new date in all of them
 
             t.foreignKey(DbLogWords.hsk_fk,
                          references: DbTranslation.hskTable, DbTranslation.id)
         }
+    }
+    
+    static func getInsert(hskWordId: Int) -> Insert {
+        let this_date = Date()
+        let insert = DbLogWords.table.insert(DbLogWords.hsk_fk <- hskWordId,
+                                             DbLogWords.date_updated <- this_date,
+                                             DbLogWords.date_created <- this_date)
+        return insert
+    }
+    
+    static func getUpdate(hskWordId: Int) -> Update {
+        let update = DbLogWords.table.filter(DbLogWords.hsk_fk == hskWordId)
+                                      .update(DbLogWords.count += 1,
+                                              DbLogWords.date_updated <- Date())
+        return update
     }
     
 }
