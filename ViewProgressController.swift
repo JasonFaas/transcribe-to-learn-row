@@ -23,21 +23,17 @@ class ViewProgressController: UIViewController {
         // Do any additional setup after loading the view.
         
         do {
-            // TODO: Print count of hsk 1 words
-            for i in 1 ... 6 {
-                hskCount = try self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable, i)
+            for i in 1 ... 8 {
+                let hskCount = try self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable, i)
 
                 print("HSK_\(i): \(hskCount)")
             }
-            let hsk1Count
-            // TODO: Print count of hsk 2 words
-            let hsk2Count = try self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable, 2)
-            print("HSK_2 \(hsk2Count)")
             
-            // TODO: Print count of logWords of hsk 1
-            let hsk2Count = try self.dbmHold.getLogRowsCountWithDifficulty(2)
-            print("HSK_2 \(hsk2Count)")
-            // TODO: Print count of logWords of hsk 2
+            for i in 1 ... 8 {
+                let hskAnswered = try self.dbmHold.getLogRowsCountWithDifficulty(i)
+                
+                print("HSK_\(i) Answered: \(hskAnswered)")
+            }
         } catch {
             print("Error :(")
         }

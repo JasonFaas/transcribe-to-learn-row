@@ -293,7 +293,22 @@ class DatabaseManagement {
             let tableDiffFilterCount = table
             .filter(DbTranslation.difficulty == difficulty * 10)
             .count
-            print(tableDiffFilterCount)
+            return try self.dbConn.scalar(tableDiffFilterCount)
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+            return 0
+        }
+    }
+     
+    // TODO: Verify if no DB
+    func getLogRowsCountWithDifficulty(_ difficulty: Int) -> Int {
+        do {
+            let lTable: Table = DbLogWords.table
+            let tTable: Table = DbTranslation.hskTable
+            let tableDiffFilterCount = lTable
+                .join(tTable, on: lTable[DbLogWords.hsk_fk] == tTable[DbTranslation.id])
+                .filter(DbTranslation.difficulty == difficulty * 10)
+                .count
             return try self.dbConn.scalar(tableDiffFilterCount)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)")
