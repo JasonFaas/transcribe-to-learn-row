@@ -161,7 +161,7 @@ class DatabaseManagement {
     
     // TODO: Verify if no DB
     func getResultDueAfterMarginCount(rTableName: String, hoursFromNow: Int = 10) throws -> Int {
-        let futureDate: Date = self.getDateHoursFromNow(minutesAhead: hoursFromNow * 60)
+        let futureDate: Date = DateMath.getDateHoursFromNow(minutesAhead: hoursFromNow * 60)
         
         let selectResult = Table(rTableName).select(DbResult.translation_fk,
                                                     DbResult.language_displayed)
@@ -404,7 +404,7 @@ class DatabaseManagement {
             let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
                                                             languageDisplayed: languageDisplayed,
                                                             translationId: quizInfo.getId())
-            let newDueDate: Date = self.getUpdatedDueDate(newGrade: letterGrade,
+            let newDueDate: Date = DateMath.getUpdatedDueDate(newGrade: letterGrade,
                                                           lastGrade: resultRow.getLastGrade(),
                                                           lastDate: resultRow.getLastUpdatedDate())
             let update: Update = DbResult.getUpdate(tableName: resultTableName,
@@ -423,7 +423,7 @@ class DatabaseManagement {
                 let answeredInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: quizInfo.getId(),
-                               due_date: self.getNewDueDate(grade: letterGrade),
+                               due_date: DateMath.getNewDueDate(grade: letterGrade),
                                letterGrade: letterGrade,
                                languageDisplayed: languageDisplayed,
                                pronunciationHelp: pronunciationHelp,
@@ -432,7 +432,7 @@ class DatabaseManagement {
                 let otherLangInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: quizInfo.getId(),
-                               due_date: self.getNewDueDate(grade: "5"),
+                               due_date: DateMath.getNewDueDate(grade: "5"),
                                letterGrade: "C",
                                languageDisplayed: newOtherLanguage,
                                pronunciationHelp: "Off",
@@ -444,58 +444,6 @@ class DatabaseManagement {
                 print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
             }
         }
-    }
-    
-    // TODO: Verify if no DB
-    func getNewDueDate(grade: String) -> Date {
-        
-        let generalDateAdding: [String: Int] = [
-            "A": 60 * 24,
-            "B": 60 * 4,
-            "C": 60 * 1,
-            "D": 60 / 4,
-            "F": 60 / 16,
-        ]
-        
-        let minutesAhead: Int = generalDateAdding[grade, default: Int(grade) ?? 1]
-        let dueDate: Date = self.getDateHoursFromNow(minutesAhead: minutesAhead)
-        
-        return dueDate
-    }
-    
-    // TODO: Verify if no DB
-    func getDateHoursFromNow(minutesAhead: Int) -> Date {
-        let now: Date = Date()
-        let calendar: Calendar = Calendar.current
-        
-        let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: minutesAhead, second: nil, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
-        let dueDate: Date = calendar.date(byAdding: interval, to: now)!
-        return dueDate
-    }
-    
-    // TODO: Verify if no DB
-    func getUpdatedDueDate(newGrade: String,
-                           lastGrade: String,
-                           lastDate: Date) -> Date {
-        
-        let generalDateAdding: [String: Float] = [
-            "A": 2.0,
-            "B": 1.0,
-            "C": 0.5,
-            "D": 0.25,
-            "F": 0.125,
-        ]
-        let now: Date = Date()
-        let calendar: Calendar = Calendar.current
-        let dateComponents = calendar.dateComponents([Calendar.Component.second],
-                                                     from: lastDate,
-                                                     to: now)
-        let seconds: Int = Int(Float(dateComponents.second!) * generalDateAdding[newGrade, default: 0.01])
-        
-        let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: nil, second: seconds, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
-        let dueDate: Date = calendar.date(byAdding: interval, to: now)!
-        
-        return dueDate
     }
     
     // TODO: Verify if no DB
@@ -530,16 +478,13 @@ class DatabaseManagement {
     
     func logWordsSpoken(hskWordId: Int) {
         do {
-            print("A")
             try self.dbConn.run(DbLogWords.tableCreationString())
-            print("B")
+            
             do {
                 try self.dbConn.run(DbLogWords.getInsert(hskWordId: hskWordId))
-                print("D")
             } catch {
                 do {
                     try self.dbConn.run(DbLogWords.getUpdate(hskWordId: hskWordId))
-                    print("F")
                 } catch {
                     print("Function: \(#function):\(#line), Error: \(error) \(hskWordId)")
                     print("\n\nLogWordsSpoken should NEVER fail\n\n")

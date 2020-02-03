@@ -51,7 +51,7 @@ class TestDbManagement {
         let newEnglishInsert: Insert = DbResult
             .getInsert(tableName: commonTableName + DbResult.nameSuffix,
                        fk: jasonFaasTranslation.getId(),
-                       due_date: self.dbm.getDateHoursFromNow(minutesAhead: -60 * 2),
+                       due_date: DateMath.getDateHoursFromNow(minutesAhead: -60 * 2),
                        letterGrade: "C",
                        languageDisplayed: dispLang,
                        pronunciationHelp: "Off",
@@ -69,7 +69,7 @@ class TestDbManagement {
         let englishUpdate = DbResult.getUpdate(tableName: commonTableName + DbResult.nameSuffix,
         fk: jasonFaasTranslation.getId(),
         langDisp: LanguageDisplayed.English.rawValue,
-        newDueDate: self.dbm.getDateHoursFromNow(minutesAhead: 60*24*365*10),
+        newDueDate: DateMath.getDateHoursFromNow(minutesAhead: 60*24*365*10),
         letterGrade: "C",
         pronunciationHelp: "Off")
         
