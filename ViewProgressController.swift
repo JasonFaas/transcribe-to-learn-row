@@ -24,16 +24,17 @@ class ViewProgressController: UIViewController {
         
         do {
             for i in 1 ... 8 {
-                let hskCount = try self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable, i)
+                let hskCount = self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable, i)
 
                 print("HSK_\(i): \(hskCount)")
             }
             
             for i in 1 ... 8 {
-                let hskAnswered = try self.dbmHold.getLogRowsCountWithDifficulty(i)
+                let hskAnswered = self.dbmHold.getLogRowsCountWithDifficulty(i)
                 
                 print("HSK_\(i) Answered: \(hskAnswered)")
             }
+            dbmHold.printAllLogWordsTable()
         } catch {
             print("Error :(")
         }
