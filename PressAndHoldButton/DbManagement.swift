@@ -145,7 +145,7 @@ class DatabaseManagement {
     func getCountDueTotal(tTableName: String, hoursFromNow: Int = 0) -> Int {
         var returnCount: Int = 0
         do {
-            returnCount += try self.getDueNowCount(rTableName: tTableName + DbResult.nameSuffix,
+            returnCount += try self.getResultDueAfterMarginCount(rTableName: tTableName + DbResult.nameSuffix,
                                                    hoursFromNow: hoursFromNow)
             if hoursFromNow == 0 {
                 returnCount += try self.getUnansweredCount(tTableName: tTableName)
@@ -160,12 +160,12 @@ class DatabaseManagement {
     }
     
     // TODO: Verify if no DB
-    func getDueNowCount(rTableName: String, hoursFromNow: Int = 10) throws -> Int {
+    func getResultDueAfterMarginCount(rTableName: String, hoursFromNow: Int = 10) throws -> Int {
         let futureDate: Date = self.getDateHoursFromNow(minutesAhead: hoursFromNow * 60)
         
         let selectResult = Table(rTableName).select(DbResult.translation_fk,
-                                             DbResult.language_displayed)
-        .filter(DbResult.due_date < futureDate)
+                                                    DbResult.language_displayed)
+                                            .filter(DbResult.due_date < futureDate)
         
         return try self.dbConn.scalar(selectResult.count)
     }
@@ -288,6 +288,20 @@ class DatabaseManagement {
     }
     
     // TODO: Verify if no DB
+    func getRowsInTranslationTableWithDifficulty(_ table: Table, _ difficulty: Int) -> Int {
+        do {
+            let tableDiffFilterCount = table
+            .filter(DbTranslation.difficulty == difficulty * 10)
+            .count
+            print(tableDiffFilterCount)
+            return try self.dbConn.scalar(tableDiffFilterCount)
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+            return 0
+        }
+    }
+    
+    // TODO: Verify if no DB
     func getResultRow(resultTableName: String, languageDisplayed: String, translationId: Int) throws -> DbResult {
         let extractedExpr: Table = Table(resultTableName)
             .filter(DbResult.translation_fk == translationId)
@@ -341,7 +355,7 @@ class DatabaseManagement {
                     do {
                         let hskInsert = DbTranslation.hskTable.insert(DbTranslation.hanzi <- hanziWord,
                                                                       DbTranslation.pinyin <- pinyinWords[idx],
-                                                                      DbTranslation.difficulty <- 8)
+                                                                      DbTranslation.difficulty <- 80)
                         try self.dbConn.run(hskInsert)
                         print("HSK not found for \(hanziWord)")
                     } catch {
