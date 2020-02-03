@@ -157,7 +157,7 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
         
     }
     
-    @IBAction func goToMainMenu(_ sender: Any) {
+    @IBAction func goToMainMenuFromQuickStart(_ sender: Any) {
         performSegue(withIdentifier: "sequeQuickStartToMainMenuV2",
         
                      sender: self)
@@ -165,10 +165,8 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         var viewMainMenuController = segue.destination as! ViewMainController
-        viewMainMenuController.quickStartDbmHold = self.mainManagement.transcription.dbm
-        viewMainMenuController.quickStartNextLangDispHold = self.mainManagement.transcription.currentTranslation.getLanguageToDisplay()
-        
-        print("JAF\nJAF\n\(self.mainManagement.transcription.currentTranslation.getLanguageToDisplay())")
+        viewMainMenuController.dbmHold = self.mainManagement.transcription.dbm
+        viewMainMenuController.nextLangDispHold = self.mainManagement.transcription.currentTranslation.getLanguageToDisplay()
     }
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {

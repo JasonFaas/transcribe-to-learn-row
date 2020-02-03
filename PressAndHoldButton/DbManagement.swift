@@ -83,7 +83,6 @@ class DatabaseManagement {
         
         do {
             dbTranslation = try self.getTranslationByResultDueDate(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dueDateDelimiter: Date(), dispLang: dispLang)
-            print("Srsly - good DueDate Return")
         } catch {
             do {
                 dbTranslation = try self.getEasiestUnansweredTranslation(tTableName: tTableName, tIdExclude: idExclude, t_to_t_fkRef: fk_ref, excludeEnglishVal: excludeEnglishVal, dispLang: dispLang)

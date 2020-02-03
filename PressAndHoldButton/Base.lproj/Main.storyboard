@@ -97,7 +97,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Main Menu"/>
                                 <connections>
-                                    <action selector="goToMainMenu:" destination="BYZ-38-t0r" eventType="touchUpInside" id="llH-LP-UMR"/>
+                                    <action selector="goToMainMenuFromQuickStart:" destination="BYZ-38-t0r" eventType="touchUpInside" id="llH-LP-UMR"/>
                                     <segue destination="8QL-dL-8QK" kind="presentation" identifier="sequeQuickStartToMainMenuV2" modalPresentationStyle="fullScreen" id="lrN-7u-jgo"/>
                                 </connections>
                             </button>
@@ -163,7 +163,6 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Progress"/>
                                 <connections>
-                                    <action selector="goToProgress:" destination="8QL-dL-8QK" eventType="touchUpInside" id="V7H-Pf-2fE"/>
                                     <segue destination="aWV-xN-f4E" kind="presentation" identifier="segueMainMenuToProgress" modalPresentationStyle="fullScreen" id="ynL-aV-Ffb"/>
                                 </connections>
                             </button>
@@ -225,7 +224,8 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Main Menu"/>
                                 <connections>
-                                    <action selector="goToMainMenu:" destination="aWV-xN-f4E" eventType="touchUpInside" id="Me5-jX-nhH"/>
+                                    <action selector="goToMainMenuFromProgress:" destination="aWV-xN-f4E" eventType="touchUpInside" id="fjt-ql-acZ"/>
+                                    <segue destination="8QL-dL-8QK" kind="presentation" identifier="sequeProgressToMainMenu" modalPresentationStyle="fullScreen" id="5Rr-vN-FvN"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -234,8 +234,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="vgZ-0O-8CQ"/>
                     <connections>
-                        <outlet property="goToMainMenu" destination="Gwj-eX-B3B" id="v4w-Og-hYC"/>
-                        <outlet property="mainMenuBtn" destination="Gwj-eX-B3B" id="YrR-65-cgo"/>
+                        <outlet property="mainMenuBtn" destination="Gwj-eX-B3B" id="rqL-eq-Msb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uwi-CO-JHz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -243,4 +242,7 @@
             <point key="canvasLocation" x="1696" y="-709"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="5Rr-vN-FvN"/>
+    </inferredMetricsTieBreakers>
 </document>

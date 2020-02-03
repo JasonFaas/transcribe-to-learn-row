@@ -13,8 +13,8 @@ class ViewMainController: UIViewController {
     @IBOutlet weak var progressBtn: UIButton!
     @IBOutlet weak var qsButton: UIButton!
     
-    var quickStartDbmHold: DatabaseManagement!
-    var quickStartNextLangDispHold: String!
+    var dbmHold: DatabaseManagement!
+    var nextLangDispHold: String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,12 +22,12 @@ class ViewMainController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    @IBAction func goToMainMenu(_ sender: Any) {
+    @IBAction func goToQuickStartFromMainMenu(_ sender: Any) {
         performSegue(withIdentifier: "sequeMainMenuToQuickStart",
                      sender: self)
     }
     
-    @IBAction func goToProgress(_ sender: Any) {
+    @IBAction func goToProgressFromMainMenu(_ sender: Any) {
         performSegue(withIdentifier: "segueMainMenuToProgress",
                      sender: self)
     }
@@ -37,16 +37,18 @@ class ViewMainController: UIViewController {
             let senderButton: UIButton = sender as! UIButton
             
             if senderButton == qsButton {
-                 var viewQuickStartController = segue.destination as! ViewQuickStartController
+                print("Hit QS Button in MainMenu")
+                 let viewQuickStartController = segue.destination as! ViewQuickStartController
                 
                  viewQuickStartController.runUnitTests = false
-                 viewQuickStartController.quickStartDbmHold = self.quickStartDbmHold
-                 viewQuickStartController.quickStartNextLangDispHold = self.quickStartNextLangDispHold
+                 viewQuickStartController.quickStartDbmHold = self.dbmHold
+                 viewQuickStartController.quickStartNextLangDispHold = self.nextLangDispHold
             } else if senderButton == progressBtn {
-                var viewProgressController = segue.destination as! ViewProgressController
+                print("Hit Progress Button in MainMenu")
+                let viewProgressController = segue.destination as! ViewProgressController
                 
-                viewProgressController.dbmHold = self.quickStartDbmHold
-                viewProgressController.nextLangDispHold = self.quickStartNextLangDispHold
+                viewProgressController.dbmHold = self.dbmHold
+                viewProgressController.nextLangDispHold = self.nextLangDispHold
             } else {
                 print("Valid Button Not Hit?!!")
             }
