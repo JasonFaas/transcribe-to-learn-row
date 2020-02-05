@@ -228,18 +228,67 @@
                                     <segue destination="8QL-dL-8QK" kind="presentation" identifier="sequeProgressToMainMenu" modalPresentationStyle="fullScreen" id="5Rr-vN-FvN"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h9X-LS-iPB">
+                                <rect key="frame" x="86" y="273" width="237" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Level 3"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DW1-Pk-jFc">
+                                <rect key="frame" x="86" y="347" width="237" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Level 4"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wS8-zU-3UM">
+                                <rect key="frame" x="86" y="420" width="237" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Level 5"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AE3-E6-5CS">
+                                <rect key="frame" x="86" y="486" width="237" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Level 6"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ktk-5f-kjY">
+                                <rect key="frame" x="86" y="552" width="237" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Level 7"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bhK-4B-LKe">
+                                <rect key="frame" x="86" y="209" width="237" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Level 2"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CFD-ti-5Jb">
+                                <rect key="frame" x="86" y="136" width="237" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
+                                <state key="normal" title="Level 1"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="g0D-xM-rl9"/>
                     </view>
                     <navigationItem key="navigationItem" id="vgZ-0O-8CQ"/>
                     <connections>
+                        <outlet property="level1Btn" destination="CFD-ti-5Jb" id="EI0-qL-Au2"/>
+                        <outlet property="level2Btn" destination="bhK-4B-LKe" id="iPW-0m-F1Y"/>
+                        <outlet property="level3Btn" destination="h9X-LS-iPB" id="ufn-EE-D5d"/>
+                        <outlet property="level4Btn" destination="DW1-Pk-jFc" id="MsM-UN-Fod"/>
+                        <outlet property="level5Btn" destination="wS8-zU-3UM" id="Lba-HL-azq"/>
+                        <outlet property="level6Btn" destination="AE3-E6-5CS" id="rMC-yl-lqi"/>
+                        <outlet property="level7Btn" destination="Ktk-5f-kjY" id="6Ej-Th-ryB"/>
                         <outlet property="mainMenuBtn" destination="Gwj-eX-B3B" id="rqL-eq-Msb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uwi-CO-JHz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1696" y="-709"/>
+            <point key="canvasLocation" x="1695.6521739130435" y="-709.15178571428567"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>

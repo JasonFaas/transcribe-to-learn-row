@@ -33,27 +33,25 @@ class ViewMainController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if sender is UIButton {
-            let senderButton: UIButton = sender as! UIButton
+
+        if segue.destination is ViewQuickStartController {
+            print("Hit QS Button in MainMenu")
+            let viewQuickStartController = segue.destination as! ViewQuickStartController
             
-            if senderButton == qsButton {
-                print("Hit QS Button in MainMenu")
-                 let viewQuickStartController = segue.destination as! ViewQuickStartController
-                
-                 viewQuickStartController.runUnitTests = false
-                 viewQuickStartController.quickStartDbmHold = self.dbmHold
-                 viewQuickStartController.quickStartNextLangDispHold = self.nextLangDispHold
-            } else if senderButton == progressBtn {
-                print("Hit Progress Button in MainMenu")
-                let viewProgressController = segue.destination as! ViewProgressController
-                
-                viewProgressController.dbmHold = self.dbmHold
-                viewProgressController.nextLangDispHold = self.nextLangDispHold
-            } else {
-                print("Valid Button Not Hit?!!")
-            }
+            print("is this nil?? \(self.dbmHold == nil)")
+             viewQuickStartController.runUnitTests = false
+             viewQuickStartController.quickStartDbmHold = self.dbmHold
+             viewQuickStartController.quickStartNextLangDispHold = self.nextLangDispHold
+        } else if segue.destination is ViewProgressController {
+            print("Hit Progress Button in MainMenu")
+            let viewProgressController = segue.destination as! ViewProgressController
+            
+            print("is this nil?? \(self.dbmHold == nil)")
+            
+            viewProgressController.dbmHold = self.dbmHold
+            viewProgressController.nextLangDispHold = self.nextLangDispHold
         } else {
-            print("Not a button?!?!")
+            print("Valid Button Not Hit?!!")
         }
     }
 
