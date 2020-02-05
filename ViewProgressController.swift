@@ -21,6 +21,8 @@ class ViewProgressController: UIViewController {
     @IBOutlet weak var level7Btn: UIButton!
     @IBOutlet weak var mainMenuBtn: UIButton!
     
+    var displayLevel: Int = 0
+    
     var dbmHold: DatabaseManagement!
     var nextLangDispHold: String!
     
@@ -48,18 +50,53 @@ class ViewProgressController: UIViewController {
                 allButtons[i]?.setTitle("Level \(i): \(hskPercentage)%", for: .normal)
             }
             
-            for i in 7 ... 8 {
-                let hskCount = self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable,
-                                                                                    i)
-                let hskAnswered = self.dbmHold.getLogRowsCountWithDifficulty(i)
-                
-                print("HSK_\(i) Count: \(hskCount)")
-                print("HSK_\(i) Answered: \(hskAnswered)")
-            }
-            dbmHold.printAllLogWordsTable()
+            let hsk7 = self.dbmHold.getLogRowsCountWithDifficulty(7)
+            let hsk8 = self.dbmHold.getLogRowsCountWithDifficulty(8)
+            
+            allButtons[7]?.setTitle("Level \(7): \(hsk7 + hsk8) Total", for: .normal)
         } catch {
             print("Error :(")
         }
+    }
+    
+    @IBAction func goToLevel1(_ sender: Any) {
+        displayLevel = 1
+        goToLevelDetail(sender)
+    }
+    
+    @IBAction func goToLevel2(_ sender: Any) {
+        displayLevel = 2
+        goToLevelDetail(sender)
+    }
+    
+    @IBAction func goToLevel3(_ sender: Any) {
+        displayLevel = 3
+        goToLevelDetail(sender)
+    }
+    
+    @IBAction func goToLevel4(_ sender: Any) {
+        displayLevel = 4
+        goToLevelDetail(sender)
+    }
+    
+    @IBAction func goToLevel5(_ sender: Any) {
+        displayLevel = 5
+        goToLevelDetail(sender)
+    }
+    
+    @IBAction func goToLevel6(_ sender: Any) {
+        displayLevel = 6
+        goToLevelDetail(sender)
+    }
+    
+    @IBAction func goToLevel7(_ sender: Any) {
+        displayLevel = 7
+        goToLevelDetail(sender)
+    }
+    
+    func goToLevelDetail(_ sender: Any) {
+        performSegue(withIdentifier: "segueProgressToLevelDetail",
+        sender: self)
     }
     
     
@@ -69,17 +106,20 @@ class ViewProgressController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-
         if segue.destination is ViewMainController {
             print("Hit MainMenu Button in Progress")
-             let viewMainController = segue.destination as! ViewMainController
+             let nextController = segue.destination as! ViewMainController
             
-             viewMainController.dbmHold = self.dbmHold
-             viewMainController.nextLangDispHold = self.nextLangDispHold
+             nextController.dbmHold = self.dbmHold
+             nextController.nextLangDispHold = self.nextLangDispHold
+        } else if segue.destination is ViewLevelDetailController {
+             let nextController = segue.destination as! ViewLevelDetailController
+            
+             nextController.dbmHold = self.dbmHold
+             nextController.nextLangDispHold = self.nextLangDispHold
+            nextController.levelToDisplay = self.displayLevel
         } else {
             print("Valid Button Not Hit?!!")
         }
-
     }
 }

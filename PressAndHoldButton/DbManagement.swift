@@ -18,7 +18,7 @@ class DatabaseManagement {
         
         // ENABLE ONLY IF WANTING TO RESET DATABASE
         // TODO: Regularlly turn this to true to verify it still works
-        let copyNewDb: Bool = false
+        let copyNewDb: Bool = true
         let deleteResultDb: Bool = false
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
@@ -499,6 +499,43 @@ class DatabaseManagement {
         } else {
             try self.dbConn.run(DbLogWords.getUpdate(hskWordId: hskWordId))
         }
+    }
+    
+    // TODO: Verify if no DB
+    func getLogWordsAnswered(hskLevel: Int, answered: Bool) throws -> [String] {
+        let tTable = DbTranslation.hskTable
+        let lwTable = DbLogWords.table
+        var statement = tTable
+        
+        if hskLevel <= 60 {
+            statement = statement.filter(DbTranslation.difficulty == hskLevel)
+        } else {
+            statement = statement.filter(DbTranslation.difficulty >= hskLevel)
+        }
+            
+            
+        if answered {
+            statement = statement.join(lwTable, on: tTable[DbTranslation.id] == lwTable[DbLogWords.hsk_fk])
+                
+            
+        } else {
+            statement = statement
+            
+            
+            
+            .join(JoinType.leftOuter, lwTable, on: tTable[DbTranslation.id] == lwTable[DbLogWords.hsk_fk])
+            .filter(lwTable[DbLogWords.hsk_fk] == nil)
+        }
+        
+        
+        var loggedValues:[String] = []
+        for tRow in try self.dbConn.prepare(statement) {
+            let value = tRow[DbTranslation.hanzi]
+            
+            loggedValues.append(value)
+        }
+        
+        return loggedValues
     }
     
     // TODO: Verify if no DB

@@ -233,42 +233,64 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="Level 3"/>
+                                <connections>
+                                    <action selector="goToLevel3:" destination="aWV-xN-f4E" eventType="touchUpInside" id="7hD-U8-qU2"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DW1-Pk-jFc">
                                 <rect key="frame" x="86" y="347" width="237" height="65"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="Level 4"/>
+                                <connections>
+                                    <action selector="goToLevel4:" destination="aWV-xN-f4E" eventType="touchUpInside" id="wZr-iU-Jxf"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wS8-zU-3UM">
                                 <rect key="frame" x="86" y="420" width="237" height="65"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="Level 5"/>
+                                <connections>
+                                    <action selector="goToLevel5:" destination="aWV-xN-f4E" eventType="touchUpInside" id="s9t-lw-MDM"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AE3-E6-5CS">
                                 <rect key="frame" x="86" y="486" width="237" height="65"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="Level 6"/>
+                                <connections>
+                                    <action selector="goToLevel6:" destination="aWV-xN-f4E" eventType="touchUpInside" id="Er2-GU-CJI"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ktk-5f-kjY">
                                 <rect key="frame" x="86" y="552" width="237" height="65"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="Level 7"/>
+                                <connections>
+                                    <action selector="goToLevel7:" destination="aWV-xN-f4E" eventType="touchUpInside" id="czn-sE-Wha"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bhK-4B-LKe">
                                 <rect key="frame" x="86" y="209" width="237" height="65"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="Level 2"/>
+                                <connections>
+                                    <action selector="goToLevel2:" destination="aWV-xN-f4E" eventType="touchUpInside" id="lnC-c4-0vb"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CFD-ti-5Jb">
                                 <rect key="frame" x="86" y="136" width="237" height="65"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="Level 1"/>
+                                <connections>
+                                    <action selector="goToLevel1:" destination="aWV-xN-f4E" eventType="touchUpInside" id="Wtg-Gr-ZG2"/>
+                                    <segue destination="y1h-po-l8Z" kind="presentation" identifier="segueProgressToLevelDetail" modalPresentationStyle="fullScreen" id="AXT-ef-b2H"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
@@ -290,8 +312,54 @@
             </objects>
             <point key="canvasLocation" x="1695.6521739130435" y="-709.15178571428567"/>
         </scene>
+        <!--View Level Detail Controller-->
+        <scene sceneID="cNq-Hx-WUO">
+            <objects>
+                <viewController id="y1h-po-l8Z" customClass="ViewLevelDetailController" customModule="PressAndHoldButton" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="rf1-zm-pgO">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wnp-cO-d6T">
+                                <rect key="frame" x="10" y="44" width="133" height="90"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="MainMenu"/>
+                                <connections>
+                                    <action selector="goToMainMenu:" destination="xgE-2S-D0E" eventType="touchUpInside" id="O40-70-ykq"/>
+                                    <segue destination="aWV-xN-f4E" kind="presentation" identifier="segueLevelDetailToProgress" modalPresentationStyle="fullScreen" id="hrp-l6-JdO"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Stuff" lineBreakMode="tailTruncation" numberOfLines="100" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bUl-nP-5tR">
+                                <rect key="frame" x="43" y="121" width="142" height="702"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Stuff" lineBreakMode="tailTruncation" numberOfLines="100" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YaA-kt-0iB">
+                                <rect key="frame" x="212" y="121" width="142" height="702"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="9Jd-hA-kUB"/>
+                    </view>
+                    <connections>
+                        <outlet property="otherLabel" destination="YaA-kt-0iB" id="KfI-94-ifb"/>
+                        <outlet property="primaryLabel" destination="bUl-nP-5tR" id="w5m-MY-6hs"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4mw-6Z-rwJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="xgE-2S-D0E" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="2747.826086956522" y="-709.15178571428567"/>
+        </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="5Rr-vN-FvN"/>
+        <segue reference="hrp-l6-JdO"/>
+        <segue reference="lrN-7u-jgo"/>
     </inferredMetricsTieBreakers>
 </document>
