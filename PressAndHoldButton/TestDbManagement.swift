@@ -30,6 +30,9 @@ class TestDbManagement {
         self.testBlanksToJsonInDatabaseFk()
         self.testPopulateBlanksDictNumber()
         self.testSpecificAndCompareCountry()
+        self.testConvertHanziToLogSpokenSimpleNumerals()
+        self.testConvertHanziToLogSpokenAdvancedNumerals()
+        self.testConvertHanziToLogSpokenPunctuation()
         
         print("Testing testGetResultNoDueDate")
         try self.testGetResultNoDueDate()
@@ -38,6 +41,38 @@ class TestDbManagement {
         try self.testGetEasiest()
         
         print("All DbManagement Tests PASSED")
+    }
+    
+    func testConvertHanziToLogSpokenSimpleNumerals() {
+        let actual = self.dbm.convertHanziToLogSpoken("你好 1")
+        let expected = "你好 一"
+        assert(actual == expected)
+    }
+    
+    func testConvertHanziToLogSpokenAdvancedNumerals() {
+        var actual = self.dbm.convertHanziToLogSpoken("你好 12")
+        var expected = "你好 一十二"
+        assert(actual == expected)
+        
+        actual = self.dbm.convertHanziToLogSpoken("你好 134")
+        expected = "你好 一百三十四"
+        assert(actual == expected)
+        
+        actual = self.dbm.convertHanziToLogSpoken("你好 1,567")
+        expected = "你好 一千五百六十七"
+        assert(actual == expected)
+        
+        actual = self.dbm.convertHanziToLogSpoken("你好 19,087")
+        expected = "你好 二万零白八十七"
+        assert(actual == expected)
+        
+        //TODO: Numbers beyond 99,999
+    }
+    
+    func testConvertHanziToLogSpokenPunctuation() {
+        let actual = self.dbm.convertHanziToLogSpoken("你,好。 1？")
+        let expected = "你好 一"
+        assert(actual == expected)
     }
     
     func testGetResultNoDueDate() throws {

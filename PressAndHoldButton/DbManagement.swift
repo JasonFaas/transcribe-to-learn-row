@@ -371,10 +371,10 @@ class DatabaseManagement {
         }
     }
     
-    func logSpokenProgressWords(_ quizInfo: DbTranslation) {
+    func logSpokenProgressWords(hanzi: String, pinyinBackup: String) {
 
-        let hanziWords: [String] = quizInfo.getHanzi().components(separatedBy: " ")
-        let pinyinWords: [String] = quizInfo.getPinyin().components(separatedBy: " ")
+        let hanziWords: [String] = hanzi.components(separatedBy: " ")
+        let pinyinWords: [String] = pinyinBackup.components(separatedBy: " ")
         for idx in 0..<hanziWords.count {
             let hanziWord = hanziWords[idx]
             do {
@@ -387,14 +387,21 @@ class DatabaseManagement {
     }
     
     func logSpokenProgressWhole(_ quizInfo: DbTranslation) {
+        let hanziToLogSpoken = self.convertHanziToLogSpoken(quizInfo.getHanzi())
+        
         do {
-            let hskId = try self.getHskIdFromHanzi(quizInfo.getHanzi())
+            let hskId = try self.getHskIdFromHanzi(hanziToLogSpoken)
             try self.logWordsSpoken(hskWordId: hskId)
         } catch {
-            logSpokenProgressWords(quizInfo)
+            logSpokenProgressWords(hanzi: hanziToLogSpoken, pinyinBackup: quizInfo.getPinyin())
         }
+    }
+    
+    func convertHanziToLogSpoken(_ hanzi: String) -> String {
+        //TODO: Use existing removal of puncuation method. Consider moving that to string class
         
-        
+        //TODO: Write this, remove puncuation and arabic numerals
+        return hanzi
     }
     
     // TODO: Verify if no DB

@@ -27,10 +27,13 @@ class ViewLevelDetailController: UIViewController {
         
         do {
             let notAnswered = try self.dbmHold.getLogWordsAnswered(hskLevel: levelToDisplay * 10, answered: false)
-            self.primaryLabel.text = notAnswered.joined(separator: "\n")
+            let notAns: String = notAnswered.joined(separator: "\n")
+            self.primaryLabel.text = "Never Answered\n\n\(notAns)"
+
             
             let yesAnswered = try self.dbmHold.getLogWordsAnswered(hskLevel: levelToDisplay * 10, answered: true)
-            self.otherLabel.text = yesAnswered.joined(separator: "\n")
+            let yesAns = yesAnswered.joined(separator: "\n")
+            self.otherLabel.text = "Answered\n\n\(yesAns)"
         } catch {
             self.primaryLabel.text = "\(error)"
         }
