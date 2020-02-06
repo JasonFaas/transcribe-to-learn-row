@@ -57,17 +57,6 @@ class Transcription {
         self.updateUi.updateFeedbackText("Listening... \n\(self.lastTranscription)")
     }
     
-    func cleanUpTranscribed(_ transcribed: String) -> String {
-        var returnMe = transcribed
-        let charsToRemove = [",", "。", "！", "？", " ", "，"]
-        
-        for charToRemove in charsToRemove {
-            returnMe = returnMe.replacingOccurrences(of: charToRemove, with: "")
-        }
-        
-        return returnMe
-    }
-    
     func gradeTranscription() {
         self.attempts += 1
         
@@ -81,8 +70,8 @@ class Transcription {
     }
     
     func isTranscriptionCorrect(transcription: String, expected: String) -> Bool {
-        let expectedClean: String = self.cleanUpTranscribed(expected)
-        let transcriptionClean: String = self.cleanUpTranscribed(transcription)
+        let expectedClean: String = expected.withoutPunctuationAndSpaces()
+        let transcriptionClean: String = transcription.withoutPunctuationAndSpaces()
         
         let areLengthsDifferent: Bool = expectedClean.count != transcriptionClean.count
         if areLengthsDifferent {

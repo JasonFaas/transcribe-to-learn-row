@@ -46,7 +46,7 @@ class TestDbManagement {
     func testConvertHanziToLogSpokenSimpleNumerals() {
         let actual = self.dbm.convertHanziToLogSpoken("你好 1")
         let expected = "你好 一"
-        assert(actual == expected)
+        assert(actual == expected, actual)
     }
     
     func testConvertHanziToLogSpokenAdvancedNumerals() {
@@ -62,17 +62,22 @@ class TestDbManagement {
         expected = "你好 一千五百六十七"
         assert(actual == expected)
         
-        actual = self.dbm.convertHanziToLogSpoken("你好 19,087")
-        expected = "你好 二万零白八十七"
-        assert(actual == expected)
+        actual = self.dbm.convertHanziToLogSpoken("你好 29,087")
+        expected = "你好 二万九千零百八十七"
+        assert(actual == expected, actual)
         
         //TODO: Numbers beyond 99,999
+        
+        
+        actual = self.dbm.convertHanziToLogSpoken("你好 190,087")
+        expected = "你好 190087"
+        assert(actual == expected)
     }
     
     func testConvertHanziToLogSpokenPunctuation() {
-        let actual = self.dbm.convertHanziToLogSpoken("你,好。 1？")
+        let actual = self.dbm.convertHanziToLogSpoken("你,好。 1 ？")
         let expected = "你好 一"
-        assert(actual == expected)
+        assert(actual == expected, ":\(actual):")
     }
     
     func testGetResultNoDueDate() throws {

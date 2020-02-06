@@ -398,10 +398,28 @@ class DatabaseManagement {
     }
     
     func convertHanziToLogSpoken(_ hanzi: String) -> String {
+        let words: [String] = hanzi.components(separatedBy: " ")
+        
+        var returnWords: [String] = []
+        
+        for word in words {
+            print("ABC \(word)")
+            let withoutPunc = word.withoutPunctuationAndSpaces()
+            if withoutPunc.isArabicNumeral() {
+                returnWords.append(withoutPunc.toRoughHanziNumeral())
+            } else {
+                returnWords.append(withoutPunc)
+            }
+        }
+        
         //TODO: Use existing removal of puncuation method. Consider moving that to string class
         
         //TODO: Write this, remove puncuation and arabic numerals
-        return hanzi
+        
+        let returnString: String = returnWords.joined(separator: " ")
+        let returnStringNoDs = returnString.replacingOccurrences(of: "  ", with: " ")
+        let returnStringNoExtraWs = returnStringNoDs.trimmingCharacters(in: .whitespacesAndNewlines)
+        return returnStringNoExtraWs
     }
     
     // TODO: Verify if no DB
