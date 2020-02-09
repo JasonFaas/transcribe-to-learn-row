@@ -20,6 +20,7 @@ class DatabaseManagement {
         // TODO: Regularlly turn this to true to verify it still works
         let copyNewDb: Bool = true
         let deleteResultDb: Bool = false
+        // TODO: copyNewDb true IF NO DATABASE
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
                                               deleteResultsDb: deleteResultDb)
@@ -428,7 +429,7 @@ class DatabaseManagement {
                    pinyinOn: Bool,
                    attempts: Int) {
         let languageDisplayed = quizInfo.getLanguageToDisplay() // or english
-        let languagePronounced = "Mandarin" // always
+        
         let pronunciationHelp = pinyinOn ? "On" : "Off"
 
         // Logging words that were spoken
@@ -437,30 +438,54 @@ class DatabaseManagement {
         }
         
         // Logging Result Rows
-        let resultTableName = DbTranslation.tableName + DbResult.nameSuffix
+        
+        logSpecificTranslation(translationTableName: DbTranslation.tableName,
+                               pronunciationHelp: pronunciationHelp,
+                               languageDisplayed: languageDisplayed,
+                               letterGrade: letterGrade,
+                               translationRowId: quizInfo.getId())
+        
+        for subQI in quizInfo.getBlanksDb() {
+            // TODO: Determine blank's tableName
+            logSpecificTranslation(translationTableName: subQI.getTableName(),
+                                   pronunciationHelp: pronunciationHelp,
+                                   languageDisplayed: languageDisplayed,
+                                   letterGrade: letterGrade,
+                                   translationRowId: subQI.getId())
+        }
+    }
+    
+    func logSpecificTranslation(translationTableName: String,
+                                pronunciationHelp: String,
+                                languageDisplayed: String,
+                                letterGrade: String,
+                                translationRowId: Int) {
+        let resultTableName = translationTableName + DbResult.nameSuffix
+        let languagePronounced = "Mandarin" // always
+        
+        let rTable = Table(resultTableName)
+        
+        let count: Int!
         do {
-            let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
-                                                            languageDisplayed: languageDisplayed,
-                                                            translationId: quizInfo.getId())
-            let newDueDate: Date = DateMath.getUpdatedDueDate(newGrade: letterGrade,
-                                                          lastGrade: resultRow.getLastGrade(),
-                                                          lastDate: resultRow.getLastUpdatedDate())
-            let update: Update = DbResult.getUpdate(tableName: resultTableName,
-                                                    fk: quizInfo.getId(),
-                                                    langDisp: languageDisplayed,
-                                                    newDueDate: newDueDate,
-                                                    letterGrade: letterGrade,
-                                                    pronunciationHelp: pronunciationHelp)
-            
-            try self.dbConn.run(update)
-            
+            count = try self.dbConn.scalar(rTable
+                .filter(DbResult.translation_fk == translationRowId)
+                .count)
         } catch {
+            count = 0
             do {
+                try self.dbConn.run(DbResult.tableCreationString(tTableName: translationTableName))
+            } catch {
+                print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
+            }
+        }
+
+         do {
+            if count == 0 {
                 let newOtherLanguage = languageDisplayed == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
                 
                 let answeredInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
-                               fk: quizInfo.getId(),
+                               fk: translationRowId,
                                due_date: DateMath.getNewDueDate(grade: letterGrade),
                                letterGrade: letterGrade,
                                languageDisplayed: languageDisplayed,
@@ -469,7 +494,7 @@ class DatabaseManagement {
                 
                 let otherLangInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
-                               fk: quizInfo.getId(),
+                               fk: translationRowId,
                                due_date: DateMath.getNewDueDate(grade: "5"),
                                letterGrade: "C",
                                languageDisplayed: newOtherLanguage,
@@ -478,9 +503,24 @@ class DatabaseManagement {
                 
                 try self.dbConn.run(answeredInsert)
                 try self.dbConn.run(otherLangInsert)
-            } catch {
-                print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
+            } else {
+                let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
+                                                                languageDisplayed: languageDisplayed,
+                                                                translationId: translationRowId)
+                let newDueDate: Date = DateMath.getUpdatedDueDate(newGrade: letterGrade,
+                                                              lastGrade: resultRow.getLastGrade(),
+                                                              lastDate: resultRow.getLastUpdatedDate())
+                let update: Update = DbResult.getUpdate(tableName: resultTableName,
+                                                        fk: translationRowId,
+                                                        langDisp: languageDisplayed,
+                                                        newDueDate: newDueDate,
+                                                        letterGrade: letterGrade,
+                                                        pronunciationHelp: pronunciationHelp)
+                
+                try self.dbConn.run(update)
             }
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
         }
     }
     

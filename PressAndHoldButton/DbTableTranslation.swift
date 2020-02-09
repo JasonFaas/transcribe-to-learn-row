@@ -87,6 +87,10 @@ class DbTranslation {
         return -1
     }
     
+    func getBlanksDb() -> [DbTranslation] {
+        return []
+    }
+    
     func getLanguageToDisplay() -> String { // TODO Enum
         return LanguageDisplayed.MandarinSimplified.rawValue
     }
