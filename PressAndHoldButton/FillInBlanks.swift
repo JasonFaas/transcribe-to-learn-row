@@ -171,6 +171,8 @@ class FillInBlanks {
                                                                     excludeEnglishVal: excludedEnglishVal)
                         }
                         
+                        self.dbTranslation.saveSubQI(reference)
+                        
                         self.blanksDictionary[refValInt] = [
                             "hanzi": reference.getHanzi(),
                             "pinyin": reference.getPinyin(),
@@ -201,7 +203,7 @@ class FillInBlanks {
                                                           fk_ref: fk_ref,
                                                           excludeEnglishVal: excludeEnglishVal)
         } else {
-            return try self.dbm.getNextPhrase(tTableName: tTableName,
+            return self.dbm.getNextPhrase(tTableName: tTableName,
                                               idExclude: -1,
                                               fk_ref: fk_ref,
                                               excludeEnglishVal: excludeEnglishVal,

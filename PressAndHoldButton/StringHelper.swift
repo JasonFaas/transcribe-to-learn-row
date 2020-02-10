@@ -87,7 +87,7 @@ extension String: LocalizedError {
         
         var returnHanzi: String = ""
         for i in stride(from: 0, to: self.count, by:1) {
-            var what: String = String(self[self.count - 1 - i])
+            let what: String = String(self[self.count - 1 - i])
             returnHanzi = (numeralMap[what] ?? "") + (digitsMap[i] ?? "") + returnHanzi
         }
         return returnHanzi

@@ -41,22 +41,19 @@ class ViewProgressController: UIViewController {
 
         // Do any additional setup after loading the view.
         
-        do {
-            for i in 1 ... 6 {
-                let hskCount = self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable,
-                                                                                    i)
-                let hskAnswered = self.dbmHold.getLogRowsCountWithDifficulty(i)
-                let hskPercentage = Int(100 * hskAnswered / hskCount)
-                allButtons[i]?.setTitle("Level \(i): \(hskPercentage)%", for: .normal)
-            }
-            
-            let hsk7 = self.dbmHold.getLogRowsCountWithDifficulty(7)
-            let hsk8 = self.dbmHold.getLogRowsCountWithDifficulty(8)
-            
-            allButtons[7]?.setTitle("Level \(7): \(hsk7 + hsk8) Total", for: .normal)
-        } catch {
-            print("Error :(")
+        for i in 1 ... 6 {
+            let hskCount = self.dbmHold.getRowsInTranslationTableWithDifficulty(DbTranslation.hskTable,
+                                                                                i)
+            let hskAnswered = self.dbmHold.getLogRowsCountWithDifficulty(i)
+            let hskPercentage = Int(100 * hskAnswered / hskCount)
+            allButtons[i]?.setTitle("Level \(i): \(hskPercentage)%", for: .normal)
         }
+        
+        let hsk7 = self.dbmHold.getLogRowsCountWithDifficulty(7)
+        let hsk8 = self.dbmHold.getLogRowsCountWithDifficulty(8)
+        
+        allButtons[7]?.setTitle("Level \(7): \(hsk7 + hsk8) Total", for: .normal)
+    
     }
     
     @IBAction func goToLevel1(_ sender: Any) {

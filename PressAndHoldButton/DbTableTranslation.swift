@@ -13,7 +13,11 @@ import SQLite
 class DbTranslation {
     
     static let tableName: String = "translations"
-    static let hskTable: Table = Table("hsk")
+    static let hskTableName: String = "hsk"
+    static let hskTable: Table = Table(hskTableName)
+    
+    var tTableName = ""
+    var blanksDb: [DbTranslation] = []
     
     static let id = Expression<Int>("id")
     static let blanks = Expression<String>("Blanks")
@@ -88,7 +92,15 @@ class DbTranslation {
     }
     
     func getBlanksDb() -> [DbTranslation] {
-        return []
+        return blanksDb
+    }
+    
+    func saveSubQI(_ what: DbTranslation) {
+        blanksDb.append(what)
+    }
+    
+    func getTTableName() -> String {
+        return self.tTableName
     }
     
     func getLanguageToDisplay() -> String { // TODO Enum
@@ -120,16 +132,23 @@ class SpecificDbTranslation : DbTranslation {
     let dbRow: Row!
     let displayLanguage: String!
         
-    init(dbRow: Row, displayLanguage: String) {
+    init(dbRow: Row,
+         displayLanguage: String,
+         tTableName: String) {
+        
         
         self.dbRow = dbRow
         self.displayLanguage = displayLanguage
+        
+        super.init()
+        
+        self.tTableName = tTableName
         
         // TODO populate these dynamically
         intElements = [SpecificDbTranslation.id, SpecificDbTranslation.difficulty]
         stringElements = [SpecificDbTranslation.hanzi, SpecificDbTranslation.pinyin, SpecificDbTranslation.english]
         
-        super.init()
+        
         
         self.tempHanzi = self.dbRow[SpecificDbTranslation.hanzi]
         self.tempPinyin = self.dbRow[SpecificDbTranslation.pinyin]

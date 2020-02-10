@@ -139,7 +139,8 @@ class DatabaseManagement {
             throw "DbTranslation row not found in getTranslationForOldestDueByNowResult"
         }
         return SpecificDbTranslation(dbRow: translationRow,
-                                     displayLanguage: translationRow[DbResult.language_displayed])
+                                     displayLanguage: translationRow[DbResult.language_displayed],
+        tTableName: tTableName)
     }
     
     // TODO: Verify if no DB
@@ -228,7 +229,8 @@ class DatabaseManagement {
             
             // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
             return SpecificDbTranslation(dbRow: translationRow,
-                                         displayLanguage: dispLang)
+                                         displayLanguage: dispLang,
+            tTableName: tTableName)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error) - \(tTableName) \(tIdExclude) \(t_to_t_fkRef) \(excludeEnglishVal)")
             throw error
@@ -251,7 +253,8 @@ class DatabaseManagement {
         }
         
         return SpecificDbTranslation(dbRow: translationRow,
-                                     displayLanguage: "none")
+                                     displayLanguage: "none",
+                                     tTableName: tTableName)
     }
     
     // TODO: Verify if no DB
@@ -274,7 +277,8 @@ class DatabaseManagement {
         }
         
         return SpecificDbTranslation(dbRow: translationRow,
-                                     displayLanguage: "none")
+                                     displayLanguage: "none",
+        tTableName: tTableName)
         
     }
     
@@ -404,7 +408,6 @@ class DatabaseManagement {
         var returnWords: [String] = []
         
         for word in words {
-            print("ABC \(word)")
             let withoutPunc = word.withoutPunctuationAndSpaces()
             if withoutPunc.isArabicNumeral() {
                 returnWords.append(withoutPunc.toRoughHanziNumeral())
@@ -445,9 +448,9 @@ class DatabaseManagement {
                                letterGrade: letterGrade,
                                translationRowId: quizInfo.getId())
         
+        print("SubQI count : \(quizInfo.getBlanksDb().count)")
         for subQI in quizInfo.getBlanksDb() {
-            // TODO: Determine blank's tableName
-            logSpecificTranslation(translationTableName: subQI.getTableName(),
+            logSpecificTranslation(translationTableName: subQI.getTTableName(),
                                    pronunciationHelp: pronunciationHelp,
                                    languageDisplayed: languageDisplayed,
                                    letterGrade: letterGrade,
@@ -462,6 +465,8 @@ class DatabaseManagement {
                                 translationRowId: Int) {
         let resultTableName = translationTableName + DbResult.nameSuffix
         let languagePronounced = "Mandarin" // always
+        
+        
         
         let rTable = Table(resultTableName)
         
@@ -481,6 +486,7 @@ class DatabaseManagement {
 
          do {
             if count == 0 {
+                print("Inserting to \(resultTableName)")
                 let newOtherLanguage = languageDisplayed == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
                 
                 let answeredInsert: Insert = DbResult
@@ -504,6 +510,8 @@ class DatabaseManagement {
                 try self.dbConn.run(answeredInsert)
                 try self.dbConn.run(otherLangInsert)
             } else {
+                print("Updating to \(resultTableName)")
+                
                 let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
                                                                 languageDisplayed: languageDisplayed,
                                                                 translationId: translationRowId)
@@ -539,7 +547,8 @@ class DatabaseManagement {
         }
         
         let transcriptionTranslation = SpecificDbTranslation(dbRow: transcriptionRow,
-                                                             displayLanguage: "")
+                                                             displayLanguage: "",
+                                                             tTableName: DbTranslation.hskTableName)
         
         var transcriptionPinyins = [transcriptionTranslation.getPinyin(),]
         if transcriptionTranslation.get2ndPinyin().count > 0 {
