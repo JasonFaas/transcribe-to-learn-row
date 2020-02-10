@@ -165,7 +165,6 @@ class FillInBlanks {
                             let exRow = self.blanksDictionary[Int(excludedRef) ?? -1, default: [:]]
                             let excludedEnglishVal: String = exRow["english", default: ""]
                             
-                            //TODO: Change from Random row to 'due' or 'by level' or something like that
                             reference = try self.getTranslationForBlank(tTableName: refType,
                                                                     fk_ref: fk_val,
                                                                     excludeEnglishVal: excludedEnglishVal)

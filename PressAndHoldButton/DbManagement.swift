@@ -352,10 +352,17 @@ class DatabaseManagement {
                                                           DbTranslation.pinyin <- pinyinWord,
                                                           DbTranslation.difficulty <- 80)
             let insertId = try self.dbConn.run(hskInsert)
-            print("HSK not found for \(hanziWord)")
             try self.logWordsSpoken(hskWordId: Int(insertId))
         } catch {
             print("Function: \(#function):\(#line), Error: \(error) - HSK_8 failed \(hanziWord)")
+        }
+    }
+    
+    func getDbIdOrReturnCode(_ hanzi: String) -> Int {
+        do {
+            return try self.getHskIdFromHanzi(hanzi)
+        } catch {
+            return -1
         }
     }
     
@@ -365,14 +372,32 @@ class DatabaseManagement {
             var hskIds: [Int] = []
             for idx in 0..<hanziWord.count {
                 let hanziChar = hanziWord[idx]
-                hskIds.append(try self.getHskIdFromHanzi(hanziChar))
+                hskIds.append(getDbIdOrReturnCode(hanziChar))
             }
             
-            for hskId in hskIds {
-                try self.logWordsSpoken(hskWordId: hskId)
+            if hskIds.contains(-1) {
+                let beginningHanziGroupId: Int = getDbIdOrReturnCode(hanziWord.substring(toIndex: hanziWord.count - 1))
+                let endHanziGroupId: Int = getDbIdOrReturnCode(hanziWord.substring(fromIndex: 1))
+                
+                if hskIds[0] != -1 && endHanziGroupId != -1 {
+                    print("Logging 1 and group \(hanziWord)")
+                    try self.logWordsSpoken(hskWordId: hskIds[0])
+                    try self.logWordsSpoken(hskWordId: endHanziGroupId)
+                } else if hskIds[hskIds.count - 1] != -1 && beginningHanziGroupId != -1 {
+                    print("Logging -1 and group \(hanziWord)")
+                    try self.logWordsSpoken(hskWordId: hskIds[hskIds.count - 1])
+                    try self.logWordsSpoken(hskWordId: beginningHanziGroupId)
+                } else {
+                    print("Logging New HSK \(hanziWord)")
+                    insertNewHskAndLogSpokenWord(hanziWord: hanziWord, pinyinWord: pinyinWord)
+                }
+            } else {
+                for hskId in hskIds {
+                    try self.logWordsSpoken(hskWordId: hskId)
+                }
             }
         } catch {
-            insertNewHskAndLogSpokenWord(hanziWord: hanziWord, pinyinWord: pinyinWord)
+            print("Function: \(#function):\(#line), Error: \(error) - Hmmmmmmmmm")
         }
     }
     
@@ -448,7 +473,6 @@ class DatabaseManagement {
                                letterGrade: letterGrade,
                                translationRowId: quizInfo.getId())
         
-        print("SubQI count : \(quizInfo.getBlanksDb().count)")
         for subQI in quizInfo.getBlanksDb() {
             logSpecificTranslation(translationTableName: subQI.getTTableName(),
                                    pronunciationHelp: pronunciationHelp,
@@ -486,7 +510,6 @@ class DatabaseManagement {
 
          do {
             if count == 0 {
-                print("Inserting to \(resultTableName)")
                 let newOtherLanguage = languageDisplayed == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
                 
                 let answeredInsert: Insert = DbResult
@@ -510,8 +533,6 @@ class DatabaseManagement {
                 try self.dbConn.run(answeredInsert)
                 try self.dbConn.run(otherLangInsert)
             } else {
-                print("Updating to \(resultTableName)")
-                
                 let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
                                                                 languageDisplayed: languageDisplayed,
                                                                 translationId: translationRowId)

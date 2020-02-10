@@ -29,7 +29,7 @@ class ViewProgressController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var allButtons: [Int:UIButton] = [
+        let allButtons: [Int:UIButton] = [
             1: level1Btn,
             2: level2Btn,
             3: level3Btn,
