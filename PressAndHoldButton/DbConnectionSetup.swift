@@ -45,7 +45,6 @@ class DbConnectionSetup {
             try self.fileManager.removeItem(at: dbUrl)
         } catch {
             print("Function: \(#function):\(#line), Error: \(error)...\nNo database to remove on device")
-            exit(0)
         }
     }
     
