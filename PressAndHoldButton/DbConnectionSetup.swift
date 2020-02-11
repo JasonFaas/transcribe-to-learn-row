@@ -21,14 +21,40 @@ class DbConnectionSetup {
         print("Setting up DbConn")
         let dbFileName: String = "first.sqlite3"
 
-        let dbUrl: URL = self.fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let dbUrlPhone: URL = self.fileManager.urls(for: .documentDirectory, in: .userDomainMask)
                                          .first!
                                          .appendingPathComponent(dbFileName)
+        let dbUrlXcode = Bundle.main.resourceURL?.appendingPathComponent(dbFileName)
         
-        // If database does not exist, copy database over
-        if copyNewDb {
-            self.removeSqlliteFile(dbUrl)
-            self.copyDatabaseToDevice(dbUrl, dbFileName)
+        let isDbOnPhone: Bool = fileManager.fileExists(atPath: dbUrlPhone.path)
+        
+        
+        var dbOnPhoneCreationDate: Date = Date()
+        var dbOnXcodeCreationDate: Date = Date()
+        
+        do {
+            if isDbOnPhone {
+                let dbPhoneAttrs = try FileManager.default.attributesOfItem(atPath: dbUrlPhone.path) as NSDictionary
+                dbOnPhoneCreationDate = dbPhoneAttrs.fileCreationDate()!
+                print("Db on Phone Creation Date \(dbOnPhoneCreationDate)")
+            }
+            let dbXcodeAttrs = try FileManager.default.attributesOfItem(atPath: dbUrlXcode!.path) as NSDictionary
+            dbOnXcodeCreationDate = dbXcodeAttrs.fileCreationDate()!
+            print("Db on Xcode Creation Date \(dbOnXcodeCreationDate)")
+        } catch {
+            dbOnPhoneCreationDate = Date()
+            sleep(1)
+            dbOnXcodeCreationDate = Date()
+            print("Just trying to get file details")
+        }
+        
+        let dbCreationDatesSame: Bool = dbOnPhoneCreationDate == dbOnXcodeCreationDate
+        
+        if !isDbOnPhone || !dbCreationDatesSame || copyNewDb {
+            if isDbOnPhone {
+                self.removeSqlliteFile(dbUrlPhone)
+            }
+            self.copyDatabaseToDevice(dbUrlPhone, dbFileName)
         }
         
         let connection = self.createDatabaseConnection(dbFileName)

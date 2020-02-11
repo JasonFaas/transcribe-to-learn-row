@@ -16,11 +16,9 @@ class DatabaseManagement {
     init() {
         let dbSetup: DbConnectionSetup = DbConnectionSetup()
         
-        // ENABLE ONLY IF WANTING TO RESET DATABASE
-        // TODO: Regularlly turn this to true to verify it still works
-        let copyNewDb: Bool = true
+        // Enable once only for hard reset
+        let copyNewDb: Bool = false
         let deleteResultDb: Bool = false
-        // TODO: copyNewDb true IF NO DATABASE
         
         self.dbConn = dbSetup.setupConnection(copyNewDb: copyNewDb,
                                               deleteResultsDb: deleteResultDb)
