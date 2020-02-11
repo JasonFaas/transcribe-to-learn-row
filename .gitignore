@@ -109,4 +109,5 @@ venv.bak/
 .DS_Store
 
 PressAndHoldButton.xcodeproj/xcuserdata/*
+PressAndHoldButton.xcodeproj/project.xcworkspace/*
 
