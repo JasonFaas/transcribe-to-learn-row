@@ -202,37 +202,33 @@ class DatabaseManagement {
                                          excludeEnglishVal: String = "",
                                          dispLang: String) throws -> DbTranslation {
         
-        do {
-            self.createResultDbTableIfNotExists(tTableName: tTableName)
-            let tTable: Table = Table(tTableName)
-            let rTable = Table(tTableName + DbResult.nameSuffix)
-            
-            var selectTranslation = tTable.select(DbTranslation.getStandardSelect(table: tTable))
-                .filter(tTable[DbTranslation.id] != tIdExclude)
-                .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
-                .filter(tTable[DbTranslation.english] != excludeEnglishVal)
-                .filter(rTable[DbResult.translation_fk] == nil)
-            
-            
-            if t_to_t_fkRef != -1 {
-                selectTranslation = selectTranslation.filter(tTable[DbTranslation.fk_parent] == t_to_t_fkRef)
-            }
-            
-            selectTranslation = selectTranslation.order(tTable[DbTranslation.difficulty].asc)
-            
-            let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
-            if translationRow == nil {
-                throw "Function: \(#function):\(#line) :: Unique database \"\(tTableName)\" not found with lots of variables"
-            }
-            
-            // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
-            return SpecificDbTranslation(dbRow: translationRow,
-                                         displayLanguage: dispLang,
-            tTableName: tTableName)
-        } catch {
-            print("Function: \(#function):\(#line), Error: \(error) - \(tTableName) \(tIdExclude) \(t_to_t_fkRef) \(excludeEnglishVal)")
-            throw error
+        
+        self.createResultDbTableIfNotExists(tTableName: tTableName)
+        let tTable: Table = Table(tTableName)
+        let rTable = Table(tTableName + DbResult.nameSuffix)
+        
+        var selectTranslation = tTable.select(DbTranslation.getStandardSelect(table: tTable))
+            .filter(tTable[DbTranslation.id] != tIdExclude)
+            .join(JoinType.leftOuter, rTable, on: tTable[DbTranslation.id] == rTable[DbResult.translation_fk])
+            .filter(tTable[DbTranslation.english] != excludeEnglishVal)
+            .filter(rTable[DbResult.translation_fk] == nil)
+        
+        
+        if t_to_t_fkRef != -1 {
+            selectTranslation = selectTranslation.filter(tTable[DbTranslation.fk_parent] == t_to_t_fkRef)
         }
+        
+        selectTranslation = selectTranslation.order(tTable[DbTranslation.difficulty].asc)
+        
+        let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
+        if translationRow == nil {
+            throw "Function: \(#function):\(#line) :: Database \"\(tTableName)\" not found with unused variable"
+        }
+        
+        // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
+        return SpecificDbTranslation(dbRow: translationRow,
+                                     displayLanguage: dispLang,
+        tTableName: tTableName)
     }
     
     // TODO: Verify if no DB
@@ -370,7 +366,13 @@ class DatabaseManagement {
             var hskIds: [Int] = []
             for idx in 0..<hanziWord.count {
                 let hanziChar = hanziWord[idx]
-                hskIds.append(getDbIdOrReturnCode(hanziChar))
+                var dbIdOrReturnCode: Int = getDbIdOrReturnCode(hanziChar)
+                if dbIdOrReturnCode == -1 {
+                    // try with 子
+                    dbIdOrReturnCode = getDbIdOrReturnCode("\(hanziChar)子")
+                }
+                
+                hskIds.append(dbIdOrReturnCode)
             }
             
             if hskIds.contains(-1) {
