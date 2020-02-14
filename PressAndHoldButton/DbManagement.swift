@@ -473,12 +473,20 @@ class DatabaseManagement {
                                letterGrade: letterGrade,
                                translationRowId: quizInfo.getId())
         
+        // TODO: Make this nest recursive instead of only having 2 layers
         for subQI in quizInfo.getBlanksDb() {
             logSpecificTranslation(translationTableName: subQI.getTTableName(),
                                    pronunciationHelp: pronunciationHelp,
                                    languageDisplayed: languageDisplayed,
                                    letterGrade: letterGrade,
                                    translationRowId: subQI.getId())
+            for subSubQi in subQI.getBlanksDb() {
+                logSpecificTranslation(translationTableName: subSubQi.getTTableName(),
+                                        pronunciationHelp: pronunciationHelp,
+                                        languageDisplayed: languageDisplayed,
+                                        letterGrade: letterGrade,
+                                        translationRowId: subSubQi.getId())
+            }
         }
     }
     
