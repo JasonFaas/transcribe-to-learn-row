@@ -70,8 +70,11 @@ class Transcription {
     }
     
     func isTranscriptionCorrect(transcription: String, expected: String) -> Bool {
-        let expectedClean: String = expected.withoutPunctuationAndSpaces()
-        let transcriptionClean: String = transcription.withoutPunctuationAndSpaces()
+        var expectedClean: String = expected.withoutPunctuationAndSpaces()
+        var transcriptionClean: String = transcription.withoutPunctuationAndSpaces()
+        
+        expectedClean = expectedClean.timeColocialToRomanNumeralInPlace()
+        transcriptionClean = transcriptionClean.timeColocialToRomanNumeralInPlace()
         
         let areLengthsDifferent: Bool = expectedClean.count != transcriptionClean.count
         if areLengthsDifferent {
@@ -81,6 +84,12 @@ class Transcription {
         if areStringsSame {
             return true
         }
+        
+        let arePinyinEqual = arePinyinSame(transcriptionClean: transcriptionClean, expectedClean: expectedClean)
+        return arePinyinEqual
+    }
+    
+    func arePinyinSame(transcriptionClean: String, expectedClean: String) -> Bool {
         
         for i in 0 ..< transcriptionClean.count {
             if transcriptionClean[i] == expectedClean[i] {

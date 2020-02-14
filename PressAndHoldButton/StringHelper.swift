@@ -92,4 +92,8 @@ extension String: LocalizedError {
         }
         return returnHanzi
     }
+    
+    func timeColocialToRomanNumeralInPlace() -> String {
+        return self.replacingOccurrences(of: "点半", with: ":30")
+    }
 }
