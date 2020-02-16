@@ -22,7 +22,7 @@ class UiUpdate {
     var pinyinOn = false
     
     var pinyinToggleText: [Bool: String] = [true: "Turn On Pinyin",
-                                            false: "True Off Pinyin", ]
+                                            false: "Turn Off Pinyin", ]
     
     init(feedbackLabel: UILabel,
         toPronounceHanzi: UILabel,
