@@ -180,6 +180,17 @@ class Transcription {
         
         self.advanceToNextPhrase()
     }
+    
+    func getFeedbackTextFromGrade(_ grade: SpeakingGrade) -> String {
+        let date: Date = Date()
+        if SpeakingGrade.F == grade {
+            let feedback = "I know you'll get it next time"
+            let translationInfo = "\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())"
+            return "\(feedback)\n\(translationInfo)\nGrade: \(grade.rawValue)\nScheduled: \(date)"
+        }
+        
+        return "what"
+    }
 
     func advanceToNextPhrase() {
         self.updateUi.disableSkip()

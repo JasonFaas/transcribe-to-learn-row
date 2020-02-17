@@ -132,3 +132,11 @@ enum LanguageDisplayed: String {
     case English="English"
     case MandarinSimplified="Mandarin-Simplified"
 }
+
+enum SpeakingGrade: String {
+    case A="A"
+    case B="B"
+    case C="C"
+    case D="D"
+    case F="F"
+}

@@ -43,6 +43,38 @@ class TestTranscription {
         
         assert(!self.cut.isTranscriptionCorrect(transcription: "他女朋友行李",
         expected: "他女朋友姓李"))
+        
+        self.testFeedbackTextForA()
+        self.testFeedbackTextForB()
+        self.testFeedbackTextForC()
+        self.testFeedbackTextForD()
+        self.testFeedbackTextForF()
+    }
+    
+    func testFeedbackTextForA() {
+        let expected = ""
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A)
+        assert(expected == extractedExpr, extractedExpr)
+    }
+    
+    func testFeedbackTextForB() {
+        let expected = ""
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.B))
+    }
+    
+    func testFeedbackTextForC() {
+        let expected = ""
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.C))
+    }
+    
+    func testFeedbackTextForD() {
+        let expected = ""
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.D))
+    }
+    
+    func testFeedbackTextForF() {
+        let expected = ""
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.F))
     }
     
 }
