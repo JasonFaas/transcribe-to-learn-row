@@ -155,40 +155,49 @@ class Transcription {
         
         let letterGrade = self.letterGradeMap[letterGradeNum, default: SpeakingGrade.F]
             
-        self.dbm.logResult(letterGrade: letterGrade,
-                           quizInfo: self.currentTranslation,
-                           pinyinOn: self.updateUi.pinyinOn,
-                           attempts: attempts)
+        let dates: [Date] = self.dbm.logResult(
+            letterGrade: letterGrade,
+            quizInfo: self.currentTranslation,
+            pinyinOn: self.updateUi.pinyinOn,
+            attempts: attempts
+        )
         
-        self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(letterGrade))
+        self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(letterGrade, dates))
         
         self.advanceToNextPhrase()
     }
     
     func skipCurrentPhrase(grade: SpeakingGrade) {
-        self.dbm.logResult(letterGrade: grade,
-                           quizInfo: self.currentTranslation,
-                           pinyinOn: self.updateUi.pinyinOn,
-                           attempts: attempts)
+        let dates: [Date] = self.dbm.logResult(
+            letterGrade: grade,
+            quizInfo: self.currentTranslation,
+            pinyinOn: self.updateUi.pinyinOn,
+            attempts: attempts
+        )
         
-        self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(grade))
+        self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(grade, dates))
         
         self.advanceToNextPhrase()
     }
     
-    func getFeedbackTextFromGrade(_ grade: SpeakingGrade) -> String {
-        let date: Date = Date()
-        if SpeakingGrade.F == grade {
-            let feedback = "I know you'll get it next time"
-            let translationInfo = "\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())"
-            return "\(feedback)\n\(translationInfo)\nGrade: \(grade.rawValue)\nScheduled: \(date)"
-        }
+    func getFeedbackTextFromGrade(_ grade: SpeakingGrade, _ dates: [Date]) -> String {
+        let translationInfo = "\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())"
         
-        //"Great Pronunciation:\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())"
+        let gradeStuff: String = "Grade: \(grade.rawValue)"
+        let dateStuff: String = "Scheduled: \(dates[0])"
         
-        //self.updateUi.updateFeedbackText("I know you'll get it next time\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())")
+        let gradeToFeedback: [SpeakingGrade: String] = [
+            SpeakingGrade.A: "Perfect Pronunciation",
+            SpeakingGrade.B: "Great Pronunciation",
+            SpeakingGrade.C: "Good Pronunciation",
+            SpeakingGrade.D: "I know you'll get it next time",
+            SpeakingGrade.F: "Keep practicing",
+            SpeakingGrade.New: "New grade for this",
+        ]
         
-        return "what"
+        let feedback = gradeToFeedback[grade, default: "grade feedback error"]
+            
+        return "\(feedback)\n\(translationInfo)\n\(gradeStuff)\n\(dateStuff)"
     }
 
     func advanceToNextPhrase() {

@@ -52,29 +52,31 @@ class TestTranscription {
     }
     
     func testFeedbackTextForA() {
+        print("Function: \(#function):\(#line)")
         let expected = ""
-        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A)
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [Date()]) // TODO: Have to hardcode this
         assert(expected == extractedExpr, extractedExpr)
+        print("Function: \(#function):\(#line)")
     }
     
     func testFeedbackTextForB() {
         let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.B))
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.B, [Date()]))
     }
     
     func testFeedbackTextForC() {
         let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.C))
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.C, [Date()]))
     }
     
     func testFeedbackTextForD() {
         let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.D))
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.D, [Date()]))
     }
     
     func testFeedbackTextForF() {
         let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.F))
+        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.F, [Date()]))
     }
     
 }
