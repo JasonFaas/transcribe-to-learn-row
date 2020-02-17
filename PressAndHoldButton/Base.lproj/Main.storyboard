@@ -178,7 +178,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-514.39999999999998" y="-709.35960591133005"/>
+            <point key="canvasLocation" x="571" y="-716"/>
         </scene>
         <!--View Main Controller-->
         <scene sceneID="KbM-oW-YN2">
@@ -197,12 +197,11 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xDm-nd-Grt">
-                                <rect key="frame" x="132" y="342.33333333333331" width="150" height="40"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="150" id="RAh-jz-gdw"/>
-                                </constraints>
+                                <rect key="frame" x="68" y="342.33333333333331" width="278" height="40"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
-                                <state key="normal" title="Refocus Study"/>
+                                <state key="normal" title="Jump Ahead/Refocus Study">
+                                    <color key="titleColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="895-SQ-zCp">
                                 <rect key="frame" x="163" y="560" width="88" height="40"/>
@@ -218,7 +217,9 @@
                                     <constraint firstAttribute="width" constant="150" id="2t7-Q0-UX4"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="-Phrases"/>
+                                <state key="normal" title="-Phrases">
+                                    <color key="titleColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LUb-rW-sKe">
                                 <rect key="frame" x="132" y="512" width="150" height="36"/>
@@ -226,7 +227,9 @@
                                     <constraint firstAttribute="width" constant="150" id="kqD-oV-l3o"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="-Words"/>
+                                <state key="normal" title="-Words">
+                                    <color key="titleColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add Content:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dtW-Yn-SQL">
                                 <rect key="frame" x="132" y="394.33333333333331" width="150" height="27.666666666666686"/>
@@ -240,7 +243,9 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GLK-Nv-28N">
                                 <rect key="frame" x="165.66666666666666" y="612" width="83" height="40"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
-                                <state key="normal" title="Settings"/>
+                                <state key="normal" title="Settings">
+                                    <color key="titleColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c1Q-ZA-JxD">
                                 <rect key="frame" x="132" y="430" width="150" height="36"/>
@@ -248,7 +253,9 @@
                                     <constraint firstAttribute="width" constant="150" id="T7O-Sg-wli"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="-About You"/>
+                                <state key="normal" title="-About You">
+                                    <color key="titleColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
                             </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
@@ -280,7 +287,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zxt-gR-wyO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="541.60000000000002" y="-709.35960591133005"/>
+            <point key="canvasLocation" x="1332" y="-716"/>
         </scene>
         <!--View Progress Controller-->
         <scene sceneID="f8T-Df-DYv">
@@ -391,7 +398,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uwi-CO-JHz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1695.6521739130435" y="-709.15178571428567"/>
+            <point key="canvasLocation" x="541" y="-6"/>
         </scene>
         <!--View Level Detail Controller-->
         <scene sceneID="cNq-Hx-WUO">
@@ -446,11 +453,11 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4mw-6Z-rwJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="xgE-2S-D0E" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2747.826086956522" y="-709.15178571428567"/>
+            <point key="canvasLocation" x="1332" y="-6"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="hrp-l6-JdO"/>
+        <segue reference="ynL-aV-Ffb"/>
         <segue reference="lrN-7u-jgo"/>
     </inferredMetricsTieBreakers>
 </document>
