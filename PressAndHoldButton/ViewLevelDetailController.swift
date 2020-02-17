@@ -10,7 +10,6 @@ import UIKit
 
 class ViewLevelDetailController: UIViewController {
     
-    
     @IBOutlet weak var primaryLabel: UILabel!
     @IBOutlet weak var otherLabel: UILabel!
     
@@ -18,7 +17,6 @@ class ViewLevelDetailController: UIViewController {
     var nextLangDispHold: String!
     var levelToDisplay: Int!
     
-
     override func viewDidLoad() {
         super.viewDidLoad()
 

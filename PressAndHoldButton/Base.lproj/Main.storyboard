@@ -178,7 +178,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="571" y="-716"/>
+            <point key="canvasLocation" x="-251" y="-6"/>
         </scene>
         <!--View Main Controller-->
         <scene sceneID="KbM-oW-YN2">
@@ -189,9 +189,9 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ybW-wP-R93">
-                                <rect key="frame" x="99" y="290.33333333333331" width="216" height="40"/>
+                                <rect key="frame" x="130.66666666666666" y="290.33333333333331" width="152.99999999999997" height="40"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="23"/>
-                                <state key="normal" title="Say Again Quick Start"/>
+                                <state key="normal" title="Say Again Start"/>
                                 <connections>
                                     <segue destination="BYZ-38-t0r" kind="presentation" identifier="sequeMainMenuToQuickStart" modalPresentationStyle="fullScreen" id="NDA-l4-L4s"/>
                                 </connections>
@@ -287,7 +287,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zxt-gR-wyO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1332" y="-716"/>
+            <point key="canvasLocation" x="541" y="-735"/>
         </scene>
         <!--View Progress Controller-->
         <scene sceneID="f8T-Df-DYv">
@@ -453,11 +453,11 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4mw-6Z-rwJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="xgE-2S-D0E" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="1332" y="-6"/>
+            <point key="canvasLocation" x="541" y="686"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="ynL-aV-Ffb"/>
-        <segue reference="lrN-7u-jgo"/>
+        <segue reference="5Rr-vN-FvN"/>
     </inferredMetricsTieBreakers>
 </document>
