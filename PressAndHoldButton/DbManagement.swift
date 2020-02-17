@@ -49,6 +49,17 @@ class DatabaseManagement {
         
     }
     
+    func countFromSqlStatement(_ sqlStmt: String) -> Int {
+        do {
+            let count = try dbConn.scalar(sqlStmt) as! Int64
+        
+            return Int(count)
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error)")
+            return 0
+        }
+    }
+    
     func printAllResultsTable(rTableName: String = DbTranslation.tableName + DbResult.nameSuffix) {
         do {
             for result_row in try self.dbConn.prepare(Table(rTableName)) {
@@ -342,9 +353,16 @@ class DatabaseManagement {
     func insertNewHskAndLogSpokenWord(hanziWord: String, pinyinWord: String) {
         // ELSE   Create new HSK_8 reference and log group
         do {
-            let hskInsert = DbTranslation.hskTable.insert(DbTranslation.hanzi <- hanziWord,
-                                                          DbTranslation.pinyin <- pinyinWord,
-                                                          DbTranslation.difficulty <- 80)
+            let hskInsert = DbTranslation.hskTable.insert(
+                DbTranslation.hanzi <- hanziWord,
+                DbTranslation.pinyin <- pinyinWord,
+                DbTranslation.difficulty <- 80,
+                DbTranslation.difficultyManual <- 80,
+                DbTranslation.english <- "Error English",
+                DbTranslation.pinyin2nd <- "",
+                DbTranslation.blanks <- ""
+            )
+
             let insertId = try self.dbConn.run(hskInsert)
             try self.logWordsSpoken(hskWordId: Int(insertId))
         } catch {

@@ -26,6 +26,7 @@ class DbTranslation {
     static let pinyin2nd = Expression<String>("2nd_Pinyin")
     static let english = Expression<String>("English")
     static let difficulty = Expression<Int>("Auto_Level")
+    static let difficultyManual = Expression<Int>("Manual_Level")
     static let fk_parent = Expression<Int>("fk_parent")
     
     var tempHanzi:String = "Error Hanzi"

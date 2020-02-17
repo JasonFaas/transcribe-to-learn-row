@@ -33,6 +33,7 @@ class TestDbManagement {
         self.testConvertHanziToLogSpokenSimpleNumerals()
         self.testConvertHanziToLogSpokenAdvancedNumerals()
         self.testConvertHanziToLogSpokenPunctuation()
+        self.testBadHskEntries()
         
         print("Testing testGetResultNoDueDate")
         try self.testGetResultNoDueDate()
@@ -41,6 +42,10 @@ class TestDbManagement {
         try self.testGetEasiest()
         
         print("All DbManagement Tests PASSED")
+    }
+    
+    func testBadHskEntries() {
+        assert(0 == self.dbm.countFromSqlStatement("SELECT count(*) FROM hsk where English IS NULL"))
     }
     
     func testConvertHanziToLogSpokenSimpleNumerals() {

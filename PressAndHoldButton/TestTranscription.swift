@@ -40,6 +40,9 @@ class TestTranscription {
                                                expected: "昨天 晚上 9 点 半"))
         assert(self.cut.isTranscriptionCorrect(transcription: "昨天晚上9:30",
                                                expected: "昨天 晚上 9:30"))
+        
+        assert(!self.cut.isTranscriptionCorrect(transcription: "他女朋友行李",
+        expected: "他女朋友姓李"))
     }
     
 }
