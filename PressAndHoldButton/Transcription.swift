@@ -19,11 +19,12 @@ class Transcription {
     
     var dbm: DatabaseManagement
     
-    let letterGradeMap: Dictionary<Int, String> = [
-        0: "A",
-        -1: "B",
-        -2: "C",
-        -3: "D",
+    // TODO: This should probably go away?
+    let letterGradeMap: Dictionary<Int, SpeakingGrade> = [
+        0: SpeakingGrade.A,
+        -1: SpeakingGrade.B,
+        -2: SpeakingGrade.C,
+        -3: SpeakingGrade.D,
     ]
     
     init(updateUi: UiUpdate,
@@ -138,8 +139,6 @@ class Transcription {
     }
     
     func correctPronunciation() {
-        self.updateUi.updateFeedbackText("Great Pronunciation:\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())")
-        
         var letterGradeNum = 0
         
         if self.attempts > 8 {
@@ -154,29 +153,25 @@ class Transcription {
             letterGradeNum -= 1
         }
         
-        let letterGrade = self.letterGradeMap[letterGradeNum, default: "F"]
+        let letterGrade = self.letterGradeMap[letterGradeNum, default: SpeakingGrade.F]
             
         self.dbm.logResult(letterGrade: letterGrade,
                            quizInfo: self.currentTranslation,
                            pinyinOn: self.updateUi.pinyinOn,
                            attempts: attempts)
         
+        self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(letterGrade))
+        
         self.advanceToNextPhrase()
     }
     
-    func skipCurrentPhrase(grade: String) {
+    func skipCurrentPhrase(grade: SpeakingGrade) {
         self.dbm.logResult(letterGrade: grade,
                            quizInfo: self.currentTranslation,
                            pinyinOn: self.updateUi.pinyinOn,
                            attempts: attempts)
         
-        if grade == "F" {
-            self.updateUi.updateFeedbackText("I know you'll get it next time")
-        } else {
-            self.updateUi.updateFeedbackText("I know you'll get it next time\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())")
-        }
-        
-        
+        self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(grade))
         
         self.advanceToNextPhrase()
     }
@@ -188,6 +183,10 @@ class Transcription {
             let translationInfo = "\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())"
             return "\(feedback)\n\(translationInfo)\nGrade: \(grade.rawValue)\nScheduled: \(date)"
         }
+        
+        //"Great Pronunciation:\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())"
+        
+        //self.updateUi.updateFeedbackText("I know you'll get it next time\n\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())")
         
         return "what"
     }

@@ -51,8 +51,8 @@ class DbResult {
         self.dbRow[DbResult.last_updated_date]
     }
     
-    func getLastGrade() -> String {
-        self.dbRow[DbResult.last_grade]
+    func getLastGrade() -> SpeakingGrade {
+        return SpeakingGrade(rawValue: self.dbRow[DbResult.last_grade])!
     }
     
     func getLanguageDisplayed() -> String {
@@ -95,13 +95,13 @@ class DbResult {
                           fk: Int,
                           langDisp: String,
                           newDueDate: Date,
-                          letterGrade: String,
+                          letterGrade: SpeakingGrade,
                           pronunciationHelp: String) -> Update {
         let quizSpecific = Table(tableName)
             .filter(DbResult.translation_fk == fk)
             .filter(DbResult.language_displayed == langDisp)
         let whatwhat: Update = quizSpecific.update(DbResult.due_date <- newDueDate,
-                                                    DbResult.last_grade <- letterGrade,
+                                                   DbResult.last_grade <- letterGrade.rawValue,
                                                     DbResult.pronunciation_help <- pronunciationHelp,
                                                     DbResult.last_updated_date <- Date())
         return whatwhat
@@ -110,7 +110,7 @@ class DbResult {
     static func getInsert(tableName: String,
                           fk: Int,
                           due_date: Date,
-                          letterGrade: String,
+                          letterGrade: SpeakingGrade,
                           languageDisplayed: String,
                           pronunciationHelp: String,
                           languagePronounced: String) -> Insert {
@@ -118,7 +118,7 @@ class DbResult {
         return Table(tableName).insert(
             DbResult.translation_fk <- fk,
             DbResult.due_date <- due_date,
-            DbResult.last_grade <- letterGrade,
+            DbResult.last_grade <- letterGrade.rawValue,
             DbResult.language_displayed <- languageDisplayed, // TODO: use enum
             DbResult.like <- true, // TODO: use enum
             DbResult.pronunciation_help <- pronunciationHelp,
@@ -139,4 +139,5 @@ enum SpeakingGrade: String {
     case C="C"
     case D="D"
     case F="F"
+    case New="New"
 }

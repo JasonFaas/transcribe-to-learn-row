@@ -172,7 +172,7 @@ class DatabaseManagement {
     
     // TODO: Verify if no DB
     func getResultDueAfterMarginCount(rTableName: String, hoursFromNow: Int = 10) throws -> Int {
-        let futureDate: Date = DateMath.getDateHoursFromNow(minutesAhead: hoursFromNow * 60)
+        let futureDate: Date = DateMath.getDateFromNow(minutesAhead: hoursFromNow * 60)
         
         let selectResult = Table(rTableName).select(DbResult.translation_fk,
                                                     DbResult.language_displayed)
@@ -470,53 +470,65 @@ class DatabaseManagement {
     }
     
     // TODO: Verify if no DB
-    func logResult(letterGrade: String,
+    func logResult(letterGrade: SpeakingGrade,
                    quizInfo: DbTranslation,
                    pinyinOn: Bool,
-                   attempts: Int) {
+                   attempts: Int) -> [Date] {
+        var returnDates: [Date] = []
+        var tempDate: Date!
         let languageDisplayed = quizInfo.getLanguageToDisplay() // or english
         
         let pronunciationHelp = pinyinOn ? "On" : "Off"
 
         // Logging words that were spoken
-        if letterGrade == "B" || letterGrade == "A" {
+        if letterGrade == SpeakingGrade.B || letterGrade == SpeakingGrade.A {
             logSpokenProgressWhole(quizInfo)
         }
         
         // Logging Result Rows
         
-        logSpecificTranslation(translationTableName: DbTranslation.tableName,
-                               pronunciationHelp: pronunciationHelp,
-                               languageDisplayed: languageDisplayed,
-                               letterGrade: letterGrade,
-                               translationRowId: quizInfo.getId())
+        tempDate = logSpecificTranslation(
+            translationTableName: DbTranslation.tableName,
+            pronunciationHelp: pronunciationHelp,
+            languageDisplayed: languageDisplayed,
+            letterGrade: letterGrade,
+            translationRowId: quizInfo.getId()
+        )
+        returnDates.append(tempDate)
         
         // TODO: Make this nest recursive instead of only having 2 layers
         for subQI in quizInfo.getBlanksDb() {
-            logSpecificTranslation(translationTableName: subQI.getTTableName(),
-                                   pronunciationHelp: pronunciationHelp,
-                                   languageDisplayed: languageDisplayed,
-                                   letterGrade: letterGrade,
-                                   translationRowId: subQI.getId())
+            tempDate = logSpecificTranslation(
+                translationTableName: subQI.getTTableName(),
+                pronunciationHelp: pronunciationHelp,
+                languageDisplayed: languageDisplayed,
+                letterGrade: letterGrade,
+                translationRowId: subQI.getId()
+            )
+            returnDates.append(tempDate)
             for subSubQi in subQI.getBlanksDb() {
-                logSpecificTranslation(translationTableName: subSubQi.getTTableName(),
-                                        pronunciationHelp: pronunciationHelp,
-                                        languageDisplayed: languageDisplayed,
-                                        letterGrade: letterGrade,
-                                        translationRowId: subSubQi.getId())
+                tempDate = logSpecificTranslation(
+                    translationTableName: subSubQi.getTTableName(),
+                    pronunciationHelp: pronunciationHelp,
+                    languageDisplayed: languageDisplayed,
+                    letterGrade: letterGrade,
+                    translationRowId: subSubQi.getId()
+                )
+                returnDates.append(tempDate)
             }
         }
+        return returnDates
     }
     
     func logSpecificTranslation(translationTableName: String,
                                 pronunciationHelp: String,
                                 languageDisplayed: String,
-                                letterGrade: String,
-                                translationRowId: Int) {
+                                letterGrade: SpeakingGrade,
+                                translationRowId: Int) -> Date {
+        let returnDate: Date!
+        
         let resultTableName = translationTableName + DbResult.nameSuffix
         let languagePronounced = "Mandarin" // always
-        
-        
         
         let rTable = Table(resultTableName)
         
@@ -531,6 +543,7 @@ class DatabaseManagement {
                 try self.dbConn.run(DbResult.tableCreationString(tTableName: translationTableName))
             } catch {
                 print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
+                return Date()
             }
         }
 
@@ -538,10 +551,11 @@ class DatabaseManagement {
             if count == 0 {
                 let newOtherLanguage = languageDisplayed == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
                 
+                returnDate = DateMath.getNewDueDate(grade: letterGrade)
                 let answeredInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: translationRowId,
-                               due_date: DateMath.getNewDueDate(grade: letterGrade),
+                               due_date: returnDate,
                                letterGrade: letterGrade,
                                languageDisplayed: languageDisplayed,
                                pronunciationHelp: pronunciationHelp,
@@ -550,8 +564,8 @@ class DatabaseManagement {
                 let otherLangInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: translationRowId,
-                               due_date: DateMath.getNewDueDate(grade: "5"),
-                               letterGrade: "C",
+                               due_date: DateMath.getNewDueDate(grade: SpeakingGrade.New),
+                               letterGrade: SpeakingGrade.New,
                                languageDisplayed: newOtherLanguage,
                                pronunciationHelp: "Off",
                                languagePronounced: languagePronounced)
@@ -562,13 +576,13 @@ class DatabaseManagement {
                 let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
                                                                 languageDisplayed: languageDisplayed,
                                                                 translationId: translationRowId)
-                let newDueDate: Date = DateMath.getUpdatedDueDate(newGrade: letterGrade,
+                returnDate = DateMath.getUpdatedDueDate(newGrade: letterGrade,
                                                               lastGrade: resultRow.getLastGrade(),
                                                               lastDate: resultRow.getLastUpdatedDate())
                 let update: Update = DbResult.getUpdate(tableName: resultTableName,
                                                         fk: translationRowId,
                                                         langDisp: languageDisplayed,
-                                                        newDueDate: newDueDate,
+                                                        newDueDate: returnDate,
                                                         letterGrade: letterGrade,
                                                         pronunciationHelp: pronunciationHelp)
                 
@@ -576,7 +590,10 @@ class DatabaseManagement {
             }
         } catch {
             print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
+            return Date()
         }
+        
+        return returnDate
     }
     
     // TODO: Verify if no DB

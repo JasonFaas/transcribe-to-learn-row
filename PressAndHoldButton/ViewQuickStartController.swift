@@ -92,7 +92,7 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
     }
     
     @IBAction func skipThisPress(_ sender: Any) {
-        self.mainManagement.skipThisPress(grade: "F")
+        self.mainManagement.skipThisPress(grade: SpeakingGrade.F)
     }
     
     @IBAction func releaseOutside(_ sender: Any) {
@@ -103,7 +103,7 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
         released()
     }
     @IBAction func devQuickSkip(_ sender: Any) {
-        self.mainManagement.skipThisPress(grade: "B")
+        self.mainManagement.skipThisPress(grade: SpeakingGrade.B)
     }
     
     func released() {

@@ -46,9 +46,9 @@
             filePath = "PressAndHoldButton/DbManagement.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "584"
-            endingLineNumber = "584"
-            landmarkName = "getHskPinyins(_:)"
+            startingLineNumber = "601"
+            endingLineNumber = "601"
+            landmarkName = "logSpecificTranslation(translationTableName:pronunciationHelp:languageDisplayed:letterGrade:translationRowId:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -62,9 +62,9 @@
             filePath = "PressAndHoldButton/DbManagement.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "596"
-            endingLineNumber = "596"
-            landmarkName = "getHskPinyins(_:)"
+            startingLineNumber = "613"
+            endingLineNumber = "613"
+            landmarkName = "logSpecificTranslation(translationTableName:pronunciationHelp:languageDisplayed:letterGrade:translationRowId:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

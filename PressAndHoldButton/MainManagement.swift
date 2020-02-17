@@ -38,7 +38,7 @@ class MainManagement {
         self.recording = Recording(translation: transcription)
     }
     
-    func skipThisPress(grade: String) {
+    func skipThisPress(grade: SpeakingGrade) {
         self.transcription.skipCurrentPhrase(grade: grade)
     }
     

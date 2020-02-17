@@ -96,8 +96,8 @@ class TestDbManagement {
         let newEnglishInsert: Insert = DbResult
             .getInsert(tableName: commonTableName + DbResult.nameSuffix,
                        fk: jasonFaasTranslation.getId(),
-                       due_date: DateMath.getDateHoursFromNow(minutesAhead: -60 * 2),
-                       letterGrade: "C",
+                       due_date: DateMath.getDateFromNow(minutesAhead: -60 * 2),
+                       letterGrade: SpeakingGrade.New,
                        languageDisplayed: dispLang,
                        pronunciationHelp: "Off",
                        languagePronounced: "Mandarin")
@@ -114,8 +114,8 @@ class TestDbManagement {
         let englishUpdate = DbResult.getUpdate(tableName: commonTableName + DbResult.nameSuffix,
         fk: jasonFaasTranslation.getId(),
         langDisp: LanguageDisplayed.English.rawValue,
-        newDueDate: DateMath.getDateHoursFromNow(minutesAhead: 60*24*365*10),
-        letterGrade: "C",
+        newDueDate: DateMath.getDateFromNow(minutesAhead: 60*24*365*10),
+        letterGrade: SpeakingGrade.C,
         pronunciationHelp: "Off")
         
         try self.dbm.dbConn.run(englishUpdate)

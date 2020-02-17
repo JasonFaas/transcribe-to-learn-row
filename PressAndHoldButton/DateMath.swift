@@ -10,23 +10,24 @@ import Foundation
 
 class DateMath {
     
-    static func getNewDueDate(grade: String) -> Date {
+    static func getNewDueDate(grade: SpeakingGrade) -> Date {
         
-        let generalDateAdding: [String: Int] = [
-            "A": 60 * 24,
-            "B": 60 * 4,
-            "C": 60 * 1,
-            "D": 60 / 4,
-            "F": 60 / 16,
+        let generalDateAdding: [SpeakingGrade: Int] = [
+            SpeakingGrade.A: 60 * 48,
+            SpeakingGrade.B: 60 * 24,
+            SpeakingGrade.C: 60 * 12,
+            SpeakingGrade.D: 60 * 4,
+            SpeakingGrade.F: 60 * 1,
+            SpeakingGrade.New: 60 * 8,
         ]
         
-        let minutesAhead: Int = generalDateAdding[grade, default: Int(grade) ?? 1]
-        let dueDate: Date = self.getDateHoursFromNow(minutesAhead: minutesAhead)
+        let minutesAhead: Int = generalDateAdding[grade, default: 5]
+        let dueDate: Date = self.getDateFromNow(minutesAhead: minutesAhead)
         
         return dueDate
     }
     
-    static func getDateHoursFromNow(minutesAhead: Int) -> Date {
+    static func getDateFromNow(minutesAhead: Int) -> Date {
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
         
@@ -35,16 +36,19 @@ class DateMath {
         return dueDate
     }
     
-    static func getUpdatedDueDate(newGrade: String,
-                           lastGrade: String,
+    static func getUpdatedDueDate(newGrade: SpeakingGrade,
+                           lastGrade: SpeakingGrade,
                            lastDate: Date) -> Date {
         
-        let generalDateAdding: [String: Float] = [
-            "A": 2.0,
-            "B": 1.0,
-            "C": 0.5,
-            "D": 0.25,
-            "F": 0.125,
+        // TODO: JAF Base should be HOURS! not Date comparison
+        
+        let generalDateAdding: [SpeakingGrade: Float] = [
+            SpeakingGrade.A: 4.0,
+            SpeakingGrade.B: 2.0,
+            SpeakingGrade.C: 1.0,
+            SpeakingGrade.D: 0.5,
+            SpeakingGrade.F: 0.25,
+            SpeakingGrade.New: 1.0,
         ]
         let now: Date = Date()
         let calendar: Calendar = Calendar.current
