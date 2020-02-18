@@ -62,6 +62,9 @@ class TestTranscription {
         self.testFeedbackTextForD()
         self.testFeedbackTextForF()
         self.testFeedbackTextForSayAgain()
+        
+        // This is to put back to normal after testing
+        self.cut.currentTranslation = self.cut.previousTranslation
     }
     
     func getTestDate() -> Date {
