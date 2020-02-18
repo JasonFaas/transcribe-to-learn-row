@@ -21,22 +21,8 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UG0-be-ppf">
-                                <rect key="frame" x="50" y="517" width="314" height="45"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="45" id="OJN-qW-2oI"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="Skip This"/>
-                                <connections>
-                                    <action selector="skipThisPress:" destination="BYZ-38-t0r" eventType="touchUpInside" id="woU-rO-gXy"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qtN-bY-7UG" customClass="CenterButton" customModule="Say_Again_中文" customModuleProvider="target">
-                                <rect key="frame" x="35" y="567" width="344" height="45"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="45" id="1ng-9h-Phn"/>
-                                </constraints>
+                                <rect key="frame" x="50" y="522" width="314" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Turn On Pinyin"/>
                                 <connections>
@@ -76,22 +62,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SZG-On-LgC">
-                                <rect key="frame" x="10" y="782" width="87" height="30"/>
-                                <state key="normal" title="Dev &quot;B&quot; Skip"/>
-                                <connections>
-                                    <action selector="devQuickSkip:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Jz3-dZ-43j"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Phrases Due" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mCt-Kl-znU">
-                                <rect key="frame" x="307" y="762" width="97" height="100"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="DLD-Cb-mEE"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Kk-Jr-rrW">
                                 <rect key="frame" x="319" y="54" width="85" height="30"/>
                                 <state key="normal" title="Report Error"/>
@@ -107,7 +77,7 @@
                                     <segue destination="8QL-dL-8QK" kind="presentation" identifier="sequeQuickStartToMainMenuV2" modalPresentationStyle="fullScreen" id="lrN-7u-jgo"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NNC-y7-mfd">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NNC-y7-mfd" userLabel="Hold To Record">
                                 <rect key="frame" x="30" y="462" width="354" height="50"/>
                                 <color key="backgroundColor" systemColor="linkColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
@@ -122,43 +92,91 @@
                                     <action selector="releaseOutside:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="ntl-TW-7OM"/>
                                 </connections>
                             </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tQ9-PE-ETW" userLabel="HorizontalStackViewBottom">
+                                <rect key="frame" x="10" y="752" width="394" height="100"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Bih-h2-aET" userLabel="VerticalStackViewSkip">
+                                        <rect key="frame" x="0.0" y="0.0" width="197" height="100"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UG0-be-ppf">
+                                                <rect key="frame" x="0.0" y="0.0" width="197" height="70"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                                <state key="normal" title="Skip This &quot;F&quot;"/>
+                                                <connections>
+                                                    <action selector="skipThisPress:" destination="BYZ-38-t0r" eventType="touchUpInside" id="woU-rO-gXy"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SZG-On-LgC">
+                                                <rect key="frame" x="0.0" y="70" width="197" height="30"/>
+                                                <state key="normal" title="Dev Skip &quot;B&quot;"/>
+                                                <connections>
+                                                    <action selector="devQuickSkip:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Jz3-dZ-43j"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Phrases Due" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mCt-Kl-znU">
+                                        <rect key="frame" x="197" y="0.0" width="197" height="100"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="yjV-ca-PYj"/>
+                                </constraints>
+                            </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mQh-GP-XmN">
+                                <rect key="frame" x="30" y="568" width="354" height="50"/>
+                                <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="MKb-PX-bbl"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Say Again"/>
+                                <connections>
+                                    <action selector="pressAndHoldBbutton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gLg-2k-pbf"/>
+                                    <action selector="release:" destination="BYZ-38-t0r" eventType="touchDown" id="wFg-zc-fkl"/>
+                                    <action selector="releaseOutside:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="gpC-57-MIW"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="qtN-bY-7UG" secondAttribute="trailing" constant="35" id="812-fc-Jdm"/>
+                            <constraint firstItem="qtN-bY-7UG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="50" id="1Or-iQ-fmd"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="NNC-y7-mfd" secondAttribute="trailing" constant="30" id="9GD-VT-Lfg"/>
-                            <constraint firstItem="UG0-be-ppf" firstAttribute="top" secondItem="NNC-y7-mfd" secondAttribute="bottom" constant="5" id="9aF-b5-MGa"/>
                             <constraint firstItem="Uzg-Ld-blB" firstAttribute="top" secondItem="CmP-FQ-yvg" secondAttribute="bottom" constant="5" id="EYg-L6-fXe"/>
                             <constraint firstItem="JCL-2M-gDY" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="GIP-UD-bWY"/>
                             <constraint firstItem="8Kk-Jr-rrW" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="JS9-Io-3mq"/>
-                            <constraint firstItem="mCt-Kl-znU" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="Jv2-d9-vh3"/>
-                            <constraint firstItem="qtN-bY-7UG" firstAttribute="top" secondItem="UG0-be-ppf" secondAttribute="bottom" constant="5" id="NuT-4O-KDf"/>
-                            <constraint firstItem="SZG-On-LgC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="PLw-TE-4F3"/>
-                            <constraint firstItem="UG0-be-ppf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="50" id="QwG-dN-mJ7"/>
                             <constraint firstItem="JCL-2M-gDY" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="R82-KH-Ndp"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="SZG-On-LgC" secondAttribute="bottom" constant="50" id="SmQ-AD-uB0"/>
+                            <constraint firstItem="tQ9-PE-ETW" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="SNY-OV-g71"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="mQh-GP-XmN" secondAttribute="trailing" constant="30" id="T50-Hg-hhs"/>
                             <constraint firstItem="CmP-FQ-yvg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="TIt-MM-PXx"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="mCt-Kl-znU" secondAttribute="trailing" constant="10" id="Va3-3A-Hsm"/>
+                            <constraint firstItem="mQh-GP-XmN" firstAttribute="top" secondItem="qtN-bY-7UG" secondAttribute="bottom" constant="10" id="V51-vW-Nje"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="5ph-Ed-wgR" secondAttribute="trailing" constant="10" id="VoM-4e-r6b"/>
                             <constraint firstItem="9JW-mA-EcF" firstAttribute="top" secondItem="5ph-Ed-wgR" secondAttribute="bottom" constant="5" id="VtZ-Dt-foe"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="CmP-FQ-yvg" secondAttribute="trailing" constant="10" id="WvO-Lh-0jf"/>
                             <constraint firstItem="e0f-UG-6CE" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="aZQ-gi-e6x"/>
-                            <constraint firstItem="qtN-bY-7UG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="35" id="egU-Jt-0M8"/>
+                            <constraint firstItem="qtN-bY-7UG" firstAttribute="top" secondItem="NNC-y7-mfd" secondAttribute="bottom" constant="10" id="bWa-hl-tIr"/>
                             <constraint firstItem="NNC-y7-mfd" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="30" id="f28-Kn-LqG"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="JCL-2M-gDY" secondAttribute="trailing" constant="100" id="fsC-kr-GJz"/>
                             <constraint firstItem="5ph-Ed-wgR" firstAttribute="top" secondItem="JCL-2M-gDY" secondAttribute="bottom" constant="5" id="gnG-nR-eKv"/>
+                            <constraint firstItem="mQh-GP-XmN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="30" id="h4T-3F-Van"/>
                             <constraint firstItem="NNC-y7-mfd" firstAttribute="top" secondItem="Uzg-Ld-blB" secondAttribute="bottom" constant="5" id="hOj-wG-Cg1"/>
                             <constraint firstItem="e0f-UG-6CE" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="hug-hi-HJa"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="UG0-be-ppf" secondAttribute="trailing" constant="50" id="jBl-zm-2t1"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="tQ9-PE-ETW" secondAttribute="trailing" constant="10" id="iuD-Ed-eIA"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="9JW-mA-EcF" secondAttribute="trailing" constant="10" id="kuH-fC-bVc"/>
                             <constraint firstItem="CmP-FQ-yvg" firstAttribute="top" secondItem="9JW-mA-EcF" secondAttribute="bottom" constant="5" id="lpN-gw-bsc"/>
                             <constraint firstItem="e0f-UG-6CE" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="mM1-hX-xEH"/>
                             <constraint firstItem="5ph-Ed-wgR" firstAttribute="top" secondItem="8Kk-Jr-rrW" secondAttribute="bottom" constant="10" id="mVU-9W-QLT"/>
                             <constraint firstItem="8Kk-Jr-rrW" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="nDp-XG-5sz"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Uzg-Ld-blB" secondAttribute="trailing" constant="10" id="nrm-tM-Bk6"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="qtN-bY-7UG" secondAttribute="trailing" constant="50" id="pRV-s6-QFs"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8Kk-Jr-rrW" secondAttribute="trailing" constant="10" id="put-Me-SP5"/>
                             <constraint firstItem="5ph-Ed-wgR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="qJW-CD-gqK"/>
                             <constraint firstItem="9JW-mA-EcF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="sA2-qn-rPe"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="tQ9-PE-ETW" secondAttribute="bottom" constant="10" id="uCZ-XC-IVZ"/>
                             <constraint firstItem="Uzg-Ld-blB" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="vvm-FH-UG0"/>
                             <constraint firstItem="JCL-2M-gDY" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="100" id="yrk-e0-oYC"/>
                         </constraints>
