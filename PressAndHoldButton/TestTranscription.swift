@@ -63,6 +63,7 @@ class TestTranscription {
         self.testFeedbackTextForF()
         self.testFeedbackTextForSayAgain()
         
+        // TODO: Maybe fix this weird testing hack?
         // This is to put back to normal after testing
         self.cut.currentTranslation = self.cut.previousTranslation
     }
