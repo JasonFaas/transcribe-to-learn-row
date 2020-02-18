@@ -162,7 +162,9 @@ class Transcription {
             attempts: attempts
         )
         
-        self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(letterGrade, dates))
+        self.updateUi.updateFeedbackText(
+            getFeedbackTextFromGrade(letterGrade, dates)
+        )
         
         self.advanceToNextPhrase()
     }
@@ -184,13 +186,20 @@ class Transcription {
         let translationInfo = "\(self.currentTranslation.getHanzi())\n\(self.currentTranslation.getPinyin())\n\(self.currentTranslation.getEnglish())"
         
         let gradeStuff: String = "Grade: \(grade.rawValue)"
-        let dateStuff: String = "Scheduled: \(dates[0])"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm Z"
+        dateFormatter.timeZone = NSTimeZone(abbreviation: TimeZone.current.abbreviation() ?? "") as TimeZone?
+        let stringDate = dateFormatter.string(from: dates[0])
+        
+        
+        let dateStuff: String = "Scheduled: \(stringDate)"
         
         let gradeToFeedback: [SpeakingGrade: String] = [
             SpeakingGrade.A: "Perfect Pronunciation",
             SpeakingGrade.B: "Great Pronunciation",
             SpeakingGrade.C: "Good Pronunciation",
-            SpeakingGrade.D: "I know you'll get it next time",
+            SpeakingGrade.D: "You'll get it next time",
             SpeakingGrade.F: "Keep practicing",
             SpeakingGrade.New: "New grade for this",
         ]

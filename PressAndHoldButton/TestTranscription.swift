@@ -11,9 +11,15 @@ import Foundation
 class TestTranscription {
     
     let cut: Transcription!
+    let testDbTranslation: DbTranslation
     
     init(_ transcription: Transcription) {
         self.cut = transcription
+        self.testDbTranslation = DbTranslation(hanzi: "对不起", pinyin: "duìbùqǐ", english: "I'm sorry", blanks: "")
+    }
+    
+    func testCurrentTranslation(_ letterGrade: SpeakingGrade) -> String {
+        return "对不起\nduìbùqǐ\nI'm sorry\nGrade: \(letterGrade.rawValue)\nScheduled: 2005-05-30 11:30 -0700"
     }
     
     func runUnitTests() throws {
@@ -51,32 +57,68 @@ class TestTranscription {
         self.testFeedbackTextForF()
     }
     
+    func getTestDate() -> Date {
+        var dateComponents = DateComponents()
+        dateComponents.year = 2005
+        dateComponents.month = 5
+        dateComponents.day = 30
+        dateComponents.timeZone = TimeZone(abbreviation: "EST") // Japan Standard Time
+        dateComponents.hour = 14
+        dateComponents.minute = 30
+
+        // Create date from components
+        let userCalendar = Calendar.current // user calendar
+        return userCalendar.date(from: dateComponents)!
+    }
+    
     func testFeedbackTextForA() {
-        print("Function: \(#function):\(#line)")
-        let expected = ""
-        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [Date()]) // TODO: Have to hardcode this
+        cut.currentTranslation = self.testDbTranslation
+        let expected = "Perfect Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.A))"
+        
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [getTestDate()]) // TODO: Have to hardcode this
+        
         assert(expected == extractedExpr, extractedExpr)
-        print("Function: \(#function):\(#line)")
     }
     
     func testFeedbackTextForB() {
-        let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.B, [Date()]))
+        cut.currentTranslation = self.testDbTranslation
+        let expected = "Great Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.B))"
+        
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.B, [getTestDate()])
+        
+        print("Function: \(#function):\(#line)")
+        print(expected)
+        print("Function: \(#function):\(#line)")
+        print(extractedExpr)
+        print("Function: \(#function):\(#line)")
+        
+        assert(expected == extractedExpr, extractedExpr)
     }
     
     func testFeedbackTextForC() {
-        let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.C, [Date()]))
+        cut.currentTranslation = self.testDbTranslation
+        let expected = "Good Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.C))"
+        
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.C, [getTestDate()]) // TODO: Have to hardcode this
+        assert(expected == extractedExpr, extractedExpr)
     }
     
     func testFeedbackTextForD() {
-        let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.D, [Date()]))
+        
+        cut.currentTranslation = self.testDbTranslation
+        let expected = "You'll get it next time\n\(self.testCurrentTranslation(SpeakingGrade.D))"
+        
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.D, [getTestDate()]) // TODO: Have to hardcode this
+        assert(expected == extractedExpr, extractedExpr)
     }
     
     func testFeedbackTextForF() {
-        let expected = ""
-        assert(expected == self.cut.getFeedbackTextFromGrade(SpeakingGrade.F, [Date()]))
+        
+        cut.currentTranslation = self.testDbTranslation
+        let expected = "Keep practicing\n\(self.testCurrentTranslation(SpeakingGrade.F))"
+        
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.F, [getTestDate()]) // TODO: Have to hardcode this
+        assert(expected == extractedExpr, extractedExpr)
     }
     
 }

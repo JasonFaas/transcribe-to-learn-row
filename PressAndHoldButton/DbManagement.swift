@@ -540,7 +540,11 @@ class DatabaseManagement {
         } catch {
             count = 0
             do {
-                try self.dbConn.run(DbResult.tableCreationString(tTableName: translationTableName))
+                try self.dbConn.run(
+                    DbResult.tableCreationString(
+                        tTableName: translationTableName
+                    )
+                )
             } catch {
                 print("Function: \(#function):\(#line), Error: \(error) - Insert failed")
                 return Date()
