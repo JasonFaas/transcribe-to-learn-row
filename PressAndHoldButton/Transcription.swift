@@ -237,6 +237,7 @@ class Transcription {
         self.updateUi.disableSkip()
         self.updateUi.pinyinOff()
         self.lastTranscription = ""
+        self.attempts = 0
         
         let tTableName = DbTranslation.tableName
         self.previousTranslation = self.currentTranslation
