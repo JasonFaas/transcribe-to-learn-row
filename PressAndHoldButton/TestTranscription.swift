@@ -19,7 +19,7 @@ class TestTranscription {
     }
     
     func testCurrentTranslation(_ letterGrade: SpeakingGrade) -> String {
-        return "对不起\nduìbùqǐ\nI'm sorry\nGrade: \(letterGrade.rawValue)\nScheduled: 2005-05-30 11:30 -0700"
+        return "对不起\nduìbùqǐ\nI'm sorry\nGrade: \(letterGrade.rawValue)\nScheduled: 2005-05-30 11:30 AM -0700"
     }
     
     func runUnitTests() throws {

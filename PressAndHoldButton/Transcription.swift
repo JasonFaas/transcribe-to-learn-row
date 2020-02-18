@@ -188,7 +188,7 @@ class Transcription {
         let gradeStuff: String = "Grade: \(grade.rawValue)"
         
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm Z"
+        dateFormatter.dateFormat = "yyyy-MM-dd h:mm a Z"
         dateFormatter.timeZone = NSTimeZone(abbreviation: TimeZone.current.abbreviation() ?? "") as TimeZone?
         let stringDate = dateFormatter.string(from: dates[0])
         
