@@ -13,11 +13,12 @@ import MessageUI
 
 class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDelegate {
 
+    @IBOutlet weak var sayAgainHTRButton: UIButton!
     @IBOutlet weak var phrasesDue: UILabel!
     @IBOutlet weak var devQuickSkip: UIButton!
     @IBOutlet weak var toPronounce: UILabel!
     @IBOutlet weak var generalCommentLabel: UILabel!
-    @IBOutlet weak var buttonTextUpdate: UIButton!
+    @IBOutlet weak var sayInZwHTRButton: UIButton!
     @IBOutlet weak var skipThis: UIButton!
     @IBOutlet weak var buttonPinyinToggle: UIButton!
     @IBOutlet weak var toPronouncePinyin: UILabel!
@@ -67,12 +68,13 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
             feedbackLabel: self.generalCommentLabel,
             toPronounceHanzi: self.toPronounce,
             toPronouncePinyin: self.toPronouncePinyin,
-            buttonTextUpdate: self.buttonTextUpdate,
+            sayInZwHTRButton: self.sayInZwHTRButton,
             skipThis: self.skipThis,
             pinyinToggleButton: self.buttonPinyinToggle,
             dueProgress: self.phrasesDue,
             quickStartDbmHold: quickStartDbmHold,
-            quickStartNextLangDispHold: quickStartNextLangDispHold
+            quickStartNextLangDispHold: quickStartNextLangDispHold,
+            sayAgainHTRButton: sayAgainHTRButton
         )
         
         do {
@@ -102,18 +104,34 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
     // Starting Press and Release Record
     
     @IBAction func releaseOutsideHoldToRecord(_ sender: Any) {
-        released()
+        released(sender)
     }
     
     @IBAction func pressAndHoldHoldToRecord(_ sender: UIButton) {
-        released()
+        released(sender)
     }
     
-    func released() {
+    func released(_ sender: Any) {
+        let what: UIButton = sender as! UIButton
+        if what == sayInZwHTRButton {
+            
+        } else if what == sayAgainHTRButton {
+            
+        } else {
+            print("Function: \(#function):\(#line) - Big Error")
+        }
         self.mainManagement.fullFinishRecording()
     }
     
     @IBAction func pressHoldToRecord(_ sender: Any) {
+        let what: UIButton = sender as! UIButton
+        if what == sayInZwHTRButton {
+            
+        } else if what == sayAgainHTRButton {
+            
+        } else {
+            print("Function: \(#function):\(#line) - Big Error")
+        }
         self.mainManagement.fullStartRecording()
     }
     

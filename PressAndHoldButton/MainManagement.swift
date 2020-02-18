@@ -19,19 +19,23 @@ class MainManagement {
     init(feedbackLabel: UILabel,
          toPronounceHanzi: UILabel,
          toPronouncePinyin: UILabel,
-         buttonTextUpdate: UIButton,
+         sayInZwHTRButton: UIButton,
          skipThis: UIButton,
          pinyinToggleButton: UIButton,
          dueProgress: UILabel,
          quickStartDbmHold: DatabaseManagement!,
-         quickStartNextLangDispHold: String!) {
-        self.updateUi = UiUpdate(feedbackLabel: feedbackLabel,
-                                 toPronounceHanzi: toPronounceHanzi,
-                                 toPronouncePinyin: toPronouncePinyin,
-                                 buttonTextUpdate: buttonTextUpdate,
-                                 skipThis: skipThis,
-                                 pinyinToggleButton: pinyinToggleButton,
-                                 dueProgress: dueProgress)
+         quickStartNextLangDispHold: String!,
+         sayAgainHTRButton: UIButton) {
+        self.updateUi = UiUpdate(
+            feedbackLabel: feedbackLabel,
+            toPronounceHanzi: toPronounceHanzi,
+            toPronouncePinyin: toPronouncePinyin,
+            sayInZwHTRButton: sayInZwHTRButton,
+            skipThis: skipThis,
+            pinyinToggleButton: pinyinToggleButton,
+            dueProgress: dueProgress,
+            sayAgainHTRButton: sayAgainHTRButton
+        )
         self.transcription = Transcription(updateUi: self.updateUi,
                                            quickStartDbmHold: quickStartDbmHold,
                                            quickStartNextLangDispHold: quickStartNextLangDispHold)

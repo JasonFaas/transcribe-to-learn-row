@@ -15,7 +15,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Practice saying:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JCL-2M-gDY">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Say in Mandarin:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JCL-2M-gDY">
                                 <rect key="frame" x="100" y="54" width="214" height="35"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="19"/>
                                 <nil key="textColor"/>
@@ -85,7 +85,7 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Hold to Record"/>
+                                <state key="normal" title="Say in 中文 -&gt; Hold to Record"/>
                                 <connections>
                                     <action selector="pressAndHoldHoldToRecord:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BDQ-0g-Hev"/>
                                     <action selector="pressHoldToRecord:" destination="BYZ-38-t0r" eventType="touchDown" id="m2a-8N-ruL"/>
@@ -108,6 +108,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SZG-On-LgC">
                                                 <rect key="frame" x="0.0" y="70" width="197" height="30"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                 <state key="normal" title="Dev Skip &quot;B&quot;"/>
                                                 <connections>
                                                     <action selector="devQuickSkip:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Jz3-dZ-43j"/>
@@ -134,7 +135,7 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Say Again HtR"/>
+                                <state key="normal" title="Say Again -&gt; Hold to Record"/>
                                 <connections>
                                     <action selector="pressAndHoldHoldToRecord:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gLg-2k-pbf"/>
                                     <action selector="pressHoldToRecord:" destination="BYZ-38-t0r" eventType="touchDown" id="wFg-zc-fkl"/>
@@ -184,11 +185,12 @@
                     </view>
                     <connections>
                         <outlet property="buttonPinyinToggle" destination="qtN-bY-7UG" id="QaP-DE-Wa7"/>
-                        <outlet property="buttonTextUpdate" destination="NNC-y7-mfd" id="rr1-j5-r4B"/>
                         <outlet property="devQuickSkip" destination="SZG-On-LgC" id="mY9-dr-avV"/>
                         <outlet property="generalCommentLabel" destination="Uzg-Ld-blB" id="sRP-5K-gbI"/>
                         <outlet property="mainMenuButton" destination="e0f-UG-6CE" id="p1G-dN-WGg"/>
                         <outlet property="phrasesDue" destination="mCt-Kl-znU" id="oE0-Gx-bO1"/>
+                        <outlet property="sayAgainHTRButton" destination="mQh-GP-XmN" id="Lwi-vD-L3c"/>
+                        <outlet property="sayInZwHTRButton" destination="NNC-y7-mfd" id="rr1-j5-r4B"/>
                         <outlet property="skipThis" destination="UG0-be-ppf" id="sOr-GW-f6Q"/>
                         <outlet property="toPronounce" destination="5ph-Ed-wgR" id="yDR-o8-4wi"/>
                         <outlet property="toPronouncePinyin" destination="9JW-mA-EcF" id="ex1-2j-kVG"/>

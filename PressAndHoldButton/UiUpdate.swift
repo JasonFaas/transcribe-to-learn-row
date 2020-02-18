@@ -15,7 +15,8 @@ class UiUpdate {
     var toPronounceHanzi: UILabel
     var dueProgress: UILabel
     var toPronouncePinyin: UILabel
-    var buttonTextUpdate: UIButton
+    var sayInZwHTRButton: UIButton
+    var sayAgainHTRButton: UIButton
     var skipThis: UIButton
     var pinyinToggleButton: UIButton
     
@@ -27,14 +28,16 @@ class UiUpdate {
     init(feedbackLabel: UILabel,
         toPronounceHanzi: UILabel,
         toPronouncePinyin: UILabel,
-        buttonTextUpdate: UIButton,
+        sayInZwHTRButton: UIButton,
         skipThis: UIButton,
         pinyinToggleButton: UIButton,
-        dueProgress: UILabel) {
+        dueProgress: UILabel,
+        sayAgainHTRButton: UIButton) {
         self.feedbackLabel = feedbackLabel
         self.toPronounceHanzi = toPronounceHanzi
         self.toPronouncePinyin = toPronouncePinyin
-        self.buttonTextUpdate = buttonTextUpdate
+        self.sayInZwHTRButton = sayInZwHTRButton
+        self.sayAgainHTRButton = sayAgainHTRButton
         self.skipThis = skipThis
         self.pinyinToggleButton = pinyinToggleButton
         self.dueProgress = dueProgress
@@ -96,10 +99,12 @@ class UiUpdate {
     }
     
     func disableRecording() {
-        self.buttonTextUpdate.isEnabled = false
+        self.sayInZwHTRButton.isEnabled = false
+        self.sayAgainHTRButton.isEnabled = false
     }
     
     func enableRecording() {
-        self.buttonTextUpdate.isEnabled = true
+        self.sayInZwHTRButton.isEnabled = true
+        self.sayAgainHTRButton.isEnabled = true
     }
 }
