@@ -87,9 +87,9 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Hold to Record"/>
                                 <connections>
-                                    <action selector="pressAndHoldBbutton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BDQ-0g-Hev"/>
-                                    <action selector="release:" destination="BYZ-38-t0r" eventType="touchDown" id="m2a-8N-ruL"/>
-                                    <action selector="releaseOutside:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="ntl-TW-7OM"/>
+                                    <action selector="pressAndHoldHoldToRecord:" destination="BYZ-38-t0r" eventType="touchUpInside" id="BDQ-0g-Hev"/>
+                                    <action selector="pressHoldToRecord:" destination="BYZ-38-t0r" eventType="touchDown" id="m2a-8N-ruL"/>
+                                    <action selector="releaseOutsideHoldToRecord:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="ntl-TW-7OM"/>
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tQ9-PE-ETW" userLabel="HorizontalStackViewBottom">
@@ -134,11 +134,11 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Say Again"/>
+                                <state key="normal" title="Say Again HtR"/>
                                 <connections>
-                                    <action selector="pressAndHoldBbutton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gLg-2k-pbf"/>
-                                    <action selector="release:" destination="BYZ-38-t0r" eventType="touchDown" id="wFg-zc-fkl"/>
-                                    <action selector="releaseOutside:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="gpC-57-MIW"/>
+                                    <action selector="pressAndHoldHoldToRecord:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gLg-2k-pbf"/>
+                                    <action selector="pressHoldToRecord:" destination="BYZ-38-t0r" eventType="touchDown" id="wFg-zc-fkl"/>
+                                    <action selector="releaseOutsideHoldToRecord:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="gpC-57-MIW"/>
                                 </connections>
                             </button>
                         </subviews>

@@ -91,33 +91,40 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
         self.mainManagement.pinyinToggle()
     }
     
+    @IBAction func devQuickSkip(_ sender: Any) {
+        self.mainManagement.skipThisPress(grade: SpeakingGrade.B)
+    }
+    
     @IBAction func skipThisPress(_ sender: Any) {
         self.mainManagement.skipThisPress(grade: SpeakingGrade.F)
     }
     
-    @IBAction func releaseOutside(_ sender: Any) {
+    // Starting Press and Release Record
+    
+    @IBAction func releaseOutsideHoldToRecord(_ sender: Any) {
         released()
     }
     
-    @IBAction func pressAndHoldBbutton(_ sender: UIButton) {
+    @IBAction func pressAndHoldHoldToRecord(_ sender: UIButton) {
         released()
-    }
-    @IBAction func devQuickSkip(_ sender: Any) {
-        self.mainManagement.skipThisPress(grade: SpeakingGrade.B)
     }
     
     func released() {
         self.mainManagement.fullFinishRecording()
     }
     
-    @IBAction func release(_ sender: Any) {
+    @IBAction func pressHoldToRecord(_ sender: Any) {
         self.mainManagement.fullStartRecording()
     }
+    
+    // Ending Press and Release Record
     
     
     @IBAction func reportError(_ sender: Any) {
         self.sendErrorReport()
     }
+    
+    
     
     
     
