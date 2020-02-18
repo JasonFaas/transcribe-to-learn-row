@@ -113,26 +113,25 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
     
     func released(_ sender: Any) {
         let sayAgainButton: UIButton = sender as! UIButton
-        if sayAgainButton == sayInZwHTRButton {
-            
-        } else if sayAgainButton == sayAgainHTRButton {
-            
-        } else {
-            print("Function: \(#function):\(#line) - Big Error")
-        }
-        // TODO: If sayAgainButton, do not logResult
+//        if sayAgainButton == sayInZwHTRButton {
+//            
+//        } else if sayAgainButton == sayAgainHTRButton {
+//            
+//        } else {
+//            print("Function: \(#function):\(#line) - Big Error")
+//        }
         self.mainManagement.fullFinishRecording(sayAgainButton)
     }
     
     @IBAction func pressHoldToRecord(_ sender: Any) {
         let sayAgainButton: UIButton = sender as! UIButton
-        if sayAgainButton == sayInZwHTRButton {
-            
-        } else if sayAgainButton == sayAgainHTRButton {
-            
-        } else {
-            print("Function: \(#function):\(#line) - Big Error")
-        }
+//        if sayAgainButton == sayInZwHTRButton {
+//
+//        } else if sayAgainButton == sayAgainHTRButton {
+//
+//        } else {
+//            print("Function: \(#function):\(#line) - Big Error")
+//        }
         
         // TODO: If sayAgainButton, update to say to previous result
         self.mainManagement.fullStartRecording(sayAgainButton)

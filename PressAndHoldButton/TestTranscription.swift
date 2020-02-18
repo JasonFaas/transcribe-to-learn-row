@@ -18,8 +18,12 @@ class TestTranscription {
         self.testDbTranslation = DbTranslation(hanzi: "对不起", pinyin: "duìbùqǐ", english: "I'm sorry", blanks: "")
     }
     
-    func testCurrentTranslation(_ letterGrade: SpeakingGrade) -> String {
-        return "对不起\nduìbùqǐ\nI'm sorry\nGrade: \(letterGrade.rawValue)\nScheduled: 2005-05-30 11:30 AM -0700"
+    func testCurrentTranslation(_ letterGrade: SpeakingGrade, logResult: Bool) -> String {
+        if logResult {
+            return "对不起\nduìbùqǐ\nI'm sorry\nGrade: \(letterGrade.rawValue)\nScheduled: 2005-05-30 11:30 AM -0700"
+        } else {
+            return "对不起\nduìbùqǐ\nI'm sorry\nGrade: \(letterGrade.rawValue)"
+        }
     }
     
     func runUnitTests() throws {
@@ -55,6 +59,7 @@ class TestTranscription {
         self.testFeedbackTextForC()
         self.testFeedbackTextForD()
         self.testFeedbackTextForF()
+        self.testFeedbackTextForSayAgain()
     }
     
     func getTestDate() -> Date {
@@ -71,18 +76,27 @@ class TestTranscription {
         return userCalendar.date(from: dateComponents)!
     }
     
+    func testFeedbackTextForSayAgain() {
+        cut.currentTranslation = self.testDbTranslation
+        let expected = "Perfect Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.A, logResult: false))"
+        
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [])
+        
+        assert(expected == extractedExpr, extractedExpr)
+    }
+    
     func testFeedbackTextForA() {
         cut.currentTranslation = self.testDbTranslation
-        let expected = "Perfect Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.A))"
+        let expected = "Perfect Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.A, logResult: true))"
         
-        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [getTestDate()]) 
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [getTestDate()])
         
         assert(expected == extractedExpr, extractedExpr)
     }
     
     func testFeedbackTextForB() {
         cut.currentTranslation = self.testDbTranslation
-        let expected = "Great Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.B))"
+        let expected = "Great Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.B, logResult: true))"
         
         let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.B, [getTestDate()])
         
@@ -97,7 +111,7 @@ class TestTranscription {
     
     func testFeedbackTextForC() {
         cut.currentTranslation = self.testDbTranslation
-        let expected = "Good Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.C))"
+        let expected = "Good Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.C, logResult: true))"
         
         let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.C, [getTestDate()])
         assert(expected == extractedExpr, extractedExpr)
@@ -106,7 +120,7 @@ class TestTranscription {
     func testFeedbackTextForD() {
         
         cut.currentTranslation = self.testDbTranslation
-        let expected = "You'll get it next time\n\(self.testCurrentTranslation(SpeakingGrade.D))"
+        let expected = "You'll get it next time\n\(self.testCurrentTranslation(SpeakingGrade.D, logResult: true))"
         
         let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.D, [getTestDate()])
         assert(expected == extractedExpr, extractedExpr)
@@ -115,7 +129,7 @@ class TestTranscription {
     func testFeedbackTextForF() {
         
         cut.currentTranslation = self.testDbTranslation
-        let expected = "Keep practicing\n\(self.testCurrentTranslation(SpeakingGrade.F))"
+        let expected = "Keep practicing\n\(self.testCurrentTranslation(SpeakingGrade.F, logResult: true))"
         
         let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.F, [getTestDate()])
         assert(expected == extractedExpr, extractedExpr)

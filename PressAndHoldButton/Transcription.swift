@@ -6,16 +6,22 @@
 //  Copyright © 2019 Jason A Faas. All rights reserved.
 //
 
+import UIKit
 import Foundation
 
 class Transcription {
     
     var updateUi: UiUpdate
     
+    let sayAgainHTRButton: UIButton
+    let sayInZwHTRButton: UIButton
+    
     var lastTranscription: String = ""
     
     var currentTranslation: DbTranslation
+    var previousTranslation: DbTranslation
     var attempts = 0
+    
     
     var dbm: DatabaseManagement
     
@@ -29,8 +35,13 @@ class Transcription {
     
     init(updateUi: UiUpdate,
          quickStartDbmHold: DatabaseManagement!,
-         quickStartNextLangDispHold: String!) {
+         quickStartNextLangDispHold: String!,
+         sayAgainHTRButton: UIButton,
+         sayInZwHTRButton: UIButton) {
         self.updateUi = updateUi
+        
+        self.sayAgainHTRButton = sayAgainHTRButton
+        self.sayInZwHTRButton = sayInZwHTRButton
         
         if quickStartDbmHold == nil {
             self.dbm = DatabaseManagement()
@@ -47,24 +58,22 @@ class Transcription {
         
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName,
                                                          dispLang: firstLangDisp)
+        self.previousTranslation = currentTranslation
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: currentTranslation)
     }
     
     func mostRecentTranscription(_ transcribed: String) {
-        //TODO: Delete legacy if new lastTranscription paradigm working
-//        self.lastTranscription = self.cleanUpTranscribed(transcribed)
-        
         self.lastTranscription = transcribed
         self.updateUi.updateFeedbackText("Listening... \n\(self.lastTranscription)")
     }
     
-    func gradeTranscription() {
+    func gradeTranscription(logResult: Bool) {
         self.attempts += 1
         
         if self.isTranscriptionCorrect(
             transcription: self.lastTranscription,
             expected: self.currentTranslation.getHanzi()) {
-            self.correctPronunciation()
+            self.correctPronunciation(logResult: logResult)
         } else {
             self.updateUi.enableSkip()
         }
@@ -138,7 +147,7 @@ class Transcription {
         return true
     }
     
-    func correctPronunciation() {
+    func correctPronunciation(logResult: Bool) {
         var letterGradeNum = 0
         
         if self.attempts > 8 {
@@ -154,13 +163,18 @@ class Transcription {
         }
         
         let letterGrade = self.letterGradeMap[letterGradeNum, default: SpeakingGrade.F]
-            
-        let dates: [Date] = self.dbm.logResult(
-            letterGrade: letterGrade,
-            quizInfo: self.currentTranslation,
-            pinyinOn: self.updateUi.pinyinOn,
-            attempts: attempts
-        )
+        
+        let dates: [Date]
+        if logResult {
+            dates = self.dbm.logResult(
+                letterGrade: letterGrade,
+                quizInfo: self.currentTranslation,
+                pinyinOn: self.updateUi.pinyinOn,
+                attempts: attempts
+            )
+        } else {
+            dates = []
+        }
         
         self.updateUi.updateFeedbackText(
             getFeedbackTextFromGrade(letterGrade, dates)
@@ -169,13 +183,16 @@ class Transcription {
         self.advanceToNextPhrase()
     }
     
-    func skipCurrentPhrase(grade: SpeakingGrade) {
-        let dates: [Date] = self.dbm.logResult(
-            letterGrade: grade,
-            quizInfo: self.currentTranslation,
-            pinyinOn: self.updateUi.pinyinOn,
-            attempts: attempts
-        )
+    func skipCurrentPhrase(grade: SpeakingGrade, logResult: Bool) {
+        var dates: [Date] = []
+        if logResult {
+            dates = self.dbm.logResult(
+                letterGrade: grade,
+                quizInfo: self.currentTranslation,
+                pinyinOn: self.updateUi.pinyinOn,
+                attempts: attempts
+            )
+        }
         
         self.updateUi.updateFeedbackText(getFeedbackTextFromGrade(grade, dates))
         
@@ -190,10 +207,14 @@ class Transcription {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd h:mm a Z"
         dateFormatter.timeZone = NSTimeZone(abbreviation: TimeZone.current.abbreviation() ?? "") as TimeZone?
-        let stringDate = dateFormatter.string(from: dates[0])
         
-        
-        let dateStuff: String = "Scheduled: \(stringDate)"
+        let dateStuff: String
+        if dates.count > 0 {
+            let stringDate = dateFormatter.string(from: dates[0])
+            dateStuff = "\nScheduled: \(stringDate)"
+        } else {
+            dateStuff = ""
+        }
         
         let gradeToFeedback: [SpeakingGrade: String] = [
             SpeakingGrade.A: "Perfect Pronunciation",
@@ -206,7 +227,7 @@ class Transcription {
         
         let feedback = gradeToFeedback[grade, default: "grade feedback error"]
             
-        return "\(feedback)\n\(translationInfo)\n\(gradeStuff)\n\(dateStuff)"
+        return "\(feedback)\n\(translationInfo)\n\(gradeStuff)\(dateStuff)"
     }
 
     func advanceToNextPhrase() {
@@ -226,6 +247,9 @@ class Transcription {
         let dueOneHour: String = "1 hour\t\(self.dbm.getCountDueTotal(tTableName: tTableName, hoursFromNow: 1))"
         let dueOneDay: String = "1 day\t\(self.dbm.getCountDueTotal(tTableName: tTableName, hoursFromNow: 24))"
         self.updateUi.updatePhraseProgress("Due\n\(dueNow)\n\(dueOneHour)\n\(dueOneDay)")
+
+        self.updateUi.enableRecording(self.sayAgainHTRButton)
+        self.updateUi.enableRecording(self.sayInZwHTRButton)
     }
     
     func getCurrentTranslation() -> DbTranslation {

@@ -42,12 +42,17 @@ class MainManagement {
         self.sayInZwHTRButton = sayInZwHTRButton
         self.transcription = Transcription(updateUi: self.updateUi,
                                            quickStartDbmHold: quickStartDbmHold,
-                                           quickStartNextLangDispHold: quickStartNextLangDispHold)
+                                           quickStartNextLangDispHold: quickStartNextLangDispHold,
+        sayAgainHTRButton: sayAgainHTRButton,
+        sayInZwHTRButton: sayInZwHTRButton)
         self.recording = Recording(translation: transcription)
     }
     
     func skipThisPress(grade: SpeakingGrade) {
-        self.transcription.skipCurrentPhrase(grade: grade)
+        self.transcription.skipCurrentPhrase(
+            grade: grade,
+            logResult: self.sayInZwHTRButton.isEnabled
+        )
         self.updateUi.enableRecording(self.sayAgainHTRButton)
         self.updateUi.enableRecording(self.sayInZwHTRButton)
     }
@@ -76,7 +81,7 @@ class MainManagement {
         
         self.recording._finishRecording()
         
-        self.transcription.gradeTranscription()
+        self.transcription.gradeTranscription(logResult: sender == sayInZwHTRButton)
         
         self.updateUi.enableRecording(sender)
     }
