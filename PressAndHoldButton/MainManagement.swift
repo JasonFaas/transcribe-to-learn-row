@@ -15,6 +15,8 @@ class MainManagement {
     var updateUi: UiUpdate
     var recording: Recording
     var transcription: Transcription
+    var sayAgainHTRButton: UIButton
+    var sayInZwHTRButton: UIButton
     
     init(feedbackLabel: UILabel,
          toPronounceHanzi: UILabel,
@@ -36,6 +38,8 @@ class MainManagement {
             dueProgress: dueProgress,
             sayAgainHTRButton: sayAgainHTRButton
         )
+        self.sayAgainHTRButton = sayAgainHTRButton
+        self.sayInZwHTRButton = sayInZwHTRButton
         self.transcription = Transcription(updateUi: self.updateUi,
                                            quickStartDbmHold: quickStartDbmHold,
                                            quickStartNextLangDispHold: quickStartNextLangDispHold)
@@ -44,13 +48,15 @@ class MainManagement {
     
     func skipThisPress(grade: SpeakingGrade) {
         self.transcription.skipCurrentPhrase(grade: grade)
+        self.updateUi.enableRecording(self.sayAgainHTRButton)
+        self.updateUi.enableRecording(self.sayInZwHTRButton)
     }
     
     func pinyinToggle() {
         self.updateUi.pinyinToggle()
     }
     
-    func fullStartRecording() {
+    func fullStartRecording(_ sender: UIButton) {
         self.updateUi.disableRecording()
         self.updateUi.updateFeedbackText("Listening...")
         
@@ -64,14 +70,14 @@ class MainManagement {
         }
     }
     
-    func fullFinishRecording() {
+    func fullFinishRecording(_ sender: UIButton) {
         self.updateUi.addToFeedbackText("\nComplete")
         
         self.recording._finishRecording()
         
         self.transcription.gradeTranscription()
         
-        self.updateUi.enableRecording()
+        self.updateUi.enableRecording(sender)
     }
     
     func getCurrentTranslation() -> DbTranslation {

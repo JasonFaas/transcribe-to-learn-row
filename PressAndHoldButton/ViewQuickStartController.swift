@@ -120,7 +120,8 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
         } else {
             print("Function: \(#function):\(#line) - Big Error")
         }
-        self.mainManagement.fullFinishRecording()
+        // TODO: If sayAgainButton, do not logResult
+        self.mainManagement.fullFinishRecording(what)
     }
     
     @IBAction func pressHoldToRecord(_ sender: Any) {
@@ -132,7 +133,11 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
         } else {
             print("Function: \(#function):\(#line) - Big Error")
         }
-        self.mainManagement.fullStartRecording()
+        // TODO: If sayAgainButton, put SayInZw in disabled state
+        // TODO: If sayAgainButton, put SayInZw in disabled state
+        
+        // TODO: If SayInZw, put SayInZw in disabled state, keep SayInZw in disabled state
+        self.mainManagement.fullStartRecording(what)
     }
     
     // Ending Press and Release Record

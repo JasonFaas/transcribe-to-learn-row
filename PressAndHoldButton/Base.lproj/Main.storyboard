@@ -93,23 +93,23 @@
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tQ9-PE-ETW" userLabel="HorizontalStackViewBottom">
-                                <rect key="frame" x="10" y="752" width="394" height="100"/>
+                                <rect key="frame" x="10" y="795" width="394" height="66"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Bih-h2-aET" userLabel="VerticalStackViewSkip">
-                                        <rect key="frame" x="0.0" y="0.0" width="197" height="100"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="197" height="66"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UG0-be-ppf">
-                                                <rect key="frame" x="0.0" y="0.0" width="197" height="70"/>
+                                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UG0-be-ppf">
+                                                <rect key="frame" x="0.0" y="0.0" width="197" height="36"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                                <state key="normal" title="Skip This &quot;F&quot;"/>
+                                                <state key="normal" title="Skip This -&gt; &quot;F&quot;"/>
                                                 <connections>
                                                     <action selector="skipThisPress:" destination="BYZ-38-t0r" eventType="touchUpInside" id="woU-rO-gXy"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SZG-On-LgC">
-                                                <rect key="frame" x="0.0" y="70" width="197" height="30"/>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SZG-On-LgC">
+                                                <rect key="frame" x="0.0" y="36" width="197" height="30"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                <state key="normal" title="Dev Skip &quot;B&quot;"/>
+                                                <state key="normal" title="Dev Skip -&gt; &quot;B&quot;"/>
                                                 <connections>
                                                     <action selector="devQuickSkip:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Jz3-dZ-43j"/>
                                                 </connections>
@@ -117,17 +117,14 @@
                                         </subviews>
                                     </stackView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Phrases Due" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mCt-Kl-znU">
-                                        <rect key="frame" x="197" y="0.0" width="197" height="100"/>
+                                        <rect key="frame" x="197" y="0.0" width="197" height="66"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="yjV-ca-PYj"/>
-                                </constraints>
                             </stackView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mQh-GP-XmN">
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mQh-GP-XmN">
                                 <rect key="frame" x="30" y="568" width="354" height="50"/>
                                 <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
@@ -146,12 +143,14 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="qtN-bY-7UG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="50" id="1Or-iQ-fmd"/>
+                            <constraint firstItem="tQ9-PE-ETW" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="2Dk-dG-hSw"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="NNC-y7-mfd" secondAttribute="trailing" constant="30" id="9GD-VT-Lfg"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="tQ9-PE-ETW" secondAttribute="trailing" constant="10" id="9uZ-Xe-5kp"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="tQ9-PE-ETW" secondAttribute="bottom" constant="1" id="E7H-Xh-vpC"/>
                             <constraint firstItem="Uzg-Ld-blB" firstAttribute="top" secondItem="CmP-FQ-yvg" secondAttribute="bottom" constant="5" id="EYg-L6-fXe"/>
                             <constraint firstItem="JCL-2M-gDY" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="GIP-UD-bWY"/>
                             <constraint firstItem="8Kk-Jr-rrW" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="JS9-Io-3mq"/>
                             <constraint firstItem="JCL-2M-gDY" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="R82-KH-Ndp"/>
-                            <constraint firstItem="tQ9-PE-ETW" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="SNY-OV-g71"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="mQh-GP-XmN" secondAttribute="trailing" constant="30" id="T50-Hg-hhs"/>
                             <constraint firstItem="CmP-FQ-yvg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="TIt-MM-PXx"/>
                             <constraint firstItem="mQh-GP-XmN" firstAttribute="top" secondItem="qtN-bY-7UG" secondAttribute="bottom" constant="10" id="V51-vW-Nje"/>
@@ -166,7 +165,6 @@
                             <constraint firstItem="mQh-GP-XmN" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="30" id="h4T-3F-Van"/>
                             <constraint firstItem="NNC-y7-mfd" firstAttribute="top" secondItem="Uzg-Ld-blB" secondAttribute="bottom" constant="5" id="hOj-wG-Cg1"/>
                             <constraint firstItem="e0f-UG-6CE" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="hug-hi-HJa"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="tQ9-PE-ETW" secondAttribute="trailing" constant="10" id="iuD-Ed-eIA"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="9JW-mA-EcF" secondAttribute="trailing" constant="10" id="kuH-fC-bVc"/>
                             <constraint firstItem="CmP-FQ-yvg" firstAttribute="top" secondItem="9JW-mA-EcF" secondAttribute="bottom" constant="5" id="lpN-gw-bsc"/>
                             <constraint firstItem="e0f-UG-6CE" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="mM1-hX-xEH"/>
@@ -177,7 +175,6 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8Kk-Jr-rrW" secondAttribute="trailing" constant="10" id="put-Me-SP5"/>
                             <constraint firstItem="5ph-Ed-wgR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="qJW-CD-gqK"/>
                             <constraint firstItem="9JW-mA-EcF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="sA2-qn-rPe"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="tQ9-PE-ETW" secondAttribute="bottom" constant="10" id="uCZ-XC-IVZ"/>
                             <constraint firstItem="Uzg-Ld-blB" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="vvm-FH-UG0"/>
                             <constraint firstItem="JCL-2M-gDY" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="100" id="yrk-e0-oYC"/>
                         </constraints>

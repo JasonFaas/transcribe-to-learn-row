@@ -103,8 +103,7 @@ class UiUpdate {
         self.sayAgainHTRButton.isEnabled = false
     }
     
-    func enableRecording() {
-        self.sayInZwHTRButton.isEnabled = true
-        self.sayAgainHTRButton.isEnabled = true
+    func enableRecording(_ sender: UIButton) {
+        sender.isEnabled = true
     }
 }
