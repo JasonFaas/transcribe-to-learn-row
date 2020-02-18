@@ -58,7 +58,7 @@ class Transcription {
         
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName,
                                                          dispLang: firstLangDisp)
-        self.previousTranslation = currentTranslation
+        self.previousTranslation = self.currentTranslation
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: currentTranslation)
     }
     
@@ -73,13 +73,16 @@ class Transcription {
         if self.isTranscriptionCorrect(
             transcription: self.lastTranscription,
             expected: self.currentTranslation.getHanzi()) {
+            print("Function: \(#function):\(#line) Corret")
             self.correctPronunciation(logResult: logResult)
         } else {
+            print("Function: \(#function):\(#line) Incorrect")
             self.updateUi.enableSkip()
         }
     }
     
     func isTranscriptionCorrect(transcription: String, expected: String) -> Bool {
+        print("Function: \(#function):\(#line) \(transcription) \(expected)")
         var expectedClean: String = expected.withoutPunctuationAndSpaces()
         var transcriptionClean: String = transcription.withoutPunctuationAndSpaces()
         
@@ -236,7 +239,7 @@ class Transcription {
         self.lastTranscription = ""
         
         let tTableName = DbTranslation.tableName
-        
+        self.previousTranslation = self.currentTranslation
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: tTableName,
                                                          idExclude: self.currentTranslation.getId(),
                                                          dispLang: currentTranslation.getLanguageToDisplay() == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue)
@@ -274,6 +277,11 @@ class Transcription {
         }
 
         return returnList
+    }
+    
+    func updateUiWithPrevious() {
+        self.currentTranslation = self.previousTranslation
+        self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
     }
     
     func runUnitTests() throws {

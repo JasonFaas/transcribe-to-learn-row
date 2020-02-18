@@ -53,6 +53,8 @@ class TestTranscription {
         
         assert(!self.cut.isTranscriptionCorrect(transcription: "他女朋友行李",
         expected: "他女朋友姓李"))
+        assert(self.cut.isTranscriptionCorrect(transcription: "新年快乐！",
+        expected: "新年 快乐"))
         
         self.testFeedbackTextForA()
         self.testFeedbackTextForB()

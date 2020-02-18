@@ -38,7 +38,7 @@ extension String: LocalizedError {
     
     func withoutPunctuationAndSpaces() -> String {
         var returnMe = String(self)
-        let charsToRemove = [",", "。", "！", "？", " ", "，", ";"]
+        let charsToRemove = [",", "。", "!", "！", "？", " ", "，", ";"]
         
         for charToRemove in charsToRemove {
             returnMe = returnMe.replacingOccurrences(of: charToRemove, with: "")

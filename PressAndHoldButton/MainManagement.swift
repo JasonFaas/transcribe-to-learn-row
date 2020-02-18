@@ -53,8 +53,6 @@ class MainManagement {
             grade: grade,
             logResult: self.sayInZwHTRButton.isEnabled
         )
-        self.updateUi.enableRecording(self.sayAgainHTRButton)
-        self.updateUi.enableRecording(self.sayInZwHTRButton)
     }
     
     func pinyinToggle() {
@@ -63,7 +61,11 @@ class MainManagement {
     
     func fullStartRecording(_ sender: UIButton) {
         self.updateUi.disableRecordingButtons()
-        // TODO: Update Say in Mandarin to previous
+        
+        if sender == sayAgainHTRButton {
+            self.transcription.updateUiWithPrevious()
+        }
+
         self.updateUi.updateFeedbackText("Listening...")
         
         do {
