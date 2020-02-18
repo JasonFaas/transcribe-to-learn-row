@@ -112,32 +112,30 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
     }
     
     func released(_ sender: Any) {
-        let what: UIButton = sender as! UIButton
-        if what == sayInZwHTRButton {
+        let sayAgainButton: UIButton = sender as! UIButton
+        if sayAgainButton == sayInZwHTRButton {
             
-        } else if what == sayAgainHTRButton {
+        } else if sayAgainButton == sayAgainHTRButton {
             
         } else {
             print("Function: \(#function):\(#line) - Big Error")
         }
         // TODO: If sayAgainButton, do not logResult
-        self.mainManagement.fullFinishRecording(what)
+        self.mainManagement.fullFinishRecording(sayAgainButton)
     }
     
     @IBAction func pressHoldToRecord(_ sender: Any) {
-        let what: UIButton = sender as! UIButton
-        if what == sayInZwHTRButton {
+        let sayAgainButton: UIButton = sender as! UIButton
+        if sayAgainButton == sayInZwHTRButton {
             
-        } else if what == sayAgainHTRButton {
+        } else if sayAgainButton == sayAgainHTRButton {
             
         } else {
             print("Function: \(#function):\(#line) - Big Error")
         }
-        // TODO: If sayAgainButton, put SayInZw in disabled state
-        // TODO: If sayAgainButton, put SayInZw in disabled state
         
-        // TODO: If SayInZw, put SayInZw in disabled state, keep SayInZw in disabled state
-        self.mainManagement.fullStartRecording(what)
+        // TODO: If sayAgainButton, update to say to previous result
+        self.mainManagement.fullStartRecording(sayAgainButton)
     }
     
     // Ending Press and Release Record
@@ -146,10 +144,6 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
     @IBAction func reportError(_ sender: Any) {
         self.sendErrorReport()
     }
-    
-    
-    
-    
     
     func sendErrorReport() {
         print("Try to send error report")

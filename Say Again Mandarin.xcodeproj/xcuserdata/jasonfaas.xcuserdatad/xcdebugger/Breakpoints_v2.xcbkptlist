@@ -64,7 +64,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "617"
             endingLineNumber = "617"
-            landmarkName = "getHskPinyins(_:)"
+            landmarkName = "logWordsSpoken(hskWordId:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

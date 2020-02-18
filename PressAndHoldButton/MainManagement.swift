@@ -57,7 +57,8 @@ class MainManagement {
     }
     
     func fullStartRecording(_ sender: UIButton) {
-        self.updateUi.disableRecording()
+        self.updateUi.disableRecordingButtons()
+        // TODO: Update Say in Mandarin to previous
         self.updateUi.updateFeedbackText("Listening...")
         
         do {

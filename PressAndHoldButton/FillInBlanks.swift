@@ -134,8 +134,6 @@ class FillInBlanks {
                         
                         if refType == "eval", let evalLeft = refDict["left"], let evalRight = refDict["right"], let evalSign = refDict["sign"] {
                             
-                            //TODO: Lots of error checking here
-                            
                             let leftVal:String = self.blanksDictionary[Int(evalLeft)!]!["hanzi"]!
                             let rightVal:String = self.blanksDictionary[Int(evalRight)!]!["hanzi"]!
                                                         

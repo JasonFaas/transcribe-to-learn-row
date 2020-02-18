@@ -110,7 +110,6 @@ class DatabaseManagement {
         return dbTranslation
     }
     
-    // TODO: Verify if no DB
     func getTranslationByResultDueDate(tTableName: String,
                                        tIdExclude: Int = -1,
                                        t_to_t_fkRef: Int = -1,
@@ -152,7 +151,6 @@ class DatabaseManagement {
         tTableName: tTableName)
     }
     
-    // TODO: Verify if no DB
     func getCountDueTotal(tTableName: String, hoursFromNow: Int = 0) -> Int {
         var returnCount: Int = 0
         do {
@@ -170,7 +168,6 @@ class DatabaseManagement {
         return returnCount
     }
     
-    // TODO: Verify if no DB
     func getResultDueAfterMarginCount(rTableName: String, hoursFromNow: Int = 10) throws -> Int {
         let futureDate: Date = DateMath.getDateFromNow(minutesAhead: hoursFromNow * 60)
         
@@ -181,7 +178,6 @@ class DatabaseManagement {
         return try self.dbConn.scalar(selectResult.count)
     }
     
-    // TODO: Verify if no DB
     func getUnansweredCount(tTableName: String) throws -> Int {
         let select_fk_keys = Table(tTableName + DbResult.nameSuffix)
             .select(DbResult.translation_fk, DbResult.language_displayed)
@@ -200,7 +196,6 @@ class DatabaseManagement {
     func createResultDbTableIfNotExists(tTableName: String) {
         do {
             try self.dbConn.run(DbResult.tableCreationString(tTableName: tTableName))
-//            print("DB :: Created \(tTableName)\(DbResult.nameSuffix) Table or it already existed")
         } catch {
             print("DB Error :: DID NOT CREATE RESULT TABLE")
             print("Function: \(#function):\(#line), Error: \(error)")
@@ -236,19 +231,16 @@ class DatabaseManagement {
             throw "Function: \(#function):\(#line) :: Database \"\(tTableName)\" not found with unused variable"
         }
         
-        // TODO: Make this 50/50 whether english or mandarin-simplified is returned, will have to update logging default paradigm
         return SpecificDbTranslation(dbRow: translationRow,
                                      displayLanguage: dispLang,
         tTableName: tTableName)
     }
     
-    // TODO: Verify if no DB
     func updateBlanks(_ dbTranslation: DbTranslation) {
         let what = FillInBlanks(dbTranslation: dbTranslation, dbm: self)
         what.processBlanks()
     }
     
-    // TODO: Verify if no DB
     func getSpecificRow(tTableName: String, englishVal: String) throws -> DbTranslation {
         let selectTranslation = Table(tTableName).filter(DbTranslation.english == englishVal)
         
@@ -262,8 +254,6 @@ class DatabaseManagement {
                                      tTableName: tTableName)
     }
     
-    // TODO: Verify if no DB
-    // TODO: Get rid of the random row usage
     func getRandomRowFromSpecified(tTableName: String, fk_ref: Int, excludeEnglishVal: String) throws -> DbTranslation {
         var selectTranslation = Table(tTableName)
         
@@ -274,7 +264,6 @@ class DatabaseManagement {
         }
         
         selectTranslation = selectTranslation.order(Expression<Int>.random())
-//        selectTranslation = selectTranslation.order(DbTranslation.fk_parent.desc)
         
         let translationRow: Row! = try self.dbConn.pluck(selectTranslation)
         if translationRow == nil {
@@ -287,7 +276,6 @@ class DatabaseManagement {
         
     }
     
-    // TODO: Verify if no DB
     func getRowsInTable(table: Table) -> Int {
         do {
             return try self.dbConn.scalar(table.count)
@@ -296,8 +284,7 @@ class DatabaseManagement {
             return 0
         }
     }
-    
-    // TODO: Verify if no DB
+
     func getRowsInTranslationTableWithDifficulty(_ table: Table, _ difficulty: Int) -> Int {
         do {
             let tableDiffFilterCount = table
@@ -309,8 +296,7 @@ class DatabaseManagement {
             return 0
         }
     }
-     
-    // TODO: Verify if no DB
+
     func getLogRowsCountWithDifficulty(_ difficulty: Int) -> Int {
         do {
             let lTable: Table = DbLogWords.table
@@ -326,7 +312,6 @@ class DatabaseManagement {
         }
     }
     
-    // TODO: Verify if no DB
     func getResultRow(resultTableName: String, languageDisplayed: String, translationId: Int) throws -> DbResult {
         let extractedExpr: Table = Table(resultTableName)
             .filter(DbResult.translation_fk == translationId)
@@ -460,16 +445,12 @@ class DatabaseManagement {
         }
         
         //TODO: Use existing removal of puncuation method. Consider moving that to string class
-        
-        //TODO: Write this, remove puncuation and arabic numerals
-        
         let returnString: String = returnWords.joined(separator: " ")
         let returnStringNoDs = returnString.replacingOccurrences(of: "  ", with: " ")
         let returnStringNoExtraWs = returnStringNoDs.trimmingCharacters(in: .whitespacesAndNewlines)
         return returnStringNoExtraWs
     }
     
-    // TODO: Verify if no DB
     func logResult(letterGrade: SpeakingGrade,
                    quizInfo: DbTranslation,
                    pinyinOn: Bool,
@@ -600,7 +581,6 @@ class DatabaseManagement {
         return returnDate
     }
     
-    // TODO: Verify if no DB
     func getHskPinyins(_ transcription: String) -> [String] {
         let transcriptionQuery = DbTranslation.hskTable.filter(DbTranslation.hanzi == transcription)
         let transcriptionRow: Row!
@@ -643,7 +623,6 @@ class DatabaseManagement {
         }
     }
     
-    // TODO: Verify if no DB
     func getLogWordsAnswered(hskLevel: Int, answered: Bool) throws -> [String] {
         let tTable = DbTranslation.hskTable
         let lwTable = DbLogWords.table
@@ -680,7 +659,6 @@ class DatabaseManagement {
         return loggedValues
     }
     
-    // TODO: Verify if no DB
     func arePinyinSame(_ transcription: String,
                        _ expected: String) -> Bool {
         let transcriptionPinyins = getHskPinyins(transcription)

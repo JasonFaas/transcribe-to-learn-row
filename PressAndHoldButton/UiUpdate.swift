@@ -98,7 +98,7 @@ class UiUpdate {
         self.skipThis.isEnabled = true
     }
     
-    func disableRecording() {
+    func disableRecordingButtons() {
         self.sayInZwHTRButton.isEnabled = false
         self.sayAgainHTRButton.isEnabled = false
     }

@@ -72,8 +72,6 @@ class TestDbManagement {
         assert(actual == expected, actual)
         
         //TODO: Numbers beyond 99,999
-        
-        
         actual = self.dbm.convertHanziToLogSpoken("你好 190,087")
         expected = "你好 190087"
         assert(actual == expected)

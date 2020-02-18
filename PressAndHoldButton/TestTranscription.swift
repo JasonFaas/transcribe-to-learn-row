@@ -75,7 +75,7 @@ class TestTranscription {
         cut.currentTranslation = self.testDbTranslation
         let expected = "Perfect Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.A))"
         
-        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [getTestDate()]) // TODO: Have to hardcode this
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.A, [getTestDate()]) 
         
         assert(expected == extractedExpr, extractedExpr)
     }
@@ -99,7 +99,7 @@ class TestTranscription {
         cut.currentTranslation = self.testDbTranslation
         let expected = "Good Pronunciation\n\(self.testCurrentTranslation(SpeakingGrade.C))"
         
-        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.C, [getTestDate()]) // TODO: Have to hardcode this
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.C, [getTestDate()])
         assert(expected == extractedExpr, extractedExpr)
     }
     
@@ -108,7 +108,7 @@ class TestTranscription {
         cut.currentTranslation = self.testDbTranslation
         let expected = "You'll get it next time\n\(self.testCurrentTranslation(SpeakingGrade.D))"
         
-        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.D, [getTestDate()]) // TODO: Have to hardcode this
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.D, [getTestDate()])
         assert(expected == extractedExpr, extractedExpr)
     }
     
@@ -117,7 +117,7 @@ class TestTranscription {
         cut.currentTranslation = self.testDbTranslation
         let expected = "Keep practicing\n\(self.testCurrentTranslation(SpeakingGrade.F))"
         
-        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.F, [getTestDate()]) // TODO: Have to hardcode this
+        let extractedExpr: String = self.cut.getFeedbackTextFromGrade(SpeakingGrade.F, [getTestDate()])
         assert(expected == extractedExpr, extractedExpr)
     }
     
