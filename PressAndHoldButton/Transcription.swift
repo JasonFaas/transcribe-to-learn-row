@@ -25,6 +25,8 @@ class Transcription {
     
     var dbm: DatabaseManagement
     
+    var langPref: [String:Bool]
+    
     // TODO: This should probably go away?
     let letterGradeMap: Dictionary<Int, SpeakingGrade> = [
         0: SpeakingGrade.A,
@@ -49,8 +51,19 @@ class Transcription {
             self.dbm = quickStartDbmHold
         }
         
-        self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName,
-                                                         dispLang: Transcription.getLangToDisplayNext(currLangDisp: nil, quickStartNextLangDispHold: quickStartNextLangDispHold))
+        self.langPref = [
+            DbSettings.settingEnglish: dbm.getSetting(DbSettings.settingEnglish),
+            DbSettings.settingMandarinSimplified: dbm.getSetting(DbSettings.settingMandarinSimplified),
+        ]
+        
+        self.currentTranslation = self.dbm.getNextPhrase(
+            tTableName: DbTranslation.tableName,
+            dispLang: Transcription.getLangToDisplayNext(
+                currLangDisp: nil,
+                quickStartNextLangDispHold: quickStartNextLangDispHold,
+                langPref: langPref
+            )
+        )
         self.previousTranslation = self.currentTranslation
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: currentTranslation)
     }
@@ -225,18 +238,14 @@ class Transcription {
         return "\(feedback)\n\(translationInfo)\n\(gradeStuff)\(dateStuff)"
     }
 
-    static func getLangToDisplayNext(currLangDisp: String?, quickStartNextLangDispHold: String?) -> String {
-//        if !firstDisp {
-//            return currLangDisp == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
-//        } else {
-//            let firstLangDisp: String!
-//            if self.quickStartNextLangDispHold == nil {
-//                firstLangDisp = LanguageDisplayed.MandarinSimplified.rawValue
-//            } else {
-//                firstLangDisp = self.quickStartNextLangDispHold
-//            }
-//            return firstLangDisp
-//        }
+    static func getLangToDisplayNext(currLangDisp: String?,
+                                     quickStartNextLangDispHold: String?,
+                                     langPref: [String:Bool]) -> String {
+        if !(langPref[DbSettings.settingEnglish] ?? true) {
+            return LanguageDisplayed.MandarinSimplified.rawValue
+        } else if !(langPref[DbSettings.settingMandarinSimplified] ?? true) {
+            return LanguageDisplayed.English.rawValue
+        }
         
         if currLangDisp != nil {
             return currLangDisp == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
@@ -257,7 +266,8 @@ class Transcription {
         self.previousTranslation = self.currentTranslation
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: tTableName,
                                                          idExclude: self.currentTranslation.getId(),
-                                                         dispLang: Transcription.getLangToDisplayNext(currLangDisp: self.currentTranslation.getLanguageToDisplay(), quickStartNextLangDispHold: nil))
+                                                         dispLang: Transcription.getLangToDisplayNext(currLangDisp: self.currentTranslation.getLanguageToDisplay(), quickStartNextLangDispHold: nil,
+                                                                                                      langPref: self.langPref))
                 
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
         
