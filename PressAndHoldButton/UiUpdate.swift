@@ -53,6 +53,12 @@ class UiUpdate {
         }
     }
     
+    func pinyinToOn() {
+        if !self.pinyinOn {
+            self.pinyinToggle()
+        }
+    }
+    
     func pinyinToggle() {
         self.pinyinOn = !self.pinyinOn
         self.pinyinToggleButton.setTitle(self.pinyinToggleText[!self.pinyinOn], for: .normal)

@@ -27,6 +27,8 @@ class Transcription {
     
     var langPref: [String:Bool]
     
+    var pinyinDefaultOn: Bool
+    
     // TODO: This should probably go away?
     let letterGradeMap: Dictionary<Int, SpeakingGrade> = [
         0: SpeakingGrade.A,
@@ -55,6 +57,13 @@ class Transcription {
             DbSettings.settingEnglish: dbm.getSetting(DbSettings.settingEnglish),
             DbSettings.settingMandarinSimplified: dbm.getSetting(DbSettings.settingMandarinSimplified),
         ]
+        
+        self.pinyinDefaultOn = dbm.getSetting(DbSettings.settingPinyinDefaultOn)
+        if !pinyinDefaultOn {
+            self.updateUi.pinyinOff()
+        } else {
+            self.updateUi.pinyinToOn()
+        }
         
         self.currentTranslation = self.dbm.getNextPhrase(
             tTableName: DbTranslation.tableName,
@@ -258,7 +267,11 @@ class Transcription {
     
     func advanceToNextPhrase() {
         self.updateUi.disableSkip()
-        self.updateUi.pinyinOff()
+        if !pinyinDefaultOn {
+            self.updateUi.pinyinOff()
+        } else {
+            self.updateUi.pinyinToOn()
+        }
         self.lastTranscription = ""
         self.attempts = 0
         
