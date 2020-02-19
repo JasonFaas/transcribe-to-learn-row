@@ -19,6 +19,7 @@ class DbResult {
     static let due_date = Expression<Date>("due_date")
     static let last_updated_date = Expression<Date>("last_updated_date")
     static let last_grade: Expression<String> = Expression<String>("last_grade")
+    static let minutes_until: Expression<Int> = Expression<Int>("minutes_until")
     static let language_displayed = Expression<String>("language_displayed") //TODO: enum to English, Mandarin-Simplified, or Mandarin-Pinyin
     static let language_pronounced = Expression<String>("language_pronounced")
     static let like = Expression<Bool>("like")
@@ -59,6 +60,10 @@ class DbResult {
         self.dbRow[DbResult.language_displayed]
     }
     
+    func getMinutesUntil() -> Int {
+        self.dbRow[DbResult.minutes_until]
+    }
+    
     func printInfo() {
         print(dbRow[DbResult.id])
         print("\tFK:       \(dbRow[DbResult.translation_fk])")
@@ -68,6 +73,7 @@ class DbResult {
         print("\tLangDisp: \(dbRow[DbResult.language_displayed])")
         print("\tLangPron: \(dbRow[DbResult.language_pronounced])")
         print("\tPronHelp: \(dbRow[DbResult.pronunciation_help])")
+        print("\tMinUntil: \(dbRow[DbResult.minutes_until])")
         print("\tLike:     \(dbRow[DbResult.like])")
     }
     
@@ -82,6 +88,7 @@ class DbResult {
             t.column(DbResult.due_date)
             t.column(DbResult.last_updated_date)
             t.column(DbResult.last_grade)
+            t.column(DbResult.minutes_until)
             t.column(DbResult.language_displayed)
             t.column(DbResult.language_pronounced)
             t.column(DbResult.pronunciation_help)
@@ -94,36 +101,40 @@ class DbResult {
     static func getUpdate(tableName: String,
                           fk: Int,
                           langDisp: String,
-                          newDueDate: Date,
                           letterGrade: SpeakingGrade,
-                          pronunciationHelp: String) -> Update {
+                          pronunciationHelp: String,
+                          minutesUntil: Int) -> Update {
         let quizSpecific = Table(tableName)
             .filter(DbResult.translation_fk == fk)
             .filter(DbResult.language_displayed == langDisp)
-        let whatwhat: Update = quizSpecific.update(DbResult.due_date <- newDueDate,
-                                                   DbResult.last_grade <- letterGrade.rawValue,
-                                                    DbResult.pronunciation_help <- pronunciationHelp,
-                                                    DbResult.last_updated_date <- Date())
+        let whatwhat: Update = quizSpecific.update(
+            DbResult.due_date <- DateMath.getDateFromNow(minutesAhead: minutesUntil),
+            DbResult.last_grade <- letterGrade.rawValue,
+            DbResult.pronunciation_help <- pronunciationHelp,
+            DbResult.last_updated_date <- Date(),
+            DbResult.minutes_until <- minutesUntil
+        )
         return whatwhat
     }
     
     static func getInsert(tableName: String,
                           fk: Int,
-                          due_date: Date,
                           letterGrade: SpeakingGrade,
                           languageDisplayed: String,
                           pronunciationHelp: String,
-                          languagePronounced: String) -> Insert {
+                          languagePronounced: String,
+                          minutesUntil: Int) -> Insert {
 
         return Table(tableName).insert(
             DbResult.translation_fk <- fk,
-            DbResult.due_date <- due_date,
+            DbResult.due_date <- DateMath.getDateFromNow(minutesAhead: minutesUntil),
             DbResult.last_grade <- letterGrade.rawValue,
             DbResult.language_displayed <- languageDisplayed, // TODO: use enum
             DbResult.like <- true, // TODO: use enum
             DbResult.pronunciation_help <- pronunciationHelp,
             DbResult.language_pronounced <- languagePronounced,
-            DbResult.last_updated_date <- Date()
+            DbResult.last_updated_date <- Date(),
+            DbResult.minutes_until <- minutesUntil
         )
     }
 }

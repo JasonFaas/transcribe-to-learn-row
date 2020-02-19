@@ -141,7 +141,7 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
         
         if MFMailComposeViewController.canSendMail() {
             let composeVC = MFMailComposeViewController()
-            composeVC.mailComposeDelegate = self as! MFMailComposeViewControllerDelegate
+            composeVC.mailComposeDelegate = self as MFMailComposeViewControllerDelegate
              
             // Configure the fields of the interface.
             composeVC.setToRecipients(["jasonf752@gmail.com"])

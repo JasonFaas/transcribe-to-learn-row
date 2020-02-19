@@ -536,24 +536,26 @@ class DatabaseManagement {
             if count == 0 {
                 let newOtherLanguage = languageDisplayed == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
                 
-                returnDate = DateMath.getNewDueDate(grade: letterGrade)
+                
+                let minutesUntil = DateMath.getNewMinutesUntil(grade: letterGrade)
+                returnDate = DateMath.getDateFromNow(minutesAhead: minutesUntil)
                 let answeredInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: translationRowId,
-                               due_date: returnDate,
                                letterGrade: letterGrade,
                                languageDisplayed: languageDisplayed,
                                pronunciationHelp: pronunciationHelp,
-                               languagePronounced: languagePronounced)
+                               languagePronounced: languagePronounced,
+                               minutesUntil: minutesUntil)
                 
                 let otherLangInsert: Insert = DbResult
                     .getInsert(tableName: resultTableName,
                                fk: translationRowId,
-                               due_date: DateMath.getNewDueDate(grade: SpeakingGrade.New),
                                letterGrade: SpeakingGrade.New,
                                languageDisplayed: newOtherLanguage,
                                pronunciationHelp: "Off",
-                               languagePronounced: languagePronounced)
+                               languagePronounced: languagePronounced,
+                               minutesUntil: DateMath.getNewMinutesUntil(grade: SpeakingGrade.New))
                 
                 try self.dbConn.run(answeredInsert)
                 try self.dbConn.run(otherLangInsert)
@@ -561,15 +563,17 @@ class DatabaseManagement {
                 let resultRow: DbResult = try self.getResultRow(resultTableName: resultTableName,
                                                                 languageDisplayed: languageDisplayed,
                                                                 translationId: translationRowId)
-                returnDate = DateMath.getUpdatedDueDate(newGrade: letterGrade,
-                                                              lastGrade: resultRow.getLastGrade(),
-                                                              lastDate: resultRow.getLastUpdatedDate())
+                let minutesUntil: Int = DateMath.getUpdatedMinutesReturn(
+                    newGrade: letterGrade,
+                    lastMinutesReturn: resultRow.getMinutesUntil()
+                )
+                returnDate = DateMath.getDateFromNow(minutesAhead: minutesUntil)
                 let update: Update = DbResult.getUpdate(tableName: resultTableName,
                                                         fk: translationRowId,
                                                         langDisp: languageDisplayed,
-                                                        newDueDate: returnDate,
                                                         letterGrade: letterGrade,
-                                                        pronunciationHelp: pronunciationHelp)
+                                                        pronunciationHelp: pronunciationHelp,
+                                                        minutesUntil: minutesUntil)
                 
                 try self.dbConn.run(update)
             }

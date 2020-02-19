@@ -10,7 +10,7 @@ import Foundation
 
 class DateMath {
     
-    static func getNewDueDate(grade: SpeakingGrade) -> Date {
+    static func getNewMinutesUntil(grade: SpeakingGrade) -> Int {
         
         let generalDateAdding: [SpeakingGrade: Int] = [
             SpeakingGrade.A: 60 * 48,
@@ -22,9 +22,7 @@ class DateMath {
         ]
         
         let minutesAhead: Int = generalDateAdding[grade, default: 5]
-        let dueDate: Date = self.getDateFromNow(minutesAhead: minutesAhead)
-        
-        return dueDate
+        return minutesAhead
     }
     
     static func getDateFromNow(minutesAhead: Int) -> Date {
@@ -36,12 +34,7 @@ class DateMath {
         return dueDate
     }
     
-    static func getUpdatedDueDate(newGrade: SpeakingGrade,
-                           lastGrade: SpeakingGrade,
-                           lastDate: Date) -> Date {
-        
-        // TODO: JAF Base should be HOURS! not Date comparison
-        
+    static func getUpdatedMinutesReturn(newGrade: SpeakingGrade, lastMinutesReturn: Int)  -> Int {
         let generalDateAdding: [SpeakingGrade: Float] = [
             SpeakingGrade.A: 4.0,
             SpeakingGrade.B: 2.0,
@@ -50,16 +43,7 @@ class DateMath {
             SpeakingGrade.F: 0.25,
             SpeakingGrade.New: 1.0,
         ]
-        let now: Date = Date()
-        let calendar: Calendar = Calendar.current
-        let dateComponents = calendar.dateComponents([Calendar.Component.second],
-                                                     from: lastDate,
-                                                     to: now)
-        let seconds: Int = Int(Float(dateComponents.second!) * generalDateAdding[newGrade, default: 0.01])
         
-        let interval: DateComponents = DateComponents(calendar: calendar, timeZone: nil, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: nil, second: seconds, nanosecond: nil, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil)
-        let dueDate: Date = calendar.date(byAdding: interval, to: now)!
-        
-        return dueDate
+        return Int(Float(lastMinutesReturn) * generalDateAdding[newGrade, default: 0.01])
     }
 }
