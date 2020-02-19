@@ -53,7 +53,6 @@ class ViewProgressController: UIViewController {
         let hsk8 = self.dbmHold.getLogRowsCountWithDifficulty(8)
         
         allButtons[7]?.setTitle("Level \(7): \(hsk7 + hsk8) Total", for: .normal)
-    
     }
     
     @IBAction func goToLevel1(_ sender: Any) {

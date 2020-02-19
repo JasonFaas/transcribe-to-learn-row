@@ -264,7 +264,8 @@
                                     <color key="titleColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
-                                    <segue destination="Byg-Z8-I30" kind="presentation" modalPresentationStyle="fullScreen" id="oQt-e9-elX"/>
+                                    <action selector="goToSettingsFromMainMenu:" destination="8QL-dL-8QK" eventType="touchUpInside" id="HeX-Hw-Plc"/>
+                                    <segue destination="Byg-Z8-I30" kind="presentation" identifier="segueMainMenuToSettings" modalPresentationStyle="fullScreen" id="oQt-e9-elX"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c1Q-ZA-JxD">
@@ -303,6 +304,7 @@
                     <connections>
                         <outlet property="progressBtn" destination="895-SQ-zCp" id="lAb-eJ-Btq"/>
                         <outlet property="qsButton" destination="ybW-wP-R93" id="v21-5F-3st"/>
+                        <outlet property="settingsButton" destination="GLK-Nv-28N" id="40K-2u-q57"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zxt-gR-wyO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -487,7 +489,8 @@
                                 <rect key="frame" x="10" y="54" width="76" height="30"/>
                                 <state key="normal" title="Main Menu"/>
                                 <connections>
-                                    <segue destination="8QL-dL-8QK" kind="presentation" modalPresentationStyle="fullScreen" id="E0o-Rf-rJy"/>
+                                    <action selector="goToMainMenuFromSettings:" destination="Byg-Z8-I30" eventType="touchUpInside" id="2wJ-GJ-P8r"/>
+                                    <segue destination="8QL-dL-8QK" kind="presentation" identifier="segueSettingsToMainMenu" modalPresentationStyle="fullScreen" id="E0o-Rf-rJy"/>
                                 </connections>
                             </button>
                         </subviews>

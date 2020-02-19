@@ -10,6 +10,7 @@ import UIKit
 
 class ViewMainController: UIViewController {
     
+    @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var progressBtn: UIButton!
     @IBOutlet weak var qsButton: UIButton!
     
@@ -32,24 +33,29 @@ class ViewMainController: UIViewController {
                      sender: self)
     }
     
+    @IBAction func goToSettingsFromMainMenu(_ sender: Any) {
+        performSegue(withIdentifier: "segueMainMenuToSettings",
+                     sender: self)
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
 
         if segue.destination is ViewQuickStartController {
             print("Hit QS Button in MainMenu")
             let viewQuickStartController = segue.destination as! ViewQuickStartController
-            
-            print("is this nil?? \(self.dbmHold == nil)")
-             viewQuickStartController.runUnitTests = false
-             viewQuickStartController.quickStartDbmHold = self.dbmHold
-             viewQuickStartController.quickStartNextLangDispHold = self.nextLangDispHold
+            viewQuickStartController.runUnitTests = false
+            viewQuickStartController.quickStartDbmHold = self.dbmHold
+            viewQuickStartController.quickStartNextLangDispHold = self.nextLangDispHold
         } else if segue.destination is ViewProgressController {
             print("Hit Progress Button in MainMenu")
             let viewProgressController = segue.destination as! ViewProgressController
-            
-            print("is this nil?? \(self.dbmHold == nil)")
-            
             viewProgressController.dbmHold = self.dbmHold
             viewProgressController.nextLangDispHold = self.nextLangDispHold
+        } else if segue.destination is ViewSettingsController {
+            print("Hit Settings Button in MainMenu")
+            let viewSettingsController = segue.destination as! ViewSettingsController
+            viewSettingsController.dbmHold = self.dbmHold
+            viewSettingsController.nextLangDispHold = self.nextLangDispHold
         } else {
             print("Valid Button Not Hit?!!")
         }

@@ -9,6 +9,9 @@
 import UIKit
 
 class ViewSettingsController: UIViewController {
+    
+    var dbmHold: DatabaseManagement!
+    var nextLangDispHold: String!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,7 +19,24 @@ class ViewSettingsController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-
+    @IBAction func goToMainMenuFromSettings(_ sender: Any) {
+        performSegue(withIdentifier: "sequeSettingsToMainMenu",
+                     sender: self)
+    }
+    
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.destination is ViewMainController {
+            print("Hit MainMenu Button in Settings")
+            let nextController = segue.destination as! ViewMainController
+            nextController.dbmHold = self.dbmHold
+            nextController.nextLangDispHold = self.nextLangDispHold
+        } else {
+            print("Valid Button Not Hit?!!")
+        }
+    }
+    
     /*
     // MARK: - Navigation
 
