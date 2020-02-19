@@ -144,7 +144,7 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
             composeVC.mailComposeDelegate = self as MFMailComposeViewControllerDelegate
              
             // Configure the fields of the interface.
-            composeVC.setToRecipients(["jasonf752@gmail.com"])
+            composeVC.setToRecipients(["say.again.chinese@gmail.com"])
             composeVC.setSubject("Thanks for sending an Error Report!")
             
             let currentTranslation: DbTranslation = self.mainManagement.getCurrentTranslation()
