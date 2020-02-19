@@ -49,15 +49,8 @@ class Transcription {
             self.dbm = quickStartDbmHold
         }
         
-        let firstLangDisp: String!
-        if quickStartNextLangDispHold == nil {
-            firstLangDisp = LanguageDisplayed.MandarinSimplified.rawValue
-        } else {
-            firstLangDisp = quickStartNextLangDispHold
-        }
-        
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: DbTranslation.tableName,
-                                                         dispLang: firstLangDisp)
+                                                         dispLang: Transcription.getLangToDisplayNext(currLangDisp: nil, quickStartNextLangDispHold: quickStartNextLangDispHold))
         self.previousTranslation = self.currentTranslation
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: currentTranslation)
     }
@@ -232,6 +225,28 @@ class Transcription {
         return "\(feedback)\n\(translationInfo)\n\(gradeStuff)\(dateStuff)"
     }
 
+    static func getLangToDisplayNext(currLangDisp: String?, quickStartNextLangDispHold: String?) -> String {
+//        if !firstDisp {
+//            return currLangDisp == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
+//        } else {
+//            let firstLangDisp: String!
+//            if self.quickStartNextLangDispHold == nil {
+//                firstLangDisp = LanguageDisplayed.MandarinSimplified.rawValue
+//            } else {
+//                firstLangDisp = self.quickStartNextLangDispHold
+//            }
+//            return firstLangDisp
+//        }
+        
+        if currLangDisp != nil {
+            return currLangDisp == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue
+        } else if quickStartNextLangDispHold != nil {
+            return quickStartNextLangDispHold!
+        } else {
+            return LanguageDisplayed.MandarinSimplified.rawValue
+        }
+    }
+    
     func advanceToNextPhrase() {
         self.updateUi.disableSkip()
         self.updateUi.pinyinOff()
@@ -242,7 +257,7 @@ class Transcription {
         self.previousTranslation = self.currentTranslation
         self.currentTranslation = self.dbm.getNextPhrase(tTableName: tTableName,
                                                          idExclude: self.currentTranslation.getId(),
-                                                         dispLang: currentTranslation.getLanguageToDisplay() == LanguageDisplayed.English.rawValue ? LanguageDisplayed.MandarinSimplified.rawValue : LanguageDisplayed.English.rawValue)
+                                                         dispLang: Transcription.getLangToDisplayNext(currLangDisp: self.currentTranslation.getLanguageToDisplay(), quickStartNextLangDispHold: nil))
                 
         self.updateUi.updateQuizScreenWithQuizInfo(quizInfo: self.currentTranslation)
         
