@@ -82,7 +82,6 @@ class Transcription {
     }
     
     func isTranscriptionCorrect(transcription: String, expected: String) -> Bool {
-        print("Function: \(#function):\(#line) \(transcription) \(expected)")
         var expectedClean: String = expected.withoutPunctuationAndSpaces()
         var transcriptionClean: String = transcription.withoutPunctuationAndSpaces()
         

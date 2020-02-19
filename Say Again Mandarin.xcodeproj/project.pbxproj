@@ -25,6 +25,7 @@
 		8EB4A59C23DFD22C00CE2F9A /* ViewMainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A59B23DFD22C00CE2F9A /* ViewMainController.swift */; };
 		8EBB02D923412EBB00079D8C /* first.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 8EBB02D823412EBB00079D8C /* first.sqlite3 */; };
 		8EC008E823FCDB4200798A43 /* ViewSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC008E723FCDB4200798A43 /* ViewSettingsController.swift */; };
+		8EC008F023FD08BF00798A43 /* DbSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC008EF23FD08BF00798A43 /* DbSettings.swift */; };
 		8EC9F9C423E77AAA0005C113 /* DbTableLogWords.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F9C323E77AAA0005C113 /* DbTableLogWords.swift */; };
 		8EC9F9CE23E7D6BE0005C113 /* ViewProgressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F9CD23E7D6BE0005C113 /* ViewProgressController.swift */; };
 		8EC9F9D023E7E4870005C113 /* DateMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F9CF23E7E4870005C113 /* DateMath.swift */; };
@@ -131,6 +132,7 @@
 		8EB4A59B23DFD22C00CE2F9A /* ViewMainController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMainController.swift; sourceTree = "<group>"; };
 		8EBB02D823412EBB00079D8C /* first.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = text; name = first.sqlite3; path = "../../mandarin-translations-sql-creation/sql/first.sqlite3"; sourceTree = "<group>"; };
 		8EC008E723FCDB4200798A43 /* ViewSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewSettingsController.swift; sourceTree = "<group>"; };
+		8EC008EF23FD08BF00798A43 /* DbSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbSettings.swift; sourceTree = "<group>"; };
 		8EC9F9C323E77AAA0005C113 /* DbTableLogWords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbTableLogWords.swift; sourceTree = "<group>"; };
 		8EC9F9CD23E7D6BE0005C113 /* ViewProgressController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ViewProgressController.swift; path = ../ViewProgressController.swift; sourceTree = "<group>"; };
 		8EC9F9CF23E7E4870005C113 /* DateMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateMath.swift; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				8EEA1CDB23B08F87005D8093 /* DbTableTranslation.swift */,
 				8EB4A59923DD613400CE2F9A /* DbTableResult.swift */,
 				8EC9F9C323E77AAA0005C113 /* DbTableLogWords.swift */,
+				8EC008EF23FD08BF00798A43 /* DbSettings.swift */,
 				8E40486F232472EE004B01BD /* MainManagement.swift */,
 				8E9D4A46238F4DAF00ECF4FB /* Recording.swift */,
 				8EB4A58D23D16E3800CE2F9A /* StringHelper.swift */,
@@ -375,6 +378,7 @@
 				8E404870232472EE004B01BD /* MainManagement.swift in Sources */,
 				8EEA1CDC23B08F87005D8093 /* DbTableTranslation.swift in Sources */,
 				8EB4A59823DD5D6E00CE2F9A /* TestTranscription.swift in Sources */,
+				8EC008F023FD08BF00798A43 /* DbSettings.swift in Sources */,
 				8EC9F9D223EA957D0005C113 /* ViewLevelDetailController.swift in Sources */,
 				8E9D4A4B238F587500ECF4FB /* DbConnectionSetup.swift in Sources */,
 			);

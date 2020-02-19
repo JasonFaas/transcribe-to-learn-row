@@ -29,6 +29,40 @@ class DatabaseManagement {
         }
         print("\t\(translationCount) Translations")
         print("\t\(self.getRowsInTable(table: Table(DbTranslation.tableName + DbResult.nameSuffix))) Results")
+        let settingsCount = self.getRowsInTable(table: DbSettings.table)
+        print("\t\(settingsCount) Settings")
+        if settingsCount == 0 {
+            createSettingsWithDefaults()
+        }
+    }
+    
+    func getSetting(_ settingStr: String) -> Bool {
+        do {
+            let selectTranslation = DbSettings.table.filter(DbSettings.setting_col == settingStr)
+            
+            let dbRow: Row! = try self.dbConn.pluck(selectTranslation)
+            if dbRow == nil {
+                print("Function: \(#function):\(#line), Settings Database error???")
+            }
+
+            return dbRow[DbSettings.is_enabled_col]
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error) Hmm???")
+            return true
+        }
+    }
+    
+    func createSettingsWithDefaults() {
+        do {
+            try self.dbConn.run(DbSettings.tableCreationString())
+            
+            for (strName, boolVal) in DbSettings.defaultSettings {
+                try self.dbConn.run(DbSettings.getInsert(setting: strName, val: boolVal))
+            }
+        } catch {
+            print("DB Error :: DID NOT CREATE RESULT TABLE")
+            print("Function: \(#function):\(#line), Error: \(error)")
+        }
     }
     
     func printYourStatement(_ sqlStmt: String) {
