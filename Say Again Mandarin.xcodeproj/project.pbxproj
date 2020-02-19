@@ -24,6 +24,7 @@
 		8EB4A59A23DD613400CE2F9A /* DbTableResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A59923DD613400CE2F9A /* DbTableResult.swift */; };
 		8EB4A59C23DFD22C00CE2F9A /* ViewMainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A59B23DFD22C00CE2F9A /* ViewMainController.swift */; };
 		8EBB02D923412EBB00079D8C /* first.sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 8EBB02D823412EBB00079D8C /* first.sqlite3 */; };
+		8EC008E823FCDB4200798A43 /* ViewSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC008E723FCDB4200798A43 /* ViewSettingsController.swift */; };
 		8EC9F9C423E77AAA0005C113 /* DbTableLogWords.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F9C323E77AAA0005C113 /* DbTableLogWords.swift */; };
 		8EC9F9CE23E7D6BE0005C113 /* ViewProgressController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F9CD23E7D6BE0005C113 /* ViewProgressController.swift */; };
 		8EC9F9D023E7E4870005C113 /* DateMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F9CF23E7E4870005C113 /* DateMath.swift */; };
@@ -129,6 +130,7 @@
 		8EB4A59923DD613400CE2F9A /* DbTableResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbTableResult.swift; sourceTree = "<group>"; };
 		8EB4A59B23DFD22C00CE2F9A /* ViewMainController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMainController.swift; sourceTree = "<group>"; };
 		8EBB02D823412EBB00079D8C /* first.sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = text; name = first.sqlite3; path = "../../mandarin-translations-sql-creation/sql/first.sqlite3"; sourceTree = "<group>"; };
+		8EC008E723FCDB4200798A43 /* ViewSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewSettingsController.swift; sourceTree = "<group>"; };
 		8EC9F9C323E77AAA0005C113 /* DbTableLogWords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbTableLogWords.swift; sourceTree = "<group>"; };
 		8EC9F9CD23E7D6BE0005C113 /* ViewProgressController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ViewProgressController.swift; path = ../ViewProgressController.swift; sourceTree = "<group>"; };
 		8EC9F9CF23E7E4870005C113 /* DateMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateMath.swift; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 				8EC9F9D123EA957D0005C113 /* ViewLevelDetailController.swift */,
 				8EB4A59B23DFD22C00CE2F9A /* ViewMainController.swift */,
 				8E89520A22FF494C001B3B04 /* ViewQuickStartController.swift */,
+				8EC008E723FCDB4200798A43 /* ViewSettingsController.swift */,
 				8EC9F9CD23E7D6BE0005C113 /* ViewProgressController.swift */,
 				8EB4A59723DD5D6E00CE2F9A /* TestTranscription.swift */,
 				8EB4A59523DD59B600CE2F9A /* TestDbManagement.swift */,
@@ -367,6 +370,7 @@
 				8E404891232D77CA004B01BD /* DbManagement.swift in Sources */,
 				8E89520922FF494C001B3B04 /* AppDelegate.swift in Sources */,
 				8EEA1CDA23B08B97005D8093 /* FillInBlanks.swift in Sources */,
+				8EC008E823FCDB4200798A43 /* ViewSettingsController.swift in Sources */,
 				8E9D4A47238F4DAF00ECF4FB /* Recording.swift in Sources */,
 				8E404870232472EE004B01BD /* MainManagement.swift in Sources */,
 				8EEA1CDC23B08F87005D8093 /* DbTableTranslation.swift in Sources */,
