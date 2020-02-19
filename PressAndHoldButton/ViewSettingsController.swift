@@ -23,10 +23,6 @@ class ViewSettingsController: UIViewController {
         
         // Do any additional setup after loading the view.
             
-//        mapSwitchSetting[DbSettings.settingEnglish] = englishSwitch
-//        mapSwitchSetting[DbSettings.settingMandarinSimplified] = simpleSwitch
-//        mapSwitchSetting[DbSettings.settingPinyinDefaultOn] = pinyinSwitch
-            
         mapSwitchSetting[englishSwitch] = DbSettings.settingEnglish
         mapSwitchSetting[simpleSwitch] = DbSettings.settingMandarinSimplified
         mapSwitchSetting[pinyinSwitch] = DbSettings.settingPinyinDefaultOn
@@ -40,8 +36,9 @@ class ViewSettingsController: UIViewController {
         let switchStuff = sender as! UISwitch
         for (settingSwitch, settingString) in mapSwitchSetting {
             if settingSwitch == switchStuff {
-                print("\(settingString) updated")
+                print("\(settingString) updated to \(settingSwitch.isOn)")
             }
+            self.dbmHold.updateSetting(settingString, settingSwitch.isOn)
 //            let stufffff = self.dbmHold.getSetting(settingString)
 //            settingSwitch.setOn(stufffff, animated: false)
         }

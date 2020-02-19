@@ -52,6 +52,14 @@ class DatabaseManagement {
         }
     }
     
+    func updateSetting(_ settingStr: String, _ newValue: Bool) {
+        do {
+            try self.dbConn.run(DbSettings.getUpdate(setting: settingStr, val: newValue))
+        } catch {
+            print("Function: \(#function):\(#line), Error: \(error) Hmm???")
+        }
+    }
+    
     func createSettingsWithDefaults() {
         do {
             try self.dbConn.run(DbSettings.tableCreationString())
