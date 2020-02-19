@@ -38,7 +38,7 @@ class ViewLevelDetailController: UIViewController {
     }
     
     @IBAction func goToMainMenu(_ sender: Any) {
-        performSegue(withIdentifier: "sequeLevelDetailToProgress",
+        performSegue(withIdentifier: "segueLevelDetailToProgress",
         sender: self)
     }
     

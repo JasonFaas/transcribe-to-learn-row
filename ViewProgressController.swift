@@ -97,7 +97,7 @@ class ViewProgressController: UIViewController {
     
     
     @IBAction func goToMainMenuFromProgress(_ sender: Any) {
-        performSegue(withIdentifier: "sequeProgressToMainMenu",
+        performSegue(withIdentifier: "segueProgressToMainMenu",
                      sender: self)
     }
     

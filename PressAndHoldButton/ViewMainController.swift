@@ -24,7 +24,7 @@ class ViewMainController: UIViewController {
     }
     
     @IBAction func goToQuickStartFromMainMenu(_ sender: Any) {
-        performSegue(withIdentifier: "sequeMainMenuToQuickStart",
+        performSegue(withIdentifier: "segueMainMenuToQuickStart",
                      sender: self)
     }
     

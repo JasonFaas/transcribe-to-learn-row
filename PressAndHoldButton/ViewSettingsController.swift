@@ -20,7 +20,7 @@ class ViewSettingsController: UIViewController {
     }
     
     @IBAction func goToMainMenuFromSettings(_ sender: Any) {
-        performSegue(withIdentifier: "sequeSettingsToMainMenu",
+        performSegue(withIdentifier: "segueSettingsToMainMenu",
                      sender: self)
     }
     

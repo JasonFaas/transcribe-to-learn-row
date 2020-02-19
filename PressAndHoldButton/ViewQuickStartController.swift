@@ -173,7 +173,7 @@ class ViewQuickStartController: UIViewController, MFMailComposeViewControllerDel
     }
     
     @IBAction func goToMainMenuFromQuickStart(_ sender: Any) {
-        performSegue(withIdentifier: "sequeQuickStartToMainMenuV2",
+        performSegue(withIdentifier: "segueQuickStartToMainMenuV2",
         
                      sender: self)
     }
