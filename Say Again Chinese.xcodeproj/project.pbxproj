@@ -230,9 +230,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8E89520422FF494C001B3B04 /* Say Again Mandarin */ = {
+		8E89520422FF494C001B3B04 /* Say Again Chinese */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8E89521722FF494E001B3B04 /* Build configuration list for PBXNativeTarget "Say Again Mandarin" */;
+			buildConfigurationList = 8E89521722FF494E001B3B04 /* Build configuration list for PBXNativeTarget "Say Again Chinese" */;
 			buildPhases = (
 				8E89520122FF494C001B3B04 /* Sources */,
 				8E89520222FF494C001B3B04 /* Frameworks */,
@@ -244,7 +244,7 @@
 			dependencies = (
 				8E40488E2325736C004B01BD /* PBXTargetDependency */,
 			);
-			name = "Say Again Mandarin";
+			name = "Say Again Chinese";
 			productName = PressAndHoldButton;
 			productReference = 8E89520522FF494C001B3B04 /* Say Again 中文.app */;
 			productType = "com.apple.product-type.application";
@@ -264,7 +264,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 8E89520022FF494C001B3B04 /* Build configuration list for PBXProject "Say Again Mandarin" */;
+			buildConfigurationList = 8E89520022FF494C001B3B04 /* Build configuration list for PBXProject "Say Again Chinese" */;
 			compatibilityVersion = "Xcode 10.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -283,7 +283,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				8E89520422FF494C001B3B04 /* Say Again Mandarin */,
+				8E89520422FF494C001B3B04 /* Say Again Chinese */,
 			);
 		};
 /* End PBXProject section */
@@ -573,7 +573,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8E89520022FF494C001B3B04 /* Build configuration list for PBXProject "Say Again Mandarin" */ = {
+		8E89520022FF494C001B3B04 /* Build configuration list for PBXProject "Say Again Chinese" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8E89521522FF494E001B3B04 /* Debug */,
@@ -582,7 +582,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8E89521722FF494E001B3B04 /* Build configuration list for PBXNativeTarget "Say Again Mandarin" */ = {
+		8E89521722FF494E001B3B04 /* Build configuration list for PBXNativeTarget "Say Again Chinese" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8E89521822FF494E001B3B04 /* Debug */,

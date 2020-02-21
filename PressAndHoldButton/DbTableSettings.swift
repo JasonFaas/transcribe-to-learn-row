@@ -21,7 +21,7 @@ class DbSettings {
     static let defaultSettings: [String:Bool] = [
         DbSettings.settingEnglish:true,
         DbSettings.settingMandarinSimplified:true,
-        DbSettings.settingPinyinDefaultOn:false,
+        DbSettings.settingPinyinDefaultOn:true,
     ]
     
     static let id = Expression<Int>("id")
