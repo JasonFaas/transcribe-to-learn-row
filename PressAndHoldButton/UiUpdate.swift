@@ -77,11 +77,14 @@ class UiUpdate {
     func updateQuizScreenWithQuizInfo(quizInfo: DbTranslation) {
         _setPinyinField(quizInfo.getPinyin())
         
-        if quizInfo.getLanguageToDisplay() == LanguageDisplayed.MandarinSimplified.rawValue {
-            _setHanziField(quizInfo.getHanzi())
-        } else {
-            _setHanziField(quizInfo.getEnglish())
-        }
+        _setHanziField("\(quizInfo.getHanzi())\n\(quizInfo.getEnglish())")
+        
+        // TODO: Consider just one language, for now both
+//        if quizInfo.getLanguageToDisplay() == LanguageDisplayed.MandarinSimplified.rawValue {
+//            _setHanziField(quizInfo.getHanzi())
+//        } else {
+//            _setHanziField(quizInfo.getEnglish())
+//        }
     }
     
     func updateFeedbackText(_ feedback: String) {

@@ -18,6 +18,7 @@
 		8E9D4A47238F4DAF00ECF4FB /* Recording.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A46238F4DAF00ECF4FB /* Recording.swift */; };
 		8E9D4A49238F4F2400ECF4FB /* Transcription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A48238F4F2400ECF4FB /* Transcription.swift */; };
 		8E9D4A4B238F587500ECF4FB /* DbConnectionSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E9D4A4A238F587500ECF4FB /* DbConnectionSetup.swift */; };
+		8EAC60A323FFA88800C61565 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8EAC60A223FFA88800C61565 /* Assets.xcassets */; };
 		8EB4A58E23D16E3800CE2F9A /* StringHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A58D23D16E3800CE2F9A /* StringHelper.swift */; };
 		8EB4A59623DD59B700CE2F9A /* TestDbManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A59523DD59B600CE2F9A /* TestDbManagement.swift */; };
 		8EB4A59823DD5D6E00CE2F9A /* TestTranscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A59723DD5D6E00CE2F9A /* TestTranscription.swift */; };
@@ -125,6 +126,7 @@
 		8E9D4A46238F4DAF00ECF4FB /* Recording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording.swift; sourceTree = "<group>"; };
 		8E9D4A48238F4F2400ECF4FB /* Transcription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transcription.swift; sourceTree = "<group>"; };
 		8E9D4A4A238F587500ECF4FB /* DbConnectionSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DbConnectionSetup.swift; sourceTree = "<group>"; };
+		8EAC60A223FFA88800C61565 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8EB4A58D23D16E3800CE2F9A /* StringHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringHelper.swift; sourceTree = "<group>"; };
 		8EB4A59523DD59B600CE2F9A /* TestDbManagement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDbManagement.swift; sourceTree = "<group>"; };
 		8EB4A59723DD5D6E00CE2F9A /* TestTranscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTranscription.swift; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				8EB4A59523DD59B600CE2F9A /* TestDbManagement.swift */,
 				8EB4A59723DD5D6E00CE2F9A /* TestTranscription.swift */,
 				8EFAF7AC23F9D39D002F46CB /* CenterButton.swift */,
+				8EAC60A223FFA88800C61565 /* Assets.xcassets */,
 			);
 			path = PressAndHoldButton;
 			sourceTree = "<group>";
@@ -347,6 +350,7 @@
 			files = (
 				8E89521322FF494E001B3B04 /* LaunchScreen.storyboard in Resources */,
 				8EBB02D923412EBB00079D8C /* first.sqlite3 in Resources */,
+				8EAC60A323FFA88800C61565 /* Assets.xcassets in Resources */,
 				8E89520E22FF494C001B3B04 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -533,8 +537,10 @@
 		8E89521822FF494E001B3B04 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = S7S56W6U49;
 				INFOPLIST_FILE = PressAndHoldButton/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
@@ -542,19 +548,22 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.jasonfaas.PressAndHoldButton;
 				PRODUCT_NAME = "Say Again 中文";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 		8E89521922FF494E001B3B04 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = S7S56W6U49;
 				INFOPLIST_FILE = PressAndHoldButton/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
@@ -562,11 +571,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.jasonfaas.PressAndHoldButton;
 				PRODUCT_NAME = "Say Again 中文";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
